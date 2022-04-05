@@ -61,7 +61,7 @@ The resulting list of requirements will be the basis of the design sketches and 
 
 This phase of the study targets the challenge of transforming the elicited requirements into a possible implementation within the context of a VS Code extension.
 
-This process mostly has a creative character, starting from rough sketches (e.g. on paper, digital sketches etc.) and ending with a mock-up of the extension within VS Code itself.
+This process mostly has creative character, starting from rough sketches (e.g. on paper, digital sketches etc.) and ending with a mock-up of the extension within VS Code itself.
 
 At every point of this phase, discussions with internal and external stakeholders will be beneficial to generate feedback for the prototype before moving on to the next phase.
 
