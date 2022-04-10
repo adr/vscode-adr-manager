@@ -186,8 +186,6 @@ The goal of the extension will be to score a grade of B or better, corresponding
 
 ## Statements made in the evaluation
 
-<br/>
-
 ### Collecting statements
 
 The first task of this phase is to collect all the statements that were made during the evaluation which are useful for the analysis. Using the notes taken during the evaluation as well as the recorded videos, a collection of statements will be made for each participant. To avoid false statements, the collections will be sent to the respective participant for revision.<br/>
