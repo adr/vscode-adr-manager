@@ -4,6 +4,12 @@ This markdown serves as a description of each phase listed in the timeline, layi
 
 The tasks detailed in each phase may be completed in parallel.
 
+From time to time, external stakeholders should and will be included in the process of developing the extension, with the intent to increase not only the quantity, but also the quality of feedback since there will be more people assessing the extension who may have emphasize aspects of the extension differently, leaving "no stone unturned".<br/>
+Optimally, the external stakeholders should have experience in working with ADRs or be active in the industry or in academia in the field of Software Architecture or Software Engineering. 7 to 10 external stakeholders should be sufficient for this study.
+
+<img src="./images/Study%20Process.png"/>
+<i>Visualization of the study process.</i>
+
 <br/>
 
 # Table of Contents
@@ -51,7 +57,11 @@ To make the verdict more transparent, a short explanation (reason) for the verdi
 
 For new requirements that are not implemented in the original ADR Manager, a similar scheme may be used, omitting the verdict but keeping the reason, changing its meaning to why the requirement should be considered.
 
-To assess the quality of the requirements, not only internal, but also external stakeholders, e.g., experts from the industry or academia, should be integrated in the process of requirements validation as multiple views on the same requirements may offer valuable insights.
+Because the extension will be based on an already existing system, it may be feasible to reuse libraries or modules that have been used in the original ADR Manager, although the different context of the extension should be considered when deciding on using parts of the ADR Manager.
+
+To assess the quality of the requirements, internal as well as external stakeholders should be integrated in the process of requirements validation as multiple views on the same requirements may offer valuable insights.
+The validation should take place after the first round of requirement analysis. It may be done asynchronously using a Google Docs spreadsheet where each person involved can add comments to the analyzed requirements.
+Using this approach, the requirements can be improved iteratively until all the stakeholders are satisfied.
 
 The resulting list of requirements will be the basis of the design sketches and prototypes that will be created in the following phases of this study.
 
@@ -63,7 +73,7 @@ This phase of the study targets the challenge of transforming the elicited requi
 
 This process mostly has creative character, starting from rough sketches (e.g., on paper, digital sketches etc.) and ending with a mock-up of the extension within VS Code itself.
 
-At every point of this phase, discussions with internal and external stakeholders will be beneficial to generate feedback for the prototype before moving on to the next phase.
+At every point of this phase, discussions with internal and external stakeholders will be beneficial to generate feedback for the prototype before moving on to the next phase. This may be done asynchronously by sending screenshots of sketches/mock-ups with a text describing the visualization and the intent behind that visualization
 
 **Goal**: At the end of this phase, a horizontal, high-fidelity prototype within VS Code should be ready for refinement in the next phase, i.e., the prototype should be able to display the whole breadth of functionality but may not necessarily be fully implemented yet.
 
@@ -121,6 +131,8 @@ The aim of this prototyping approach is to gain adequate feedback for each funct
 
 While external stakeholders would also bring invaluable insights on the prototypes, the frequency of prototype evaluations may not be as high as with internal stakeholders due to different scopes of feedback: While it is more feasible for internal stakeholders to give feedback about the implementation in detail, the holistic feel of the extension should be the focus of an external stakeholder, as they may not know every technical and theoretical aspect of the extension. Additionally, difficulties in scheduling meetings may not allow a high frequency either way.
 
+In a best case scenario, a synchronous online meeting (e.g., via WebEx) will be scheduled with 2-3 external stakeholders once all requirements have been implemented in a first fully functional prototype, receiving feedback upon which the prototype will be improved before moving on to the user evaluation, although this is in no way mandatory for proceeding to the user evaluation.
+
 <br/>
 
 # Evaluation Phase
@@ -132,7 +144,7 @@ With the extension being fully implemented, several external testers will now be
 For the evaluation process, a document stating the general structure and purpose of the evaluation will be created and be made available. This document will also contain a privacy policy which states what data will be collected and used for analyzing purposes. Potential participants will have to agree on this before participating in this evaluation.<br/>
 The evaluation process will take place in real time using an online video conference tool, i.e., WebEx, which will be recorded for analysis purposes only, after which they will be deleted immediately. Furthermore, each participant will also be given an ID at random for anonymization purposes.
 
-For each participant, the evaluation consists of four parts:
+For each participant, the evaluation consists of six parts:
 
 1. Brief summarization of the general evaluation process and its purpose
 2. Reminder of the privacy policy and agreement
@@ -203,4 +215,6 @@ Statements may be made multiple times by several participants. The more a statem
 
 ## Improving the extension
 
-Using the statements from the evaluation, the extension will be refined iteratively again, similar to the process described in the [Refinement Phase](#refinement-phase) but with potentially less frequent meetings with internal stakeholders. While it may be beneficial having external stakeholders, i.e., some participants from the user evaluation, back for validation, it may be unfeasible given the time constraints of this study.
+Using the statements from the evaluation, the extension will be refined iteratively again, similar to the process described in the [Refinement Phase](#refinement-phase) but with potentially less frequent meetings with internal stakeholders. For example, a meeting may now only be scheduled once a number of improvements have been made such that it would make sense to discuss them in a dedicated meeting.
+
+While it may be beneficial having some participants from the user evaluation back for validation, it may be unfeasible given the time constraints of this study. The participants would then be asked for reevaluation / feedback only after all the considered improvements have been implemented in the extension.
