@@ -27,7 +27,7 @@ Optimally, the external stakeholders should have experience in working with ADRs
 
 The first phase of the study aims at acquiring the knowledge and skills necessary for this study, mainly focusing on the acquisition of requirements for the extension.
 
-**Goal**: At the end of this phase, there should not only be a concrete list of requirements that the future extension should satisfy, but also some rough ideas on how to implement these requirements using the VS Code Extension API and Typescript.
+**Goal**: At the end of this phase, there should not only be a concrete list of requirements that the future extension should satisfy, but also some rough ideas on how to implement these requirements using the Visual Studio Code (in the following abbreviated with VS Code) Extension API and Typescript.
 
 <br/>
 
@@ -131,7 +131,7 @@ The aim of this prototyping approach is to gain adequate feedback for each funct
 
 While external stakeholders would also bring invaluable insights on the prototypes, the frequency of prototype evaluations may not be as high as with internal stakeholders due to different scopes of feedback: While it is more feasible for internal stakeholders to give feedback about the implementation in detail, the holistic feel of the extension should be the focus of an external stakeholder, as they may not know every technical and theoretical aspect of the extension. Additionally, difficulties in scheduling meetings may not allow a high frequency either way.
 
-In a best case scenario, a synchronous online meeting (e.g., via WebEx) will be scheduled with 2-3 external stakeholders once all requirements have been implemented in a first fully functional prototype, receiving feedback upon which the prototype will be improved before moving on to the user evaluation, although this is in no way mandatory for proceeding to the user evaluation.
+In a best-case scenario, a synchronous online meeting (e.g., via WebEx) will be scheduled with 2-3 external stakeholders once all requirements have been implemented in a first fully functional prototype, receiving feedback upon which the prototype will be improved before moving on to the user evaluation, although this is in no way mandatory for proceeding to the user evaluation.
 
 <br/>
 
