@@ -83,7 +83,7 @@ At every point of this phase, discussions with internal and external stakeholder
 
 For each requirement in the requirements list, the process will be as follows:
 
-1. Assess alternatives to realize the requirement with the Extension API and Typescript
+1. Assess alternatives to realize the requirement with the Extension API
 2. Create simple sketch in the form of a paper prototype or other comparable method according to "best"<sup>1</sup> implementation possibility
 3. Implement mock-up of requirement in VS Code based on the sketch
 
