@@ -159,8 +159,13 @@ During the entire process, notes will be taken by the conductors of this evaluat
 
 ## Solving Tasks
 
-The participants are given tasks which are divided into smaller steps that can be followed to complete a given task. Each step should be abstract enough such that participants have to come up with a solution for that step on their own, i.e., it should not be a step-by-step guide to solve a task. On the other hand, the steps should not be too big to avoid overwhelming the participants, so that the participants can focus on one direction at a time.<br/>
-The tasks should, in combination, cover most of the extension's functionality.
+The participants are given tasks which are divided into smaller steps that can be followed to complete a given task. Each step should be abstract enough such that participants have to come up with a solution for that step on their own, i.e., it should not be a step-by-step guide to solve a task. On the other hand, the steps should not be too big to avoid overwhelming the participants, so that the participants can focus on one direction at a time.
+
+The tasks are grouped in two categories: one group of tasks should be solved without using the extension, while the other group of tasks will be solved with the help of the extension. The task completion time for each task will be recorded by the research conductors.
+
+The evaluation will be conducted as a within-group evaluation, meaning that every participant will solve the tasks from both groups, although the order in which the tasks are solved will be randomized for each participant.
+
+The tasks solved without the extension should be similar (in difficulty/complexity as well as in length) to the ones that should be solved while using the extension, but they should not be the exact same tasks to reduce learning effects. The tasks solved when using the extension should cover most of the extension's functionality.
 
 While solving the tasks, the participants will be encouraged to "think aloud", meaning to voice their thoughts while navigating the extension. These thought processes can then be used to analyze how the extension is perceived at first glance and thus aid in improving the extension.
 
@@ -193,6 +198,12 @@ Each participant will be asked to fill out the SUS in which they give out a scor
 UMUX](https://www.tandfonline.com/doi/full/10.1080/10447318.2017.1418805) by James R. Lewis).
 
 The goal of the extension will be to score a grade of B or better, corresponding to an average system usability score of at least 74.1.
+
+<br/>
+
+### Comparing Task Completion Times
+
+Although the sample size for this study may be too small for performing statistical analyses on the data, the direct comparison between the task completion times may be interesting to see as it might give hints as to whether the extension can be used efficiently compared to standard methods like writing raw Markdown.
 
 <br/>
 
