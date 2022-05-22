@@ -16,7 +16,7 @@ For this study, knowledge about the use of the IDE [Visual Studio Code](https://
 
 The following section briefly describes the tasks that an external stakeholders will be doing for this study, along with a rough time approximation for each task.
 
-### Verification of elicited requirements
+### Validation of elicited requirements
 
 Before the actual development of the VS Code extension, a list of requirements will be elicited that the extension should implement.
 
@@ -34,7 +34,7 @@ Before implementing the prototype of the extension, several sketches will be mad
 
 These implementation ideas will also have to be evaluated based on criteria like plausibility,usefulness etc.
 
-Ideally, this will take place in a synchronous meeting with some stakeholders where we will discuss the sketches. It is also sufficient that only some stakeholders will participate in this, 2-3 should be a good number to aim for. The plan is to briefly discuss the sketches in approximately 1 hour, but no longer than 1.5 hours.
+Ideally, this will take place in a synchronous meeting with some stakeholders where we will discuss the sketches. It is also sufficient that only some stakeholders will participate in this, 2-3 should be a good number to aim for. The plan is to briefly discuss the sketches in approximately 45 minutes to 1 hour, but no longer than 1.5 hours.
 
 If a synchronous meeting cannot be arranged, then the discussion may also take place asynchronously similar to the process of requirements verification described above.
 
