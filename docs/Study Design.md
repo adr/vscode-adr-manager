@@ -60,8 +60,12 @@ For new requirements that are not implemented in the original ADR Manager, a sim
 Because the extension will be based on an already existing system, it may be feasible to reuse libraries or modules that have been used in the original ADR Manager, although the different context of the extension should be considered when deciding on using parts of the ADR Manager.
 
 To assess the quality of the requirements, internal as well as external stakeholders should be integrated in the process of requirements validation as multiple views on the same requirements may offer valuable insights.
-The validation should take place after the first round of requirement analysis. It may be done asynchronously using a Google Docs spreadsheet where each person involved can add comments to the analyzed requirements.
+The validation should take place after the first round of requirement analysis. It may be done asynchronously using a Google Docs spreadsheet where each person involved will be given a separate Google Sheet - to which only they will have access to (aside from the conductors of this study) - to give a decision on each of the requirements. The decision can range from "accept", "propose changes" and "drop", and along with that, they will be given a field to comment on the decisions given for each requirement.<br/>
+After each iteration of validation, the decisions and comments of all stakeholders will be gathered and analyzed, upon which the requirements will be updated.
+The conductor of this study will then give notes on the decisions and feedback on the requirements after the analysis for each Google sheet.
 Using this approach, the requirements can be improved iteratively until all the stakeholders are satisfied.
+
+The reason why stakeholders will comment on the requirements on separate sheets is so that they will not be influenced by each other, thus minimizing groupthinking biases. Because of this approach, each Google Sheet will have to be updated separately, but the effort of coordinating the different sheets will be manageable.
 
 The resulting list of requirements will be the basis of the design sketches and prototypes that will be created in the following phases of this study.
 
