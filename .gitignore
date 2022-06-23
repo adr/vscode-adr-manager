@@ -1,6 +1,6 @@
 # compiled output
-out-tsc
-out
+dist
+dist-web
 
 # Dependency directories
 node_modules
