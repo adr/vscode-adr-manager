@@ -146,7 +146,6 @@ export class WebPanel {
 				<link href="${VSCODE_RESET_WEB_URI}" rel="stylesheet">
 				<link href="${VSCODE_STYLE_WEB_URI}" rel="stylesheet">
 				<link href="${STYLE_WEB_URI}" rel="stylesheet">
-				<title>Vue Webview Test</title>
 			</head>
 			<body>
 				<div id="app"></div>
