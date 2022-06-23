@@ -1,8 +1,9 @@
 {
-  "name": "adr-helper",
-	"displayName": "ADR Helper",
-	"description": "Tool for documenting and managing ADRs in VSCode",
+	"name": "vscode-adr-manager",
+	"displayName": "ADR Manager",
+	"description": "A VS Code extension for the ADR Manager, for documenting and managing MADRs in VS Code.",
 	"version": "0.0.1",
+	"publisher": "StevenChen",
 	"engines": {
 		"vscode": "^1.66.0"
 	},
@@ -10,36 +11,70 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:adr-helper.helloWorld"
+		"onCommand:vscode-adr-manager.showHome",
+		"onCommand:vscode-adr-manager.showAbout"
 	],
-	"main": "./out/extension.js",
+	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "adr-helper.helloWorld",
-				"title": "Hello World"
+				"command": "vscode-adr-manager.showHome",
+				"title": "Show ADR Manager Home Page",
+				"category": "ADR Manager"
+			},
+			{
+				"command": "vscode-adr-manager.showAbout",
+				"title": "Show ADR Manager About Page",
+				"category": "ADR Manager"
 			}
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
+		"vscode:prepublish": "npm run package",
+		"compile": "webpack",
+		"watch": "concurrently \"rollup -c -w\" \"webpack --watch\"",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "npm run compile-tests && npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.66.0",
+		"@rollup/plugin-alias": "^3.1.9",
+		"@rollup/plugin-image": "^2.1.1",
+		"@rollup/plugin-json": "^4.1.0",
+		"@rollup/plugin-node-resolve": "^13.3.0",
+		"@rollup/plugin-replace": "^4.0.0",
 		"@types/glob": "^7.2.0",
-		"@types/mocha": "^9.1.0",
+		"@types/mocha": "^9.1.1",
 		"@types/node": "14.x",
-		"@typescript-eslint/eslint-plugin": "^5.16.0",
-		"@typescript-eslint/parser": "^5.16.0",
-		"eslint": "^8.11.0",
-		"glob": "^7.2.0",
+		"@types/vscode": "^1.67.0",
+		"@typescript-eslint/eslint-plugin": "^5.21.0",
+		"@typescript-eslint/parser": "^5.21.0",
+		"@vscode/test-electron": "^2.1.3",
+		"concurrently": "^7.2.1",
+		"eslint": "^8.14.0",
+		"generate-source-map": "^0.0.5",
+		"glob": "^8.0.1",
 		"mocha": "^9.2.2",
-		"typescript": "^4.5.5",
-		"@vscode/test-electron": "^2.1.3"
+		"postcss-import": "^14.1.0",
+		"rollup-plugin-commonjs": "^10.1.0",
+		"rollup-plugin-esbuild": "^4.9.1",
+		"rollup-plugin-filesize": "^9.1.2",
+		"rollup-plugin-postcss": "^4.0.2",
+		"rollup-plugin-require-context": "^1.0.1",
+		"rollup-plugin-terser": "^7.0.2",
+		"rollup-plugin-vue": "^6.0.0",
+		"sass": "^1.52.1",
+		"ts-loader": "^9.2.8",
+		"typescript": "^4.6.4",
+		"webpack": "^5.70.0",
+		"webpack-cli": "^4.9.2"
+	},
+	"dependencies": {
+		"@types/vscode-webview": "^1.57.0",
+		"vue": "^3.2.36",
+		"vue-class-component": "^8.0.0-0"
 	}
 }
