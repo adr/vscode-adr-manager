@@ -5,7 +5,7 @@ This markdown serves as a description of each phase listed in the timeline, layi
 The tasks detailed in each phase may be completed in parallel.
 
 From time to time, external stakeholders should and will be included in the process of developing the extension, with the intent to increase not only the quantity, but also the quality of feedback since there will be more people assessing the extension who may have emphasize aspects of the extension differently, leaving "no stone unturned".<br/>
-Optimally, the external stakeholders should have experience in working with ADRs or be active in the industry or in academia in the field of Software Architecture or Software Engineering. 7 to 10 external stakeholders should be sufficient for this study.
+Optimally, the external stakeholders should have experience in working with ADRs or be active in the industry or in academia in the field of Software Architecture or Software Engineering. 3 to 5 external stakeholders should be sufficient for this study.
 
 <img src="./images/Study%20Process.png"/>
 <i>Visualization of the study process.</i>
