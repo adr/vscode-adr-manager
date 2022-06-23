@@ -24,7 +24,7 @@ In the following, the main structure and most important files will be briefly de
 
 <br/>
 
-## VS Code commands
+## VS Code Commands
 
  These commands are supported through the Command Palette:
 
