@@ -32,3 +32,24 @@ In the following, the main structure and most important files will be briefly de
 * `Open About Page`: Opens the webview panel and renders the view with the text "This is an about page" and a button that will open the "Home" page.
 
 As of right now, the commands are only dummy commands used for testing, mainly for testing the navigation between different views using the webview.
+
+<br/>
+
+## Extension Architecture
+
+Here is a diagram that illustrates the architecture of the VS Code extension:
+
+<img src="docs/images/Extension%20Architecture.png"></img><br/>
+<i>Visualization of the extension architecture.</i>
+
+The extension consists of two main components:
+
+* The main extension where all of the extension's logic is managed and
+* The webview that is being rendered by the extension via a webview panel.
+
+The user has two ways of interacting with the extension:
+
+1. He can directly interact with the extension by using the provided contribution points (i.e. VS Code commands, snippets, custom menus etc.)
+2. He can use the UI that is provided by the extension's webview
+
+While there is no direct communication between the extension's logic and the extension's webview, they can indirectly communicate through the VS Code Extension API that is exposed to both components. Thus, this architecture has some similarities to a Model-View-Controller design pattern that is often seen in the context of web applications.

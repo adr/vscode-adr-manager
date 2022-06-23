@@ -117,7 +117,7 @@ After the chosen alternative has been agreed upon, the alternative may be implem
 
 <br/>
 
-A block diagram according to the [Fundamental Modeling Concepts](http://www.fmc-modeling.org/home) may be suitable for documenting the architecture of the extension.
+A diagram similar to a UML diagram may be suitable for documenting the architecture of the extension.
 
 <br/>
 
