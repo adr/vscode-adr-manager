@@ -1,6 +1,8 @@
 html {
     box-sizing: border-box;
     font-size: 13px;
+    margin: 0;
+    padding: 0;
 }
 
 *,
@@ -27,4 +29,9 @@ ul {
 img {
     max-width: 100%;
     height: auto;
+}
+
+#app {
+    width: 95vw;
+    height: 95vh;
 }

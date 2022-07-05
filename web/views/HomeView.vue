@@ -1,25 +1,91 @@
 <template>
 	<div id="home">
-		<h1>This is a home page.</h1>
-		<button @click="sendMessage('about')">Go to About Page</button>
+		<img src="../assets/logo-dark-theme.png" alt="ADR Manager Logo" id="logo" />
+		<div id="adrList">
+			<ADRContainer
+				v-for="(adr, index) in allAdrs"
+				:key="index"
+				:adr="adr"
+				:class="adr.conforming ? 'conforming' : 'not-conforming'"
+			>
+			</ADRContainer>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-	import { VSCodeMessageMixin } from "../../src/plugins/vue-mixins";
-	import { mixins } from "vue-class-component";
+	import { defineComponent } from "vue";
+	import ADRContainer from "../components/ADRContainer.vue";
+	import vscode from "../../src/plugins/vscode-api-mixin";
 
-	export default class Home extends mixins(VSCodeMessageMixin) {}
+	export default defineComponent({
+		components: {
+			ADRContainer,
+		},
+		mixins: [vscode],
+		computed: {
+			allAdrs() {
+				return [
+					{ title: "Use ADR Manager", conforming: true },
+					{ title: "Not Conforming to MADR", conforming: false },
+					{ title: "Use ADR Manager", conforming: true },
+					{ title: "Use ADR Manager", conforming: true },
+					{ title: "Use ADR Manager", conforming: true },
+					{ title: "Use ADR Manager", conforming: true },
+					{ title: "Use ADR Manager", conforming: true },
+					{ title: "Use ADR Manager", conforming: true },
+				];
+			},
+		},
+	});
 </script>
 
 <style lang="scss">
-	#home {
-		text-align: center;
-		margin-top: 60px;
+	@use "../static/mixins" as *;
+
+	/* Change logo based on theme */
+	body {
+		$dark-theme-logo: url("../web/assets/logo-dark-theme.png");
+		$light-theme-logo: url("../web/assets/logo-light-theme.png");
+
+		&.vscode-light {
+			#logo {
+				content: $light-theme-logo;
+			}
+		}
+
+		&.vscode-dark {
+			#logo {
+				content: $dark-theme-logo;
+			}
+		}
 	}
 
-	button {
-		width: auto;
-		margin: 3rem;
+	#home {
+		width: 100%;
+		height: 100%;
+		@include centered-flex(column);
+		overflow: visible;
+		margin-top: 0;
+	}
+
+	#logo {
+		width: 70%;
+		height: auto;
+		margin: 0 auto 2rem auto;
+	}
+
+	#adrList {
+		width: 80%;
+		max-height: 30%;
+		margin: 1rem;
+	}
+
+	.conforming {
+		background-color: var(--vscode-textBlockQuote-background);
+	}
+
+	.not-conforming {
+		background-color: var(--vscode-editorWarning-foreground);
 	}
 </style>

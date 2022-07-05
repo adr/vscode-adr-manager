@@ -15,20 +15,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vscode-adr-manager.showHome",
-		"onCommand:vscode-adr-manager.showAbout"
+		"onCommand:vscode-adr-manager.showHome"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "vscode-adr-manager.showHome",
-				"title": "Show ADR Manager Home Page",
-				"category": "ADR Manager"
-			},
-			{
-				"command": "vscode-adr-manager.showAbout",
-				"title": "Show ADR Manager About Page",
+				"title": "Open ADR Manager",
 				"category": "ADR Manager"
 			}
 		]
@@ -78,7 +72,8 @@
 	},
 	"dependencies": {
 		"@types/vscode-webview": "^1.57.0",
-		"vue": "^3.2.36",
+		"@vscode/webview-ui-toolkit": "^1.0.0",
+		"vue": "^3.2.37",
 		"vue-class-component": "^8.0.0-0"
 	}
 }

@@ -37,10 +37,6 @@ export class WebPanel {
 			{
 				enableScripts: true,
 				retainContextWhenHidden: true,
-				localResourceRoots: [
-					vscode.Uri.joinPath(extensionUri, "dist-web"),
-					vscode.Uri.joinPath(extensionUri, "web/static"),
-				],
 			}
 		);
 
