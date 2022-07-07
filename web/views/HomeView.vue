@@ -28,12 +28,6 @@
 				return [
 					{ title: "Use ADR Manager", conforming: true },
 					{ title: "Not Conforming to MADR", conforming: false },
-					{ title: "Use ADR Manager", conforming: true },
-					{ title: "Use ADR Manager", conforming: true },
-					{ title: "Use ADR Manager", conforming: true },
-					{ title: "Use ADR Manager", conforming: true },
-					{ title: "Use ADR Manager", conforming: true },
-					{ title: "Use ADR Manager", conforming: true },
 				];
 			},
 		},
