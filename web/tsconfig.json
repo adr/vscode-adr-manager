@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
-		"target": "ESNext",
-		"module": "CommonJS",
+		"target": "es5",
+		"module": "es6",
 		"strict": true,
 		"jsx": "preserve",
 		"moduleResolution": "node",
@@ -9,11 +9,9 @@
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"forceConsistentCasingInFileNames": true,
-		"useDefineForClassFields": true,
 		"sourceMap": true,
 		"baseUrl": ".",
 		"lib": ["esnext", "dom", "dom.iterable", "scripthost"]
 	},
-	"include": ["pages/**/*.ts", "pages/**/*.tsx", "**/*.vue", "tests/**/*.ts", "tests/**/*.tsx"]
+	"include": ["pages/**/*.ts", "pages/**/*.tsx", "**/*.vue"]
 }

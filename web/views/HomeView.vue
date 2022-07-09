@@ -10,6 +10,7 @@
 			>
 			</ADRContainer>
 		</div>
+		<button id="addAdrButton">Add ADR</button>
 	</div>
 </template>
 
@@ -20,6 +21,10 @@
 	import { md2adr } from "../../src/plugins/parser";
 	import { validMarkdownADRs } from "../../src/test/constants";
 	import { ArchitecturalDecisionRecord } from "../../src/plugins/classes";
+	import { provideVSCodeDesignSystem, vsCodeButton } from "@vscode/webview-ui-toolkit";
+
+	// register VS Code UI Toolkit Components
+	provideVSCodeDesignSystem().register(vsCodeButton());
 
 	export default defineComponent({
 		components: {
@@ -71,21 +76,29 @@
 		width: 100%;
 		height: 100%;
 		@include centered-flex(column);
-		overflow: visible;
-		margin-top: 0;
+		padding: 0;
+		margin-top: 2rem;
 	}
 
 	#logo {
 		width: 50%;
 		height: auto;
-		margin: 0 auto 3rem auto;
+		margin-bottom: 2rem;
 	}
 
 	#adrList {
 		width: 80%;
-		max-height: 50%;
+		max-height: 20rem;
+		overflow: scroll;
 		margin: 1rem;
-		overflow-y: scroll;
+	}
+
+	#addAdrButton {
+		width: 20%;
+		height: 40px;
+		background: green;
+		margin: 0.5rem 0;
+		@include button-styling;
 	}
 
 	.conforming {

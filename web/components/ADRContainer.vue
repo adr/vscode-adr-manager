@@ -3,8 +3,8 @@
 	<div id="container">
 		<h3>{{ adr.title }}</h3>
 		<div class="buttonGroup">
-			<vscode-button class="view">View/Edit</vscode-button>
-			<vscode-button class="delete">Delete</vscode-button>
+			<button id="view">View</button>
+			<button id="delete">Delete</button>
 		</div>
 	</div>
 </template>
@@ -33,7 +33,7 @@
 		@include centered-flex(row);
 		width: 100%;
 		justify-content: space-between;
-		margin: 0.5rem 0;
+		margin: 0.75rem 0;
 		border: 1px solid var(--vscode-descriptionForeground);
 		padding: 0 1rem;
 	}
@@ -42,14 +42,17 @@
 		@include centered-flex(row);
 	}
 
-	vscode-button {
+	button {
 		margin: 1rem;
-		&.delete {
+		padding: 0.5rem 1rem;
+		width: 64px;
+		&#delete {
+			@include button-styling;
 			background: var(--vscode-editorError-foreground);
-
-			&:hover {
-				background: darken(#c34038, 6%);
-			}
+		}
+		&#view {
+			@include button-styling;
+			background: var(--vscode-button-background);
 		}
 	}
 </style>
