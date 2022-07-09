@@ -34,7 +34,7 @@ export function cleanUpString(string: string): string {
  * @param title string to be shortened
  * @returns a shortened string based on the input string
  */
-export function createShortTitle(title: string) {
+export function createShortTitle(title: string): string {
 	if (!title) {
 		return "";
 	}
@@ -96,4 +96,88 @@ export function createShortTitle(title: string) {
 			(result.length > idxClosingRoundedBracket + 1 ? result.substr(idxClosingRoundedBracket + 1) : "");
 	}
 	return result;
+}
+
+/**
+ * Converts an string in snake case into an natural-language-like string.
+ *
+ * Example: '0001-add-status-field' is converted to '0001 Add Status Field'
+ *
+ * @param {string} snake - a string in snake case
+ */
+export function snakeCase2naturalCase(snake: string): string {
+	return snake.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace("-", " ").replace("_", " "));
+}
+
+/**
+ * Converts an string in natural case into a snake case string.
+ *
+ * Can be used to generate a file name from the title of an ADR.
+ *
+ * Example: 'Add status Field' is converted to 'add-status-field'
+ *
+ * @param {string} natural - a string in natural case
+ */
+export function naturalCase2snakeCase(natural: string): string {
+	return natural.toLowerCase().split(" ").join("-");
+}
+
+/**
+ * Converts an string in natural case into a title case string.
+ *
+ * Example: 'Add status field' is converted to 'Add Status Field'
+ *
+ * @param {string} natural - a string in natural case
+ */
+export function naturalCase2titleCase(natural: string): string {
+	// Certain minor words should be left lowercase unless
+	// they are the first or last words in the string
+	let lowers = [
+		"A",
+		"An",
+		"The",
+		"And",
+		"But",
+		"Or",
+		"For",
+		"Nor",
+		"As",
+		"At",
+		"By",
+		"For",
+		"From",
+		"In",
+		"Into",
+		"Near",
+		"Of",
+		"On",
+		"Onto",
+		"To",
+		"With",
+	];
+	// Certain words such as initialisms or acronyms should be left uppercase
+	let uppers = ["ID", "TV", "ADR", "CC0"];
+
+	let str = natural.replace(/([^\W_]+[^\s-]*) */g, (txt) => {
+		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
+	});
+
+	for (let i = 0, j = lowers.length; i < j; i++) {
+		str = str.replace(new RegExp("\\s" + lowers[i] + "\\s", "g"), function (txt) {
+			return txt.toLowerCase();
+		});
+	}
+
+	for (let i = 0, j = uppers.length; i < j; i++) {
+		let regex = new RegExp(`\\b${uppers[i]}\\b`, "gi");
+		str = str.replace(regex, uppers[i].toUpperCase());
+	}
+
+	// Leave plural "s" of uppers lowercase
+	for (let i = 0, j = uppers.length; i < j; i++) {
+		let regex = new RegExp(`\\b${uppers[i]}s\\b`, "gi");
+		str = str.replace(regex, uppers[i] + "s");
+	}
+
+	return str;
 }

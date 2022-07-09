@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import alias from "@rollup/plugin-alias";
-import commonjs from "rollup-plugin-commonjs";
+import commonjs from "@rollup/plugin-commonjs";
 import esbuild from "rollup-plugin-esbuild";
 import filesize from "rollup-plugin-filesize";
 import image from "@rollup/plugin-image";
@@ -13,6 +13,8 @@ import resolve from "@rollup/plugin-node-resolve";
 import requireContext from "rollup-plugin-require-context";
 import { terser } from "rollup-plugin-terser";
 import vue from "rollup-plugin-vue";
+import nodePolyFills from "rollup-plugin-polyfill-node";
+import typescript from "@rollup/plugin-typescript";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -40,6 +42,7 @@ export default fs.readdirSync(path.join(__dirname, "web", "pages")).map((input) 
 			image(),
 			postcss({ extract: `${name}.css`, plugins: postCssPlugins }),
 			requireContext(),
+			nodePolyFills(),
 			resolve({
 				jsnext: true,
 				main: true,
@@ -52,11 +55,12 @@ export default fs.readdirSync(path.join(__dirname, "web", "pages")).map((input) 
 			}),
 			esbuild({
 				minify: production,
-				target: "es2015",
+				target: "esnext",
 			}),
 			production && terser(),
 			production && filesize(),
 		],
+		external: ["vscode"],
 		watch: {
 			clearScreen: false,
 			exclude: ["node_modules/**"],

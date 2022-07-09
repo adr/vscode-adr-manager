@@ -25,23 +25,23 @@ export class ArchitecturalDecisionRecord {
 	};
 	links: string[];
 
-	constructor(
-		title: string = "",
-		status: string = "",
-		deciders: string = "",
-		date: string = "",
-		technicalStory: string = "",
-		contextAndProblemStatement: string = "",
-		decisionDrivers: string[] = [],
-		consideredOptions: { title: string; description: string; pros: string[]; cons: string[]; id: number }[] = [],
-		decisionOutcome: {
-			chosenOption: string;
-			explanation: string;
-			positiveConsequences: string[];
-			negativeConsequences: string[];
-		} = { chosenOption: "", explanation: "", positiveConsequences: [], negativeConsequences: [] },
-		links: string[] = []
-	) {
+	constructor({
+		title = "",
+		status = "",
+		deciders = "",
+		date = "",
+		technicalStory = "",
+		contextAndProblemStatement = "",
+		decisionDrivers = [] as string[],
+		consideredOptions = [] as { title: string; description: string; pros: string[]; cons: string[] }[],
+		decisionOutcome = {
+			chosenOption: "",
+			explanation: "",
+			positiveConsequences: [] as string[],
+			negativeConsequences: [] as string[],
+		},
+		links = [],
+	} = {}) {
 		this.title = title;
 		this.status = status;
 		this.deciders = deciders;
@@ -67,10 +67,10 @@ export class ArchitecturalDecisionRecord {
 			this.decisionOutcome.explanation = "";
 		}
 		if (!Object.prototype.hasOwnProperty.call(this.decisionOutcome, "positiveConsequences")) {
-			this.decisionOutcome.positiveConsequences = [];
+			this.decisionOutcome.positiveConsequences = [] as string[];
 		}
 		if (!Object.prototype.hasOwnProperty.call(this.decisionOutcome, "negativeConsequences")) {
-			this.decisionOutcome.negativeConsequences = [];
+			this.decisionOutcome.negativeConsequences = [] as string[];
 		}
 
 		this.cleanUp();

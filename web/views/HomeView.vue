@@ -3,10 +3,10 @@
 		<img src="../assets/logo-dark-theme.png" alt="ADR Manager Logo" id="logo" />
 		<div id="adrList">
 			<ADRContainer
-				v-for="(adr, index) in allAdrs"
+				v-for="(adr, index) in validAdrs"
 				:key="index"
 				:adr="adr"
-				:class="adr.conforming ? 'conforming' : 'not-conforming'"
+				:class="adr.title ? 'conforming' : 'not-conforming'"
 			>
 			</ADRContainer>
 		</div>
@@ -17,19 +17,31 @@
 	import { defineComponent } from "vue";
 	import ADRContainer from "../components/ADRContainer.vue";
 	import vscode from "../../src/plugins/vscode-api-mixin";
+	import { md2adr } from "../../src/plugins/parser";
+	import { validMarkdownADRs } from "../../src/test/constants";
+	import { ArchitecturalDecisionRecord } from "../../src/plugins/classes";
 
 	export default defineComponent({
 		components: {
 			ADRContainer,
 		},
 		mixins: [vscode],
-		computed: {
-			allAdrs() {
-				return [
-					{ title: "Use ADR Manager", conforming: true },
-					{ title: "Not Conforming to MADR", conforming: false },
-				];
+		data() {
+			return {
+				validMDs: validMarkdownADRs,
+				validAdrs: [] as ArchitecturalDecisionRecord[],
+			};
+		},
+		computed: {},
+		methods: {
+			fetchAdrs() {
+				let parsedAdrs: ArchitecturalDecisionRecord[] = [];
+				this.validMDs.forEach((md) => parsedAdrs.push(md2adr(md)));
+				this.validAdrs = parsedAdrs;
 			},
+		},
+		mounted() {
+			this.fetchAdrs();
 		},
 	});
 </script>
@@ -64,15 +76,16 @@
 	}
 
 	#logo {
-		width: 70%;
+		width: 50%;
 		height: auto;
-		margin: 0 auto 2rem auto;
+		margin: 0 auto 3rem auto;
 	}
 
 	#adrList {
 		width: 80%;
-		max-height: 30%;
+		max-height: 50%;
 		margin: 1rem;
+		overflow-y: scroll;
 	}
 
 	.conforming {

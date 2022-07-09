@@ -1,7 +1,7 @@
 <template>
 	<!-- eslint-disable vue/no-deprecated-slot-attribute -->
 	<div id="container">
-		<h3>{{ adr.conforming ? adr.title : adr.title + " - Needs Conversion!" }}</h3>
+		<h3>{{ adr.title }}</h3>
 		<div class="buttonGroup">
 			<vscode-button class="view">View/Edit</vscode-button>
 			<vscode-button class="delete">Delete</vscode-button>
@@ -33,7 +33,7 @@
 		@include centered-flex(row);
 		width: 100%;
 		justify-content: space-between;
-		margin: 0.5rem;
+		margin: 0.5rem 0;
 		border: 1px solid var(--vscode-descriptionForeground);
 		padding: 0 1rem;
 	}
