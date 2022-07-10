@@ -14,7 +14,6 @@ import requireContext from "rollup-plugin-require-context";
 import { terser } from "rollup-plugin-terser";
 import vue from "rollup-plugin-vue";
 import nodePolyFills from "rollup-plugin-polyfill-node";
-import typescript from "@rollup/plugin-typescript";
 
 const production = !process.env.ROLLUP_WATCH;
 

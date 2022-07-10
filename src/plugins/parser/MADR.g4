@@ -99,25 +99,14 @@ SUBSUBSUBHEADING_PREFIX: '###' '#'+ ' ';
 
 // Headings
 CONTEXT_AND_PROBLEM_STATEMENT:
-	NEWLINE (
-		'## Context and Problem Statement'
-	);
-DECISION_DRIVERS_HEADING:
-	NEWLINE ('## Decision Drivers');
-CONSIDERED_OPTIONS_HEADING:
-	NEWLINE ('## Considered Options');
-DECISION_OUTCOME_HEADING:
-	NEWLINE ('## Decision Outcome');
+	NEWLINE ('## Context and Problem Statement');
+DECISION_DRIVERS_HEADING: NEWLINE ('## Decision Drivers');
+CONSIDERED_OPTIONS_HEADING: NEWLINE ('## Considered Options');
+DECISION_OUTCOME_HEADING: NEWLINE ('## Decision Outcome');
 POSITIVE_CONSEQUENCES_HEADING:
-	NEWLINE (
-		'### Positive Consequences'
-	);
+	NEWLINE ('### Positive Consequences');
 NEGATIVE_CONSEQUENCES_HEADING:
-	NEWLINE (
-		'### Negative Consequences'
-	);
+	NEWLINE ('### Negative Consequences');
 PROS_AND_CONS_OF_THE_OPTIONS_HEADING:
-	NEWLINE (
-		'## Pros and Cons of the Options'
-	);
+	NEWLINE ('## Pros and Cons of the Options');
 LINKS_HEADING: NEWLINE '## Links';

@@ -1,5 +1,4 @@
 <template>
-	<!-- eslint-disable vue/no-deprecated-slot-attribute -->
 	<div id="container">
 		<h3>{{ adr.title }}</h3>
 		<div class="buttonGroup">
@@ -11,10 +10,6 @@
 
 <script lang="ts">
 	import { defineComponent } from "vue";
-	import { provideVSCodeDesignSystem, vsCodeButton } from "@vscode/webview-ui-toolkit";
-
-	// register VS Code UI Toolkit Components
-	provideVSCodeDesignSystem().register(vsCodeButton());
 
 	export default defineComponent({
 		props: {

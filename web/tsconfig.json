@@ -4,6 +4,8 @@
 		"module": "es6",
 		"strict": true,
 		"jsx": "preserve",
+		"allowJs": true,
+		"checkJs": false,
 		"moduleResolution": "node",
 		"experimentalDecorators": true,
 		"skipLibCheck": true,

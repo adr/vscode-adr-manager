@@ -2,11 +2,13 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "ESNext",
-		"lib": ["ES2020"],
+		"lib": ["ES2020", "dom"],
 		"sourceMap": true,
 		"rootDirs": ["src", "web"],
 		"strict": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"allowJs": true,
+		"checkJs": false
 	},
-	"exclude": ["node_modules", "src/test"]
+	"exclude": ["node_modules", "dist", "dist-web"]
 }

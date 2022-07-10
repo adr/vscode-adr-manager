@@ -1,32 +1,11 @@
-import * as _ from "lodash";
+import { cloneDeep } from "lodash";
 
-import { MADRLexer } from "./parser/MADRLexer";
-import {
-	ChosenOptionAndExplanationContext,
-	ConlistContext,
-	ConsideredOptionsContext,
-	ContextAndProblemStatementContext,
-	DateContext,
-	DecidersContext,
-	DecisionDriversContext,
-	LinksContext,
-	MADRParser,
-	NegativeConsequencesContext,
-	OptionDescriptionContext,
-	OptionTitleContext,
-	PositiveConsequencesContext,
-	ProlistContext,
-	StatusContext,
-	TechnicalStoryContext,
-	TitleContext,
-} from "./parser/MADRParser";
-import { MADRListener } from "./parser/MADRListener";
-import { ParseTreeWalker } from "antlr4ts/tree/ParseTreeWalker";
+import antlr4 from "antlr4";
+import MADRLexer from "./parser/MADRLexer.js";
+import MADRParser from "./parser/MADRParser.js";
+import MADRListener from "./parser/MADRListener.js";
 import { ArchitecturalDecisionRecord } from "./classes";
-import { createShortTitle, naturalCase2titleCase } from "./utils";
-import { CharStreams } from "antlr4ts/CharStreams";
-import { CommonTokenStream } from "antlr4ts/CommonTokenStream";
-import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
+import { createShortTitle, naturalCase2titleCase } from "./utils.ts";
 
 /**
  * Creates an ADR from a ParseTree by listening to a ParseTreeWalker.
@@ -38,49 +17,46 @@ import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
  *
  * - currentOption: The current option, either the considered one or the current one handled at "Pros and Cons of the Options"
  */
-class MADRGenerator implements MADRListener {
-	adr: ArchitecturalDecisionRecord;
-	currentOption: { title: string; description: string; pros: string[]; cons: string[]; id: number } | null;
-
+class MADRGenerator extends MADRListener {
 	constructor() {
+		super();
 		this.adr = new ArchitecturalDecisionRecord();
-		this.currentOption = null;
 	}
 
-	enterTitle(ctx: TitleContext) {
-		this.adr.title = naturalCase2titleCase(ctx.textLine().text);
+	enterTitle(ctx) {
+		this.adr.title = naturalCase2titleCase(ctx.getText());
 	}
 
-	enterStatus(ctx: StatusContext) {
-		this.adr.status = ctx.textLine().text;
+	enterStatus(ctx) {
+		this.adr.status = ctx.getText();
 	}
 
-	enterDeciders(ctx: DecidersContext) {
-		this.adr.deciders = ctx.textLine().text;
+	enterDeciders(ctx) {
+		this.adr.deciders = ctx.getText();
 	}
 
-	enterDate(ctx: DateContext) {
-		this.adr.date = ctx.textLine().text;
+	enterDate(ctx) {
+		this.adr.date = ctx.getText();
 	}
 
-	enterTechnicalStory(ctx: TechnicalStoryContext) {
-		this.adr.technicalStory = ctx.textLine().text;
+	enterTechnicalStory(ctx) {
+		this.adr.technicalStory = ctx.getText();
 	}
 
-	enterContextAndProblemStatement(ctx: ContextAndProblemStatementContext) {
-		this.adr.contextAndProblemStatement = ctx.multilineText().text;
+	enterContextAndProblemStatement(ctx) {
+		this.adr.contextAndProblemStatement = ctx.getText();
 	}
 
-	enterDecisionDrivers(ctx: DecisionDriversContext) {
-		this.addListItemsFromListToList(ctx.list(), this.adr.decisionDrivers);
+	enterDecisionDrivers(ctx) {
+		this.addListItemsFromListToList(ctx.children[0], this.adr.decisionDrivers);
 	}
 
-	enterConsideredOptions(ctx: ConsideredOptionsContext) {
-		let tmpOptionList: string[] = [];
-		this.addListItemsFromListToList(ctx.list(), tmpOptionList);
+	enterConsideredOptions(ctx) {
+		let tmpOptionList = [];
+		this.addListItemsFromListToList(ctx.children[0], tmpOptionList);
 		tmpOptionList.forEach((opt) => {
 			if (opt.trim() !== "") {
-				this.adr.addOption({ title: opt, description: "", pros: [], cons: [] });
+				this.adr.addOption({ title: opt });
 			}
 		});
 	}
@@ -88,21 +64,21 @@ class MADRGenerator implements MADRListener {
 	/**
 	 * Handles "Decision outcome"
 	 */
-	enterChosenOptionAndExplanation(ctx: ChosenOptionAndExplanationContext) {
-		let rawDecisionOutcome = ctx.multilineText().text;
+	enterChosenOptionAndExplanation(ctx) {
+		let rawDecisionOutcome = ctx.getText();
 
 		if (rawDecisionOutcome.startsWith("Chosen option: ")) {
-			const decisionArray: string[] = rawDecisionOutcome.split(/, because */);
-			decisionArray[0] = decisionArray[0].substring("Chosen option: ".length).trim(); // Remove 'Chosen option: '
-			let delim = decisionArray[0].charAt(0);
+			rawDecisionOutcome = rawDecisionOutcome.split(/, because */);
+			rawDecisionOutcome[0] = rawDecisionOutcome[0].substring("Chosen option: ".length).trim(); // Remove 'Chosen option: '
+			let delim = rawDecisionOutcome[0].charAt(0);
 			let chosenOption = "";
 
-			if (delim === decisionArray[0].charAt(decisionArray[0].length - 1)) {
-				chosenOption = decisionArray[0].substring(1, decisionArray[0].length - 1);
+			if (delim === rawDecisionOutcome[0].charAt(rawDecisionOutcome[0].length - 1)) {
+				chosenOption = rawDecisionOutcome[0].substring(1, rawDecisionOutcome[0].length - 1);
 			} else {
-				chosenOption = decisionArray[0];
+				chosenOption = rawDecisionOutcome[0];
 			}
-			let explanation = decisionArray.slice(1).join();
+			let explanation = rawDecisionOutcome.slice(1).join();
 			this.adr.decisionOutcome.chosenOption = chosenOption;
 			this.adr.decisionOutcome.explanation = explanation.trim();
 		} else {
@@ -110,56 +86,56 @@ class MADRGenerator implements MADRListener {
 		}
 	}
 
-	enterPositiveConsequences(ctx: PositiveConsequencesContext) {
-		this.addListItemsFromListToList(ctx.list(), this.adr.decisionOutcome.positiveConsequences);
+	enterPositiveConsequences(ctx) {
+		this.addListItemsFromListToList(ctx.children[0], this.adr.decisionOutcome.positiveConsequences);
 	}
 
-	enterNegativeConsequences(ctx: NegativeConsequencesContext) {
-		this.addListItemsFromListToList(ctx.list(), this.adr.decisionOutcome.negativeConsequences);
+	enterNegativeConsequences(ctx) {
+		this.addListItemsFromListToList(ctx.children[0], this.adr.decisionOutcome.negativeConsequences);
 	}
 
 	/**
 	 * Header after "Pros and Cons of the Options"
 	 */
-	enterOptionTitle(ctx: OptionTitleContext) {
-		let title = ctx.textLine().text;
+	enterOptionTitle(ctx) {
+		let title = ctx.getText();
 		this.currentOption = this.getMostSimilarOptionTo(title);
 		if (!this.currentOption) {
 			// No matching option found?
 			// Create a new one (otherwise the content of the pro/con list will get missing)
-			this.currentOption = this.adr.addOption({ title: title, description: "", pros: [], cons: [] });
+			this.currentOption = this.adr.addOption({ title: title });
 		}
 	}
 
-	enterOptionDescription(ctx: OptionDescriptionContext) {
+	enterOptionDescription(ctx) {
 		if (this.currentOption) {
-			this.currentOption.description = ctx.multilineText().text;
+			this.currentOption.description = ctx.getText();
 		}
 	}
 
-	enterProlist(ctx: ProlistContext) {
+	enterProlist(ctx) {
 		if (this.currentOption) {
 			this.addListItemsFromListToList(ctx, this.currentOption.pros);
 		}
 	}
 
-	enterConlist(ctx: ConlistContext) {
+	enterConlist(ctx) {
 		if (this.currentOption) {
 			this.addListItemsFromListToList(ctx, this.currentOption.cons);
 		}
 	}
 
-	enterLinks(ctx: LinksContext) {
-		this.addListItemsFromListToList(ctx.list(), this.adr.links);
+	enterLinks(ctx) {
+		this.addListItemsFromListToList(ctx.children[0], this.adr.links);
 	}
 	/**
 	 *
 	 * @param {string} optTitle the title in the "Chosen option" part
 	 */
-	getMostSimilarOptionTo(optTitle: string) {
+	getMostSimilarOptionTo(optTitle) {
 		// Find the option with a very similar title.
-		let opt = this.adr.consideredOptions.find((opt) => {
-			this.matchOptionTitleAlmostExactly(opt.title, optTitle);
+		let opt = this.adr.consideredOptions.find(function (opt) {
+			return this.matchOptionTitleAlmostExactly(opt.title, optTitle);
 		}, this);
 		if (opt) {
 			// If a fitting option was found, return it.
@@ -186,7 +162,7 @@ class MADRGenerator implements MADRListener {
 	 * @param {string} optTitle2
 	 * @returns {boolean} True, iff the option titles are very similar.
 	 */
-	matchOptionTitleAlmostExactly(optTitle1: string, optTitle2: string): boolean {
+	matchOptionTitleAlmostExactly(optTitle1, optTitle2) {
 		let trimmed1 = optTitle1.replace(/ /g, "").toLowerCase(); // Remove whitespaces and lower-case heading
 		let trimmed2 = optTitle2.replace(/ /g, "").toLowerCase();
 		return trimmed1 === trimmed2;
@@ -197,20 +173,13 @@ class MADRGenerator implements MADRListener {
 	 * @param {} parseTreeList - a list node in the parse tree.
 	 * @param {string[]} targetList - a js array, where each list entry is copied into.
 	 */
-	addListItemsFromListToList(parseTreeList: ParserRuleContext, targetList: string[]) {
-		if (parseTreeList === undefined) {
-			return;
-		}
-		for (let i = 0; i < parseTreeList.childCount; i++) {
+	addListItemsFromListToList(parseTreeList, targetList) {
+		for (let i = 0; i < parseTreeList.children.length; i++) {
 			if (
-				parseTreeList.getChild(i).text &&
-				parseTreeList
-					.getChild(i)
-					.text.replace("*", "")
-					.replace(/^((Good)|(Bad)), because/, "")
-					.trim() !== ""
+				parseTreeList.children[i].ruleIndex === MADRParser.ruleNames.indexOf("textLine") && // if it is a text line
+				parseTreeList.children[i].getText().trim() !== ""
 			) {
-				targetList.push(parseTreeList.getChild(i).text);
+				targetList.push(parseTreeList.children[i].getText());
 			}
 		}
 	}
@@ -221,25 +190,25 @@ class MADRGenerator implements MADRListener {
  * @param {string} md
  * @returns {ArchitecturalDecisionRecord}
  */
-export function md2adr(md: string): ArchitecturalDecisionRecord {
-	const chars = CharStreams.fromString(md);
+export function md2adr(md) {
+	const chars = new antlr4.InputStream(md);
 	const lexer = new MADRLexer(chars);
-	const tokens = new CommonTokenStream(lexer);
+	const tokens = new antlr4.CommonTokenStream(lexer);
 	const parser = new MADRParser(tokens);
-	parser.buildParseTree = true;
+	parser.buildParseTrees = true;
 	parser.removeErrorListeners();
 
 	const tree = parser.start(); // 'start' is the name of the starting rule.
 	// console.log('Created Parse Tree! ', tree)
 	const printer = new MADRGenerator();
-	ParseTreeWalker.DEFAULT.walk(printer as MADRListener, tree);
-	// console.log("Result ADR ", printer.adr);
+	antlr4.tree.ParseTreeWalker.DEFAULT.walk(printer, tree);
+	// console.log('Result ADR ', printer.adr)
 	printer.adr.cleanUp();
 	return printer.adr;
 }
 
-export function adr2md(adrToParse: ArchitecturalDecisionRecord) {
-	let adr = _.cloneDeep(adrToParse);
+export function adr2md(adrToParse) {
+	let adr = cloneDeep(adrToParse);
 	adr.cleanUp();
 	var md = "# " + adr.title + "\n";
 
@@ -273,11 +242,7 @@ export function adr2md(adrToParse: ArchitecturalDecisionRecord) {
 
 	if (adr.consideredOptions.length > 0) {
 		md = md.concat("\n## Considered Options\n\n");
-		md = adr.consideredOptions.reduce(
-			(total: string, opt: { title: string; description: string; pros: string[]; cons: string[] }) =>
-				total + "* " + opt.title + "\n",
-			md
-		);
+		md = adr.consideredOptions.reduce((total, opt) => total + "* " + opt.title + "\n", md);
 	}
 
 	md = md.concat('\n## Decision Outcome\n\nChosen option: "' + adr.decisionOutcome.chosenOption);
@@ -295,52 +260,62 @@ export function adr2md(adrToParse: ArchitecturalDecisionRecord) {
 
 	if (adr.decisionOutcome.positiveConsequences.length > 0) {
 		md = md.concat("\n### Positive Consequences\n\n");
-		md = adr.decisionOutcome.positiveConsequences.reduce(
-			(total: string, con: string) => total + "* " + con + "\n",
-			md
-		);
+		md = adr.decisionOutcome.positiveConsequences.reduce((total, con) => total + "* " + con + "\n", md);
 	}
 	if (adr.decisionOutcome.negativeConsequences.length > 0) {
 		md = md.concat("\n### Negative Consequences\n\n");
-		md = adr.decisionOutcome.negativeConsequences.reduce(
-			(total: string, con: string) => total + "* " + con + "\n",
-			md
-		);
+		md = adr.decisionOutcome.negativeConsequences.reduce((total, con) => total + "* " + con + "\n", md);
 	}
 
-	if (
-		adr.consideredOptions.some(
-			(opt: { title: string; description: string; pros: string[]; cons: string[] }) =>
-				opt.description !== "" || opt.pros.length > 0 || opt.cons.length > 0
-		)
-	) {
+	if (adr.consideredOptions.some((opt) => opt.description !== "" || opt.pros.length > 0 || opt.cons.length > 0)) {
 		md = md.concat("\n## Pros and Cons of the Options\n");
-		md = adr.consideredOptions.reduce(
-			(total: string, opt: { title: string; description: string; pros: string[]; cons: string[] }) => {
-				if (opt.description !== "" || opt.pros.length > 0 || opt.cons.length > 0) {
-					let res = total.concat("\n### " + createShortTitle(opt.title) + "\n");
-					if (opt.description !== "") {
-						res = res.concat("\n" + opt.description + "\n");
-					}
-					res = opt.pros.reduce((total, arg) => total.concat("\n* Good, because " + arg), res);
-					res = opt.cons.reduce((total, arg) => total.concat("\n* Bad, because " + arg), res);
-					if (opt.pros.length > 0 || opt.cons.length > 0) {
-						// insert final new line
-						res = res + "\n";
-					}
-					return res;
-				} else {
-					return total;
+		md = adr.consideredOptions.reduce((total, opt) => {
+			if (opt.description !== "" || opt.pros.length > 0 || opt.cons.length > 0) {
+				let res = total.concat("\n### " + createShortTitle(opt.title) + "\n");
+				if (opt.description !== "") {
+					res = res.concat("\n" + opt.description + "\n");
 				}
-			},
-			md
-		);
+				res = opt.pros.reduce((total, arg) => total.concat("\n* Good, because " + arg), res);
+				res = opt.cons.reduce((total, arg) => total.concat("\n* Bad, because " + arg), res);
+				if (opt.pros.length > 0 || opt.cons.length > 0) {
+					// insert final new line
+					res = res + "\n";
+				}
+				return res;
+			} else {
+				return total;
+			}
+		}, md);
 	}
 	if (adr.links.length > 0) {
 		md = md.concat("\n## Links\n\n");
-		md = adr.links.reduce((total: string, link: string) => total + "* " + link + "\n", md);
+		md = adr.links.reduce((total, link) => total + "* " + link + "\n", md);
 	}
 	return md;
+}
+
+/**
+ * Converts an string in snake case into an natural-language-like string.
+ *
+ * Example: '0001-add-status-field' is converted to '0001 Add Status Field'
+ *
+ * @param {string} snake
+ */
+export function snakeCase2naturalCase(snake) {
+	return snake.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace("-", " ").replace("_", " "));
+}
+
+/**
+ * Converts an string in natural case into an snake case string.
+ *
+ * Can be used to generate a file name from the title of an ADR.
+ *
+ * Example: 'Add status Field' is converted to 'add-status-field'
+ *
+ * @param {string} snake
+ */
+export function naturalCase2snakeCase(natural) {
+	return natural.toLowerCase().split(" ").join("-");
 }
 
 /**
@@ -357,7 +332,7 @@ export function adr2md(adrToParse: ArchitecturalDecisionRecord) {
  * @param {string} titleFromChosenOption
  * @returns {boolean} True, iff the option titles are similar
  */
-export function matchOptionTitleMoreRelaxed(titleFromOptionList: string, titleFromChosenOption: string): boolean {
+export function matchOptionTitleMoreRelaxed(titleFromOptionList, titleFromChosenOption) {
 	let trimmedTitleFromOptionList = titleFromOptionList.replace(/ /g, "").toLowerCase(); // Remove whitespaces and lower-case heading
 	let trimmedTitleFromChosenOption = titleFromChosenOption.replace(/ /g, "").toLowerCase();
 	let res =
