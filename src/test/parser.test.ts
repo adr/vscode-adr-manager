@@ -1,5 +1,5 @@
 // Tested functionality
-import { md2adr, adr2md } from "../plugins/parser";
+import { md2adr, adr2md } from "../plugins/parser.js";
 
 // Needed for testing
 import { randomStrings, MD_ParsedMADR_Pairs, validMarkdownADRs } from "./constants";

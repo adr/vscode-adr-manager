@@ -60,6 +60,7 @@
 		"eslint": "^8.14.0",
 		"generate-source-map": "^0.0.5",
 		"glob": "^8.0.1",
+		"jest-environment-jsdom": "^28.1.2",
 		"postcss-import": "^14.1.0",
 		"rollup-plugin-esbuild": "^4.9.1",
 		"rollup-plugin-filesize": "^9.1.2",

@@ -1,9 +1,19 @@
-import type { Config } from "@jest/types";
 // Sync object
-const config: Config.InitialOptions = {
-	verbose: true,
+module.exports = {
+	preset: "ts-jest",
+	testEnvironment: "jsdom",
 	transform: {
-		"^.+\\.tsx?$": "ts-jest",
+		// transform files with ts-jest
+		"^.+\\.(js|ts)$": "ts-jest",
+	},
+	testPathIgnorePatterns: ["dist"],
+	transformIgnorePatterns: ["node_modules/(?!antlr4)"],
+	globals: {
+		"ts-jest": {
+			tsconfig: {
+				// allow js in typescript
+				allowJs: true,
+			},
+		},
 	},
 };
-export default config;
