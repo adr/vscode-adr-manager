@@ -10,6 +10,7 @@ export class ArchitecturalDecisionRecord {
 	[key: string]: any;
 	title: string;
 	status: string;
+	conforming: boolean;
 	deciders: string;
 	date: string;
 	technicalStory: string;
@@ -28,6 +29,7 @@ export class ArchitecturalDecisionRecord {
 	constructor({
 		title = "",
 		status = "",
+		conforming = false,
 		deciders = "",
 		date = "",
 		technicalStory = "",
@@ -44,6 +46,7 @@ export class ArchitecturalDecisionRecord {
 	} = {}) {
 		this.title = title;
 		this.status = status;
+		this.conforming = conforming;
 		this.deciders = deciders;
 		this.date = date;
 		this.technicalStory = technicalStory;

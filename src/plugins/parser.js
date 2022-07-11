@@ -21,6 +21,7 @@ class MADRGenerator extends MADRListener {
 	constructor() {
 		super();
 		this.adr = new ArchitecturalDecisionRecord();
+		this.adr.conforming = true;
 	}
 
 	enterTitle(ctx) {
@@ -186,6 +187,24 @@ class MADRGenerator extends MADRListener {
 }
 
 /**
+ * Error listener that counts the number of parsing errors during ADR parsing
+ */
+class MADRErrorListener extends antlr4.error.ErrorListener {
+	constructor() {
+		super();
+		this.syntaxErrors = [];
+	}
+
+	getSyntaxErrors() {
+		return this.syntaxErrors;
+	}
+
+	syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception) {
+		this.syntaxErrors.push(new SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception));
+	}
+}
+
+/**
  * Converts a markdown into a MADR object.
  * @param {string} md
  * @returns {ArchitecturalDecisionRecord}
@@ -195,15 +214,19 @@ export function md2adr(md) {
 	const lexer = new MADRLexer(chars);
 	const tokens = new antlr4.CommonTokenStream(lexer);
 	const parser = new MADRParser(tokens);
+	const errorListener = new MADRErrorListener();
 	parser.buildParseTrees = true;
 	parser.removeErrorListeners();
-
+	parser.addErrorListener(errorListener);
 	const tree = parser.start(); // 'start' is the name of the starting rule.
 	// console.log('Created Parse Tree! ', tree)
 	const printer = new MADRGenerator();
 	antlr4.tree.ParseTreeWalker.DEFAULT.walk(printer, tree);
 	// console.log('Result ADR ', printer.adr)
 	printer.adr.cleanUp();
+	if (errorListener.getSyntaxErrors().length > 0) {
+		printer.adr.conforming = false;
+	}
 	return printer.adr;
 }
 

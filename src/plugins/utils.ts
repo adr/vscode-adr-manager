@@ -12,6 +12,23 @@ export function getNonce(): string {
 }
 
 /**
+ * Returns true if the specified string is a valid name for a directory. Otherwise returns false.
+ * The name must not start with a whitespace character, end with a dot (.) or a whitespace character or
+ * contain any of the following characters: ? * : " ; < > | / \
+ * @param name The directory name to be verified
+ * @returns True if the specified name is a valid directory name, else false
+ */
+export function validateDirectoryName(name?: string | undefined): boolean {
+	if (typeof name === "undefined") {
+		return false;
+	}
+
+	const test = /^[^\s\x00-\x1f\\?*:"";<>|\/][^\x00-\x1f\\?*:"";<>|\/]*[^\s^\x00-\x1f\\?*:"";<>|\/.]+$/g;
+
+	return test.test(name);
+}
+
+/**
  * Helper function for clean up.
  * If a string is passed, it is trimmed. Otherwise, an empty string is returned.
  * @param {string|undefined|null} string
@@ -180,4 +197,12 @@ export function naturalCase2titleCase(natural: string): string {
 	}
 
 	return str;
+}
+
+/**
+ * Returns true iff the given string matches the format of a MADR, i.e. iff the string starts with a four-digit number, is in lower kebab-case and ends in .md.
+ * @param name The string to be checked
+ */
+export function matchesMadrTitleFormat(name: string) {
+	return name.match(/^\d{4}(-[^A-Z-]+)+\.md$/);
 }

@@ -29,8 +29,8 @@ for (let i = 0; i < MD_ParsedMADR_Pairs.length; i++) {
  * The output of the parser should be equal to the input ADR. This only holds for valid MADRs.
  */
 for (let i = 0; i < validMarkdownADRs.length; i++) {
-	test("Test exact reparsing", async () => {
-		let result = adr2md(await md2adr(validMarkdownADRs[i]));
+	test("Test exact reparsing", () => {
+		let result = adr2md(md2adr(validMarkdownADRs[i]));
 		expect(result).toBe(validMarkdownADRs[i]);
 	});
 }

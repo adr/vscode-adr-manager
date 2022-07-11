@@ -3,13 +3,7 @@
 		<img src="../assets/logo-dark-theme.png" alt="ADR Manager Logo" class="logo" v-if="!isLightTheme" />
 		<img src="../assets/logo-light-theme.png" alt="ADR Manager Logo" class="logo" v-if="isLightTheme" />
 		<div id="adrList">
-			<ADRContainer
-				v-for="(adr, index) in validAdrs"
-				:key="index"
-				:adr="adr"
-				:class="adr.title ? 'conforming' : 'not-conforming'"
-			>
-			</ADRContainer>
+			<ADRContainer v-for="(adr, index) in allAdrs" :key="index" :adr="adr"> </ADRContainer>
 		</div>
 		<button id="addAdrButton">Add ADR</button>
 	</div>
@@ -20,8 +14,8 @@
 	import ADRContainer from "../components/ADRContainer.vue";
 	import vscode from "../../src/plugins/vscode-api-mixin";
 	import { md2adr } from "../../src/plugins/parser.js";
-	import { validMarkdownADRs } from "../../src/test/constants";
 	import { ArchitecturalDecisionRecord } from "../../src/plugins/classes";
+	import { getAllAdrs } from "../../src/plugins/vscode-utils";
 
 	export default defineComponent({
 		components: {
@@ -30,8 +24,7 @@
 		mixins: [vscode],
 		data() {
 			return {
-				validMDs: validMarkdownADRs,
-				validAdrs: [] as ArchitecturalDecisionRecord[],
+				allAdrs: [] as ArchitecturalDecisionRecord[],
 			};
 		},
 		computed: {
@@ -40,10 +33,9 @@
 			},
 		},
 		methods: {
-			fetchAdrs() {
-				let parsedAdrs: ArchitecturalDecisionRecord[] = [];
-				this.validMDs.forEach((md) => parsedAdrs.push(md2adr(md)));
-				this.validAdrs = parsedAdrs;
+			async fetchAdrs() {
+				let mds: string[] = await getAllAdrs();
+				mds.forEach((md) => this.allAdrs.push(md2adr(md)));
 			},
 		},
 		mounted() {
@@ -55,24 +47,6 @@
 <style lang="scss">
 	@use "../static/mixins" as *;
 
-	/* Change logo based on theme 
-	body {
-		$dark-theme-logo: url("../web/assets/logo-dark-theme.png");
-		$light-theme-logo: url("../web/assets/logo-light-theme.png");
-
-		&.vscode-light {
-			#logo {
-				content: $light-theme-logo;
-			}
-		}
-
-		&.vscode-dark {
-			#logo {
-				content: $dark-theme-logo;
-			}
-		}
-	} */
-
 	#home {
 		width: 100%;
 		height: 100%;
@@ -82,14 +56,15 @@
 	}
 
 	.logo {
-		width: 50%;
+		width: 40%;
 		height: auto;
-		margin-bottom: 2rem;
+		margin: 1rem 0;
 	}
 
 	#adrList {
 		width: 80%;
-		max-height: 20rem;
+		min-height: 40%;
+		max-height: 60%;
 		overflow: scroll;
 		margin: 1rem;
 	}
@@ -100,13 +75,5 @@
 		background: green;
 		margin: 0.5rem 0 2rem 0;
 		@include button-styling;
-	}
-
-	.conforming {
-		background-color: var(--vscode-textBlockQuote-background);
-	}
-
-	.not-conforming {
-		background-color: var(--vscode-editorWarning-foreground);
 	}
 </style>

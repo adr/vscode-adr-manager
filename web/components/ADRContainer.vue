@@ -1,10 +1,13 @@
 <template>
 	<div id="container">
-		<h3>{{ adr.title }}</h3>
-		<div class="buttonGroup">
-			<button id="view">View</button>
-			<button id="delete">Delete</button>
+		<div id="adrBox" :class="adr.conforming ? 'conforming' : 'not-conforming'">
+			<h3>{{ adr.title ? adr.title : "(No title)" }}</h3>
+			<div class="buttonGroup">
+				<button id="view">{{ adr.conforming ? "View" : "Convert" }}</button>
+				<button id="delete">Delete</button>
+			</div>
 		</div>
+		<h4 v-if="!adr.conforming" class="not-conforming-message">Does not conform to MADR</h4>
 	</div>
 </template>
 
@@ -24,13 +27,26 @@
 <style lang="scss">
 	@use "../static/mixins.scss" as *;
 
-	#container {
+	#adrBox {
 		@include centered-flex(row);
 		width: 100%;
 		justify-content: space-between;
-		margin: 0.75rem 0;
-		border: 1px solid var(--vscode-descriptionForeground);
+		margin: 1rem 0;
 		padding: 0 1rem;
+		background: var(--vscode-textBlockQuote-background);
+	}
+
+	.conforming {
+		border: 1px solid var(--vscode-descriptionForeground);
+	}
+
+	.not-conforming {
+		border: 1px solid var(--vscode-editorError-foreground);
+	}
+
+	.not-conforming-message {
+		color: var(--vscode-editorError-foreground);
+		margin: -1rem 0 1rem 0;
 	}
 
 	.buttonGroup {
@@ -40,7 +56,8 @@
 	button {
 		margin: 1rem;
 		padding: 0.5rem 1rem;
-		width: 64px;
+		width: fit-content;
+		min-width: 73px;
 		&#delete {
 			@include button-styling;
 			background: var(--vscode-editorError-foreground);

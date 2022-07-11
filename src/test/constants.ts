@@ -347,6 +347,7 @@ Chosen option: "MADR 2.1.2", because
 		adr: new ArchitecturalDecisionRecord({
 			title: "Use Markdown Architectural Decision Records",
 			status: "",
+			conforming: true,
 			contextAndProblemStatement: `We want to record architectural decisions made in this project.
 Which format and structure should these records follow?`,
 			decisionDrivers: [],
@@ -399,8 +400,7 @@ Which format and structure should these records follow?`,
 
 	// madr/docs/adr/0001-use-CC0-as-license.md
 	{
-		md: `
-# Use CC0 as License
+		md: `# Use CC0 as License
 
 Everything needs to be licensed, otherwise the default copyright laws apply.
 For instance, in Germany that means users may not alter anything without explicitly asking for permission.
@@ -420,6 +420,7 @@ Chosen option: "CC0", because this license donates the content to "public domain
 `,
 		adr: new ArchitecturalDecisionRecord({
 			title: "Use CC0 as License",
+			conforming: true,
 			contextAndProblemStatement: `Everything needs to be licensed, otherwise the default copyright laws apply.
 For instance, in Germany that means users may not alter anything without explicitly asking for permission.
 For more information see <https://help.github.com/articles/licensing-a-repository/>.
@@ -478,6 +479,7 @@ Chosen option: Use the title only, because
 `,
 		adr: new ArchitecturalDecisionRecord({
 			title: "Do Not Use Numbers in Headings",
+			conforming: true,
 			contextAndProblemStatement: `How to render the first line in an ADR?
 ADRs have to take a unique identifier.`,
 			consideredOptions: [
@@ -531,6 +533,7 @@ Chosen option: \`NNNN-title-with-dashes.md\`, because
 `,
 		adr: new ArchitecturalDecisionRecord({
 			title: "Use Dashes in Filenames",
+			conforming: true,
 			contextAndProblemStatement: `What is the pattern of the filename where an ADR is stored?`,
 			consideredOptions: [
 				{
@@ -669,6 +672,7 @@ One level of subfolder, not nested
 
 		adr: new ArchitecturalDecisionRecord({
 			title: "Support Categories",
+			conforming: true,
 			contextAndProblemStatement: `ADRs are recorded. The number of ADRs grows and the context/topic/scope of ADRs might be different (e.g., frontend, backend)`,
 			decisionDrivers: [
 				"Easy to find groups ADRs in hundreds of ADRs",
@@ -817,6 +821,7 @@ D description
 `,
 		adr: new ArchitecturalDecisionRecord({
 			title: "Heading",
+			conforming: true,
 			contextAndProblemStatement: `Context`,
 			consideredOptions: [
 				{

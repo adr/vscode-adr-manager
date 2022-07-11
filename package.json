@@ -15,17 +15,35 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vscode-adr-manager.showHome"
+		"onCommand:vscode-adr-manager.openMainWebView",
+		"onCommand:vscode-adr-manager.initializeAdrDirectory"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "vscode-adr-manager.showHome",
+				"command": "vscode-adr-manager.openMainWebView",
 				"title": "Open ADR Manager",
 				"category": "ADR Manager"
+			},
+			{
+				"command": "vscode-adr-manager.initializeAdrDirectory",
+				"title": "Initialize ADR Directory",
+				"category": "ADR Manager"
 			}
-		]
+		],
+		"configuration": {
+			"title": "ADR Manager",
+			"properties": {
+				"adrManager.adrDirectory": {
+					"type": "string",
+					"default": "docs/decisions",
+					"description": "Specifies the path of the ADR directory, relative to a root workspace folder.",
+					"pattern": "^([^?*:\"<>|]+[\\/]?)+$",
+					"patternErrorMessage": "Invalid directory.\nNote that these characters are not allowed in directory names:\n? * : \" < > |"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
@@ -63,6 +81,7 @@
 		"jest-environment-jsdom": "^28.1.2",
 		"postcss-import": "^14.1.0",
 		"rollup-plugin-esbuild": "^4.9.1",
+		"rollup-plugin-external-globals": "^0.6.1",
 		"rollup-plugin-filesize": "^9.1.2",
 		"rollup-plugin-polyfill-node": "^0.10.0",
 		"rollup-plugin-postcss": "^4.0.2",
