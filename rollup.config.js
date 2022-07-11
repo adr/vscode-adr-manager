@@ -27,13 +27,13 @@ export default fs.readdirSync(path.join(__dirname, "web", "pages")).map((input) 
 		input: `web/pages/${input}`,
 		output: {
 			file: `dist-web/${name}.js`,
-			format: "es",
+			format: "iife",
 			name: "app",
 			sourcemap: false,
 		},
 		plugins: [
 			vue(),
-			commonjs({ transformMixedEsModules: true }),
+			commonjs(),
 			json(),
 			alias({
 				entries: [{ find: "@", replacement: __dirname + "/web/" }],

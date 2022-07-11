@@ -15,7 +15,7 @@
 	import vscode from "../../src/plugins/vscode-api-mixin";
 	import { md2adr } from "../../src/plugins/parser.js";
 	import { ArchitecturalDecisionRecord } from "../../src/plugins/classes";
-	import { getAllAdrs } from "../../src/plugins/vscode-utils";
+	//import { getAllAdrs } from "../../src/plugins/vscode-utils";
 
 	export default defineComponent({
 		components: {
@@ -34,8 +34,8 @@
 		},
 		methods: {
 			async fetchAdrs() {
-				let mds: string[] = await getAllAdrs();
-				mds.forEach((md) => this.allAdrs.push(md2adr(md)));
+				//let mds: string[] = await getAllAdrs();
+				//mds.forEach((md) => this.allAdrs.push(md2adr(md)));
 			},
 		},
 		mounted() {
