@@ -1,4 +1,4 @@
-import { createShortTitle } from "../plugins/utils";
+import { cleanPathString, createShortTitle } from "../plugins/utils";
 import { naturalCase2snakeCase, snakeCase2naturalCase } from "../plugins/utils";
 import { matchesMadrTitleFormat } from "../plugins/utils";
 
@@ -69,5 +69,36 @@ describe("Test MADR Title Format Match", () => {
 			let result = matchesMadrTitleFormat(title);
 			expect(result).toBeFalsy();
 		});
+	});
+});
+
+describe("Test Cleaning Path Strings", () => {
+	test("Replace backslashes with forward slash", () => {
+		let uncleanedPaths = [
+			"C:\\Users\\Steven\\some\\path\\with\\backslash",
+			"\\\\Users\\\\\\Steven\\\\multiple\\\\\\backslashes",
+			"\\backslash\\at\\the\\end\\",
+		];
+		let cleanedPaths = [
+			"C:/Users/Steven/some/path/with/backslash",
+			"/Users/Steven/multiple/backslashes",
+			"/backslash/at/the/end/",
+		];
+		for (let i = 0; i < uncleanedPaths.length; i++) {
+			expect(cleanPathString(uncleanedPaths[i])).toBe(cleanedPaths[i]);
+		}
+	});
+	test("Replace multiple forward slashes with single forward slash", () => {
+		let uncleanedPaths = [
+			"//Users//Steven/a/path//with///multiple/////forward///slashes",
+			"/multiple/forward/slashes/at/the/end//",
+		];
+		let cleanedPaths = [
+			"/Users/Steven/a/path/with/multiple/forward/slashes",
+			"/multiple/forward/slashes/at/the/end/",
+		];
+		for (let i = 0; i < uncleanedPaths.length; i++) {
+			expect(cleanPathString(uncleanedPaths[i])).toBe(cleanedPaths[i]);
+		}
 	});
 });

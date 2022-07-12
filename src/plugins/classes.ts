@@ -29,7 +29,7 @@ export class ArchitecturalDecisionRecord {
 	constructor({
 		title = "",
 		status = "",
-		conforming = false,
+		conforming = true,
 		deciders = "",
 		date = "",
 		technicalStory = "",

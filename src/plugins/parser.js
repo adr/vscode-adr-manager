@@ -195,11 +195,8 @@ class MADRErrorListener extends antlr4.error.ErrorListener {
 		this.syntaxErrors = [];
 	}
 
-	getSyntaxErrors() {
-		return this.syntaxErrors;
-	}
-
 	syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception) {
+		console.log(offendingSymbol, line);
 		this.syntaxErrors.push(new SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception));
 	}
 }
@@ -222,9 +219,9 @@ export function md2adr(md) {
 	// console.log('Created Parse Tree! ', tree)
 	const printer = new MADRGenerator();
 	antlr4.tree.ParseTreeWalker.DEFAULT.walk(printer, tree);
-	// console.log('Result ADR ', printer.adr)
+	// console.log("Result ADR ", printer.adr);
 	printer.adr.cleanUp();
-	if (errorListener.getSyntaxErrors().length > 0) {
+	if (errorListener.syntaxErrors.length > 0) {
 		printer.adr.conforming = false;
 	}
 	return printer.adr;

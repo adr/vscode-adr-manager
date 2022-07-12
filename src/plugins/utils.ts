@@ -173,7 +173,7 @@ export function naturalCase2titleCase(natural: string): string {
 		"With",
 	];
 	// Certain words such as initialisms or acronyms should be left uppercase
-	let uppers = ["ID", "TV", "ADR", "CC0"];
+	let uppers = ["ID", "TV", "ADR", "CC0", "MADR"];
 
 	let str = natural.replace(/([^\W_]+[^\s-]*) */g, (txt) => {
 		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
@@ -205,4 +205,16 @@ export function naturalCase2titleCase(natural: string): string {
  */
 export function matchesMadrTitleFormat(name: string) {
 	return name.match(/^\d{4}(-[^A-Z-]+)+\.md$/);
+}
+
+/**
+ * Replaces every instance of "\" with "/" and multiple occurences of "/" in a row with a single "/"
+ * in the specified string.
+ * @param path The string to be cleaned
+ */
+export function cleanPathString(path: string): string {
+	return path
+		.replace(/\\/g, "/")
+		.replace(/(\\\\)+\\*/g, "/")
+		.replace(/(\/\/)+\/*/g, "/");
 }

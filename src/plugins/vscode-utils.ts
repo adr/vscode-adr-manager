@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { ArchitecturalDecisionRecord } from "./classes";
 import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./constants";
 import { md2adr } from "./parser";
-import { matchesMadrTitleFormat } from "./utils";
+import { cleanPathString, matchesMadrTitleFormat } from "./utils";
 
 // Constants for VS Code helpers
 export const adrDirectoryString: string = vscode.workspace.getConfiguration("adrManager").get("adrDirectory")!;
@@ -132,8 +132,8 @@ export function getWorkspaceFolderNames(): string[] {
  * Returns an array of potential MADRs in the form of Markdown strings that are located in the root folders of the current workspace.
  * @returns A Promise which resolves in a string array of all potential MADR strings in the whole workspace
  */
-export async function getAllMDs(): Promise<string[]> {
-	let mds: string[] = [];
+export async function getAllMDs(): Promise<{ adr: string; path: string; fileName: string }[]> {
+	let mds: { adr: string; path: string; fileName: string }[] = [];
 	if (isWorkspaceOpened()) {
 		for (let i = 0; i < getWorkspaceFolders().length; i++) {
 			if (await adrDirectoryExists(getWorkspaceFolders()[i].uri)) {
@@ -152,13 +152,19 @@ export async function getAllMDs(): Promise<string[]> {
  * @param folderUri The URI of the directory to be scanned for MADRs
  * @returns A Promise which resolves in a string array of potential MADRs
  */
-export async function getMDsFromFolder(folderUri: vscode.Uri): Promise<string[]> {
-	let adrs: string[] = [];
+export async function getMDsFromFolder(
+	folderUri: vscode.Uri
+): Promise<{ adr: string; path: string; fileName: string }[]> {
+	let adrs: { adr: string; path: string; fileName: string }[] = [];
 	const directory = await vscode.workspace.fs.readDirectory(folderUri);
 	for (const [name, type] of directory) {
 		if (type === vscode.FileType.File && matchesMadrTitleFormat(name)) {
 			const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folderUri, name));
-			adrs.push(new TextDecoder().decode(content));
+			adrs.push({
+				adr: new TextDecoder().decode(content),
+				path: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
+				fileName: name,
+			});
 		}
 	}
 	return adrs;
@@ -173,24 +179,43 @@ export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
 	// Listen for file changes
 	const watcher = vscode.workspace.createFileSystemWatcher("**/*.md");
 	watcher.onDidCreate(async (e) => {
-		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push(md2adr(md));
+			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});
 	watcher.onDidChange(async (e) => {
-		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push(md2adr(md));
+			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});
 	watcher.onDidDelete(async (e) => {
-		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push(md2adr(md));
+			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});
+}
+
+/**
+ * Returns the path of a specified ADR relative to a specified root folder.
+ * This function returns a correct path iff the specified ADR is located in the
+ * specified root folder or in one of its subdirectories.
+ *
+ * @param adrUri The URI of the file contained in the rootFolder or in one of its subfolders
+ * @returns The path of the file relative to the root folder as a string
+ */
+function getAdrPathRelativeFromRootFolder(adrUri: vscode.Uri): string {
+	let filePath = adrUri.fsPath;
+	for (const folder of getWorkspaceFolders()) {
+		if (filePath.match(folder.uri.fsPath)) {
+			return filePath.replace(folder.uri.fsPath.substring(0, folder.uri.fsPath.lastIndexOf("/") + 1), "");
+		}
+	}
+
+	return filePath;
 }

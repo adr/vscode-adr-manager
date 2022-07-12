@@ -67,9 +67,9 @@ export class WebPanel {
 					vscode.commands.executeCommand("vscode-adr-manager.showHome");
 					return;
 				case "fetchAdrs":
-					let allAdrs: ArchitecturalDecisionRecord[] = [];
+					let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
 					(await getAllMDs()).forEach((md) => {
-						allAdrs.push(md2adr(md));
+						allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
 					});
 					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 					return;
@@ -164,9 +164,9 @@ export class WebPanel {
 function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
 	watchMarkdownChanges(panel);
 	vscode.workspace.onDidChangeWorkspaceFolders(async (e) => {
-		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push(md2adr(md));
+			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});

@@ -3,7 +3,7 @@
 		<img src="../assets/logo-dark-theme.png" alt="ADR Manager Logo" class="logo" v-if="!isLightTheme" />
 		<img src="../assets/logo-light-theme.png" alt="ADR Manager Logo" class="logo" v-if="isLightTheme" />
 		<div id="adrList">
-			<ADRContainer v-for="(adr, index) in allAdrs" :key="index" :adr="adr"> </ADRContainer>
+			<ADRContainer v-for="(adr, index) in sortedAdrs" :key="index" :adr="adr"> </ADRContainer>
 		</div>
 		<button id="addAdrButton">Add ADR</button>
 	</div>
@@ -22,10 +22,20 @@
 		mixins: [vscode],
 		data() {
 			return {
-				allAdrs: [] as ArchitecturalDecisionRecord[],
+				allAdrs: [] as { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[],
 			};
 		},
 		computed: {
+			sortedAdrs() {
+				return this.allAdrs.sort(
+					(
+						a: { adr: ArchitecturalDecisionRecord; path: string; fileName: string },
+						b: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }
+					) => {
+						return a.fileName.localeCompare(b.fileName, undefined, { numeric: true });
+					}
+				);
+			},
 			isLightTheme() {
 				return document.body.classList.contains("vscode-light");
 			},
