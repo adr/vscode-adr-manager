@@ -50,6 +50,8 @@ export class WebPanel {
 			dark: vscode.Uri.joinPath(extensionUri, "src/assets/logo-dark.svg"),
 		};
 
+		watchForConfigurationChanges(panel);
+
 		WebPanel.currentPanel = new WebPanel(panel, extensionUri, page);
 	}
 
@@ -165,6 +167,10 @@ export class WebPanel {
 	}
 }
 
+/**
+ * Sets up watchers to notify the webview to re-fetch ADRs upon changing a Markdown file in the workspace.
+ * @param panel The webview panel to send the fetched ADRs to
+ */
 function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
 	watchMarkdownChanges(panel);
 	vscode.workspace.onDidChangeWorkspaceFolders(async (e) => {
@@ -173,5 +179,21 @@ function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
 			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+	});
+}
+
+/**
+ * Sets up watchers to notify the webview to re-fetch ADRs upon changing configuration settings.
+ * @param panel The webview panel to send the fetched ADRs to
+ */
+function watchForConfigurationChanges(panel: vscode.WebviewPanel) {
+	vscode.workspace.onDidChangeConfiguration(async (e) => {
+		if (e.affectsConfiguration("adrManager")) {
+			let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+			(await getAllMDs()).forEach((md) => {
+				allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+			});
+			panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+		}
 	});
 }

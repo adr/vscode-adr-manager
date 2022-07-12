@@ -5,9 +5,6 @@ import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownConte
 import { md2adr } from "./parser";
 import { cleanPathString, matchesMadrTitleFormat } from "./utils";
 
-// Constants for VS Code helpers
-export const adrDirectoryString: string = vscode.workspace.getConfiguration("adrManager").get("adrDirectory")!;
-
 /**
  * Returns the workspace folders opened in the current VS Code instance.
  * @returns The current workspace folders of the VS Code instance, or an empty WorkspaceFolder array if there is no folder open
@@ -17,6 +14,14 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
 		return vscode.workspace.workspaceFolders!;
 	}
 	return [];
+}
+
+/**
+ * Returns the string of the ADR directory specified by the user in the user/workspace settings
+ * @returns The ADR directory specified by the user
+ */
+function getAdrDirectoryString(): string {
+	return vscode.workspace.getConfiguration("adrManager").get("adrDirectory")!;
 }
 
 /**
@@ -42,7 +47,7 @@ export function isSingleRootWorkspace(): boolean {
  */
 export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 	if (!(await adrDirectoryExists(rootFolderUri))) {
-		const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, adrDirectoryString);
+		const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, getAdrDirectoryString());
 		await vscode.workspace.fs.createDirectory(adrFolderUri);
 		await fillAdrDirectory(adrFolderUri);
 	} else {
@@ -52,7 +57,7 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 			"No"
 		);
 		if (selection === "Yes") {
-			const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, adrDirectoryString);
+			const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, getAdrDirectoryString());
 			await fillAdrDirectory(adrFolderUri);
 		}
 	}
@@ -66,7 +71,7 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
  */
 export async function adrDirectoryExists(folderUri: vscode.Uri) {
 	if (isWorkspaceOpened()) {
-		const subDirectories = adrDirectoryString.replace("\\", "/").split("/");
+		const subDirectories = cleanPathString(getAdrDirectoryString()).split("/");
 
 		// Iterate through subdirectories
 		let currentUri = folderUri;
@@ -139,7 +144,9 @@ export async function getAllMDs(): Promise<{ adr: string; path: string; fileName
 			if (await adrDirectoryExists(getWorkspaceFolders()[i].uri)) {
 				mds = [
 					...mds,
-					...(await getMDsFromFolder(vscode.Uri.joinPath(getWorkspaceFolders()[i].uri, adrDirectoryString))),
+					...(await getMDsFromFolder(
+						vscode.Uri.joinPath(getWorkspaceFolders()[i].uri, getAdrDirectoryString())
+					)),
 				];
 			}
 		}
