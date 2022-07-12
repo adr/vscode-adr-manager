@@ -61,9 +61,12 @@ Here is a step-by-step guide on how to start the extension:
 
  These commands are supported through the Command Palette:
 
-* `Open Home Page`: Opens the webview panel and renders the view with the text "This is a home page" and a button that will open the "About" page.
-* `Open About Page`: Opens the webview panel and renders the view with the text "This is an about page" and a button that will open the "Home" page.
+* `Open ADR Manager`: Opens the webview panel and renders the main webview of the ADR Manager. Here, the user can see all ADRs that are located in the specified ADR directory, relative to each root folder in the current workspace. <br/>
+  
+<i>Note</i>: Only Markdown files in the ADR directory that follow the naming format of MADR (NNNN-lowercase-title.md, in (lower) kebab-case and N corresponds to a number between 0-9) are listed in this webview.
 
-As of right now, the commands are only dummy commands used for testing, mainly for testing the navigation between different views using the webview.
+* `Initialize ADR Directory`: Upon running this command, the extension will generate the ADR directory specified in the settings (default: "docs/decisions"). In addition, the files "0000-use-markdown-architectural-decision-records.md", "adr-template.md" and "README.md" are created inside the ADR directory as boilerplate. <br/>
+If the ADR directory already exists in the workspace folder, the extension will ask the user if he wants to generate the boilerplate files or not.<br/>
+If the user has opened multiple folders in the same workspace, the extension will ask the user for a specific folder in which the ADR directory should be initialized.
 
 
