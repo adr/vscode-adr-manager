@@ -1,6 +1,8 @@
 // File with helpers specifically using the VS Code Extension API
 import * as vscode from "vscode";
+import { ArchitecturalDecisionRecord } from "./classes";
 import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./constants";
+import { md2adr } from "./parser";
 import { matchesMadrTitleFormat } from "./utils";
 
 // Constants for VS Code helpers
@@ -127,22 +129,22 @@ export function getWorkspaceFolderNames(): string[] {
 }
 
 /**
- * Returns an array of potential MADRs in the form of strings that are located in the root folders of the current workspace.
- * @returns A Promise which resolves in a string array of all potential MADRs in the whole workspace
+ * Returns an array of potential MADRs in the form of Markdown strings that are located in the root folders of the current workspace.
+ * @returns A Promise which resolves in a string array of all potential MADR strings in the whole workspace
  */
-export async function getAllAdrs() {
-	let adrs: string[] = [];
+export async function getAllMDs(): Promise<string[]> {
+	let mds: string[] = [];
 	if (isWorkspaceOpened()) {
 		for (let i = 0; i < getWorkspaceFolders().length; i++) {
 			if (await adrDirectoryExists(getWorkspaceFolders()[i].uri)) {
-				adrs = [
-					...adrs,
-					...(await getAdrsFromFolder(vscode.Uri.joinPath(getWorkspaceFolders()[i].uri, adrDirectoryString))),
+				mds = [
+					...mds,
+					...(await getMDsFromFolder(vscode.Uri.joinPath(getWorkspaceFolders()[i].uri, adrDirectoryString))),
 				];
 			}
 		}
 	}
-	return adrs;
+	return mds;
 }
 
 /**
@@ -150,7 +152,7 @@ export async function getAllAdrs() {
  * @param folderUri The URI of the directory to be scanned for MADRs
  * @returns A Promise which resolves in a string array of potential MADRs
  */
-export async function getAdrsFromFolder(folderUri: vscode.Uri): Promise<string[]> {
+export async function getMDsFromFolder(folderUri: vscode.Uri): Promise<string[]> {
 	let adrs: string[] = [];
 	const directory = await vscode.workspace.fs.readDirectory(folderUri);
 	for (const [name, type] of directory) {
@@ -160,4 +162,35 @@ export async function getAdrsFromFolder(folderUri: vscode.Uri): Promise<string[]
 		}
 	}
 	return adrs;
+}
+
+/**
+ * Sets up a watcher that notifies the specified webview panel to update the ADR list
+ * every time a change occurs in the workspace regarding Markdown files.
+ * @param panel The webview panel that will be notified of changes on Markdown files
+ */
+export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
+	// Listen for file changes
+	const watcher = vscode.workspace.createFileSystemWatcher("**/*.md");
+	watcher.onDidCreate(async (e) => {
+		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		(await getAllMDs()).forEach((md) => {
+			allAdrs.push(md2adr(md));
+		});
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+	});
+	watcher.onDidChange(async (e) => {
+		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		(await getAllMDs()).forEach((md) => {
+			allAdrs.push(md2adr(md));
+		});
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+	});
+	watcher.onDidDelete(async (e) => {
+		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		(await getAllMDs()).forEach((md) => {
+			allAdrs.push(md2adr(md));
+		});
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+	});
 }

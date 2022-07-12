@@ -2,12 +2,9 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import {
-	adrDirectoryExists,
-	adrDirectoryString,
 	isSingleRootWorkspace,
 	isWorkspaceOpened,
 	getWorkspaceFolders,
-	fillAdrDirectory,
 	initializeAdrDirectory,
 } from "./plugins/vscode-utils";
 import { WebPanel } from "./WebPanel";
@@ -38,4 +35,12 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 	});
+}
+
+/**
+ * Cleans up upon deactivating the extension.
+ * @param context The context of the extension (automatically provided by the extension)
+ */
+export function deactivate(context: vscode.ExtensionContext) {
+	WebPanel.currentPanel?.dispose();
 }

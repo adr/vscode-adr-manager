@@ -1,6 +1,9 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
+import { getAllMDs, watchMarkdownChanges } from "./plugins/vscode-utils";
+import { ArchitecturalDecisionRecord } from "./plugins/classes";
+import { md2adr } from "./plugins/parser";
 
 export class WebPanel {
 	/**
@@ -40,6 +43,9 @@ export class WebPanel {
 			}
 		);
 
+		// listen for changes on Markdown files to dynamically update ADR list in webview
+		watchForWorkspaceChanges(panel);
+
 		WebPanel.currentPanel = new WebPanel(panel, extensionUri, page);
 	}
 
@@ -55,13 +61,17 @@ export class WebPanel {
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
 		// Handle messages from the webview to the VS Code API, mainly used for page navigation
-		this._panel.webview.onDidReceiveMessage((e) => {
+		this._panel.webview.onDidReceiveMessage(async (e) => {
 			switch (e.type) {
 				case "home":
 					vscode.commands.executeCommand("vscode-adr-manager.showHome");
 					return;
-				case "about":
-					vscode.commands.executeCommand("vscode-adr-manager.showAbout");
+				case "fetchAdrs":
+					let allAdrs: ArchitecturalDecisionRecord[] = [];
+					(await getAllMDs()).forEach((md) => {
+						allAdrs.push(md2adr(md));
+					});
+					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 					return;
 			}
 		});
@@ -102,9 +112,6 @@ export class WebPanel {
 		switch (page) {
 			case "home":
 				this._panel.title = "ADR Manager - Home";
-				break;
-			case "about":
-				this._panel.title = "ADR Manager - About";
 				break;
 		}
 	}
@@ -152,4 +159,15 @@ export class WebPanel {
 			</body>
 			</html>`;
 	}
+}
+
+function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
+	watchMarkdownChanges(panel);
+	vscode.workspace.onDidChangeWorkspaceFolders(async (e) => {
+		let allAdrs: ArchitecturalDecisionRecord[] = [];
+		(await getAllMDs()).forEach((md) => {
+			allAdrs.push(md2adr(md));
+		});
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+	});
 }
