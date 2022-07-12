@@ -1,7 +1,7 @@
 <template>
 	<div id="home">
-		<img src="../assets/logo-dark-theme.png" alt="ADR Manager Logo" class="logo" v-if="!isLightTheme" />
-		<img src="../assets/logo-light-theme.png" alt="ADR Manager Logo" class="logo" v-if="isLightTheme" />
+		<img src="../assets/header-dark-theme.png" alt="ADR Manager Logo" class="logo" v-if="!isLightTheme" />
+		<img src="../assets/header-light-theme.png" alt="ADR Manager Logo" class="logo" v-if="isLightTheme" />
 		<div id="adrList">
 			<ADRContainer v-for="(adr, index) in sortedAdrs" :key="index" :adr="adr"> </ADRContainer>
 		</div>
