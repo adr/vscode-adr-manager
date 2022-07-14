@@ -1,4 +1,4 @@
 import { createApp } from "vue";
-import Home from "../views/HomeView.vue";
+import Main from "../views/MainView.vue";
 
-createApp(Home).mount("#app");
+createApp(Main).mount("#app");

@@ -19,3 +19,21 @@
         box-shadow: none;
     }
 }
+
+@mixin dynamic-logo() {
+    &.vscode-light .logo {
+            content: url("./assets/header-light-theme.png");
+        }
+    
+        &.vscode-dark.vscode-high-contrast .logo {
+            content: url("./assets/header-dark-theme.png");
+        }
+    
+        &.vscode-high-contrast .logo {
+            content: url("./assets/header-dark-theme.png");
+        }
+    
+        &.vscode-high-contrast-light .logo {
+            content: url("./assets/header-light-theme.png");
+        }
+}

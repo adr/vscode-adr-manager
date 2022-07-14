@@ -1,7 +1,6 @@
 <template>
 	<div id="home">
-		<img src="../assets/header-dark-theme.png" alt="ADR Manager Logo" class="logo" v-if="!isLightTheme" />
-		<img src="../assets/header-light-theme.png" alt="ADR Manager Logo" class="logo" v-if="isLightTheme" />
+		<img src="../assets/header-dark-theme.png" alt="ADR Manager Header Image" class="logo" />
 		<div id="adrList">
 			<ADRContainer v-for="(adr, index) in sortedAdrs" :key="index" :adr="adr"> </ADRContainer>
 		</div>
@@ -61,6 +60,10 @@
 
 <style lang="scss">
 	@use "../static/mixins" as *;
+
+	body {
+		@include dynamic-logo;
+	}
 
 	#home {
 		width: 100%;

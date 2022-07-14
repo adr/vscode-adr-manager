@@ -80,6 +80,7 @@
 		"glob": "^8.0.1",
 		"jest-environment-jsdom": "^28.1.2",
 		"postcss-import": "^14.1.0",
+		"rollup-plugin-copy": "^3.4.0",
 		"rollup-plugin-esbuild": "^4.9.1",
 		"rollup-plugin-external-globals": "^0.6.1",
 		"rollup-plugin-filesize": "^9.1.2",

@@ -14,6 +14,7 @@ import requireContext from "rollup-plugin-require-context";
 import { terser } from "rollup-plugin-terser";
 import vue from "rollup-plugin-vue";
 import nodePolyFills from "rollup-plugin-polyfill-node";
+import copy from "rollup-plugin-copy";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -40,6 +41,9 @@ export default fs.readdirSync(path.join(__dirname, "web", "pages")).map((input) 
 			}),
 			image(),
 			postcss({ extract: `${name}.css`, plugins: postCssPlugins }),
+			copy({
+				targets: [{ src: "web/assets", dest: "dist-web" }],
+			}),
 			requireContext(),
 			nodePolyFills(),
 			resolve({
