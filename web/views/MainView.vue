@@ -1,10 +1,10 @@
 <template>
-	<div id="home">
+	<div id="main">
 		<img src="../assets/header-dark-theme.png" alt="ADR Manager Header Image" class="logo" />
 		<div id="adrList">
 			<ADRContainer v-for="(adr, index) in sortedAdrs" :key="index" :adr="adr"> </ADRContainer>
 		</div>
-		<button id="addAdrButton">Add ADR</button>
+		<button id="addAdrButton" @click="sendMessage('add')">Add ADR</button>
 	</div>
 </template>
 
@@ -25,6 +25,10 @@
 			};
 		},
 		computed: {
+			/**
+			 * Sorts the fetched ADRs by their filename such that the lowest-numbered ADR
+			 * from all workspace folders is displayed at the top.
+			 */
 			sortedAdrs() {
 				return this.allAdrs.sort(
 					(
@@ -35,15 +39,19 @@
 					}
 				);
 			},
-			isLightTheme() {
-				return document.body.classList.contains("vscode-light");
-			},
 		},
 		methods: {
+			/**
+			 * Passes a message to the extension to fetch the ADRs from all workspace folders.
+			 */
 			async fetchAdrs() {
 				this.sendMessage("fetchAdrs");
 			},
 		},
+		/**
+		 * Sets up event listeners to receive messages and data from the extension, and fetch ADRs
+		 * upon rendering the view.
+		 */
 		mounted() {
 			window.addEventListener("message", (event) => {
 				const message = event.data;
@@ -65,7 +73,7 @@
 		@include dynamic-logo;
 	}
 
-	#home {
+	#main {
 		width: 100%;
 		height: 100%;
 		@include centered-flex(column);
@@ -88,10 +96,9 @@
 	}
 
 	#addAdrButton {
-		width: 20%;
-		min-height: 3rem;
+		@include button-sizing;
+		@include button-styling;
 		background: green;
 		margin: 0.5rem 0 2rem 0;
-		@include button-styling;
 	}
 </style>

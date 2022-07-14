@@ -5,6 +5,11 @@
     align-items: center;
 }
 
+@mixin button-sizing() {
+    width: 20%;
+    min-height: 3rem;
+}
+
 @mixin button-styling() {
     &:hover {
         filter: brightness(106%);

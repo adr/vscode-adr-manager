@@ -17,7 +17,12 @@ import { WebPanel } from "./WebPanel";
 export function activate(context: vscode.ExtensionContext) {
 	// Open ADR Manager Main Webview
 	vscode.commands.registerCommand("vscode-adr-manager.openMainWebView", () => {
-		WebPanel.createOrShow(context.extensionUri, "home");
+		WebPanel.createOrShow(context.extensionUri, "main");
+	});
+
+	// Open ADR Manager Add ADR Webview
+	vscode.commands.registerCommand("vscode-adr-manager.openAddWebView", () => {
+		WebPanel.createOrShow(context.extensionUri, "add");
 	});
 
 	// Initialize ADR directory based on configuration

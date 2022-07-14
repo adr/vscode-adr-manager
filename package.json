@@ -16,7 +16,8 @@
 	],
 	"activationEvents": [
 		"onCommand:vscode-adr-manager.openMainWebView",
-		"onCommand:vscode-adr-manager.initializeAdrDirectory"
+		"onCommand:vscode-adr-manager.initializeAdrDirectory",
+		"onCommand:vscode-adr-manager.openAddWebView"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -24,6 +25,11 @@
 			{
 				"command": "vscode-adr-manager.openMainWebView",
 				"title": "Open ADR Manager",
+				"category": "ADR Manager"
+			},
+			{
+				"command": "vscode-adr-manager.openAddWebView",
+				"title": "Add New ADR",
 				"category": "ADR Manager"
 			},
 			{
@@ -50,7 +56,7 @@
 		"compile": "webpack",
 		"compile-web": "rollup -c",
 		"watch": "concurrently \"rollup -c -w\" \"webpack --watch\"",
-		"package": "webpack --mode production --devtool hidden-source-map",
+		"package": "concurrently \"webpack --mode production\" \"rollup -c\"",
 		"compile-tests": "tsc -p . --outDir dist",
 		"watch-tests": "tsc -p . -w --outDir dist",
 		"pretest": "npm run compile-tests && npm run compile && npm run lint",

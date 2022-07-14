@@ -45,10 +45,7 @@ export class WebPanel {
 
 		// listen for changes on Markdown files to dynamically update ADR list in webview
 		watchForWorkspaceChanges(panel);
-		panel.iconPath = {
-			light: vscode.Uri.joinPath(extensionUri, "src/assets/logo-light.svg"),
-			dark: vscode.Uri.joinPath(extensionUri, "src/assets/logo-dark.svg"),
-		};
+		panel.iconPath = vscode.Uri.joinPath(extensionUri, "src/assets/logo.svg");
 
 		watchForConfigurationChanges(panel);
 
@@ -69,8 +66,11 @@ export class WebPanel {
 		// Handle messages from the webview to the VS Code API, mainly used for page navigation
 		this._panel.webview.onDidReceiveMessage(async (e) => {
 			switch (e.type) {
-				case "home":
-					vscode.commands.executeCommand("vscode-adr-manager.showHome");
+				case "main":
+					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
+					return;
+				case "add":
+					vscode.commands.executeCommand("vscode-adr-manager.openAddWebView");
 					return;
 				case "fetchAdrs":
 					let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
@@ -116,9 +116,11 @@ export class WebPanel {
 	 */
 	private _updatePanelTitle(page: string) {
 		switch (page) {
-			case "home":
-				this._panel.title = "ADR Manager - Home";
-				break;
+			case "main":
+				this._panel.title = "ADR Manager";
+				return;
+			case "add":
+				this._panel.title = "ADR Manager - New ADR";
 		}
 	}
 
