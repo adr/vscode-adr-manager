@@ -1,9 +1,12 @@
 <template>
 	<div id="add">
-		<button id="backButton" @click="sendMessage('main')"><span>&#8592;</span> Back to ADR overview</button>
+		<button id="backButton" class="secondary" @click="sendMessage('main')">
+			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+		</button>
 		<div id="madr">
 			<MadrTemplateShort></MadrTemplateShort>
 		</div>
+		<p id="shortTemplateNote"><em>Note: Some fields of the ADR are not shown in the Short ADR template.</em></p>
 		<div class="buttonGroup">
 			<button id="createButton">Create ADR</button>
 			<!--<button id="cancelButton">Cancel</button>-->
@@ -52,18 +55,26 @@
 
 	#backButton {
 		@include button-sizing;
+		@include button-styling;
 		margin: 1.5rem 1rem;
 		padding: 0.5rem 1rem;
-		background: var(--vscode-button-secondaryBackground);
+	}
+
+	#backButtonContent {
+		@include centered-flex(row);
 	}
 
 	#madr {
 		@include centered-flex(row);
 	}
 
+	#shortTemplateNote {
+		margin: -0.75rem 0 2rem 1rem;
+	}
+
 	.buttonGroup {
 		@include centered-flex(row);
-		justify-content: right;
+		justify-content: center;
 		width: 100%;
 		& button {
 			@include button-sizing;

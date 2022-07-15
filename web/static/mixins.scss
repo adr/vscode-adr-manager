@@ -7,10 +7,12 @@
 
 @mixin button-sizing() {
     width: 20%;
+    min-width: fit-content;
     min-height: 3rem;
 }
 
 @mixin button-styling() {
+	border: 1px solid var(--vscode-contrastBorder);
     &:hover {
         filter: brightness(106%);
     }
@@ -23,6 +25,11 @@
         outline: none;
         box-shadow: none;
     }
+}
+
+@mixin icon-sizing($size) {
+    width: $size;
+    height: $size;
 }
 
 @mixin dynamic-logo() {
