@@ -27,7 +27,7 @@ export default fs.readdirSync(path.join(__dirname, "web", "pages")).map((input) 
 	return {
 		input: `web/pages/${input}`,
 		output: {
-			file: `dist-web/${name}.js`,
+			file: `dist/web/${name}.js`,
 			format: "iife",
 			name: "app",
 			sourcemap: false,
@@ -42,7 +42,7 @@ export default fs.readdirSync(path.join(__dirname, "web", "pages")).map((input) 
 			image(),
 			postcss({ extract: `${name}.css`, plugins: postCssPlugins }),
 			copy({
-				targets: [{ src: "web/assets", dest: "dist-web" }],
+				targets: [{ src: "web/assets", dest: "dist" }],
 			}),
 			requireContext(),
 			nodePolyFills(),
