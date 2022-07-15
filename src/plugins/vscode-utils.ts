@@ -54,7 +54,7 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 		const selection = await vscode.window.showInformationMessage(
 			"The ADR directory already exists. Do you want to fill the directory with boilerplate Markdown files?",
 			"Yes",
-			"No"
+			"Cancel"
 		);
 		if (selection === "Yes") {
 			const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, getAdrDirectoryString());
@@ -137,8 +137,10 @@ export function getWorkspaceFolderNames(): string[] {
  * Returns an array of potential MADRs in the form of Markdown strings that are located in the root folders of the current workspace.
  * @returns A Promise which resolves in a string array of all potential MADR strings in the whole workspace
  */
-export async function getAllMDs(): Promise<{ adr: string; path: string; fileName: string }[]> {
-	let mds: { adr: string; path: string; fileName: string }[] = [];
+export async function getAllMDs(): Promise<
+	{ adr: string; fullPath: string; relativePath: string; fileName: string }[]
+> {
+	let mds: { adr: string; fullPath: string; relativePath: string; fileName: string }[] = [];
 	if (isWorkspaceOpened()) {
 		for (let i = 0; i < getWorkspaceFolders().length; i++) {
 			if (await adrDirectoryExists(getWorkspaceFolders()[i].uri)) {
@@ -161,15 +163,16 @@ export async function getAllMDs(): Promise<{ adr: string; path: string; fileName
  */
 export async function getMDsFromFolder(
 	folderUri: vscode.Uri
-): Promise<{ adr: string; path: string; fileName: string }[]> {
-	let adrs: { adr: string; path: string; fileName: string }[] = [];
+): Promise<{ adr: string; fullPath: string; relativePath: string; fileName: string }[]> {
+	let adrs: { adr: string; fullPath: string; relativePath: string; fileName: string }[] = [];
 	const directory = await vscode.workspace.fs.readDirectory(folderUri);
 	for (const [name, type] of directory) {
 		if (type === vscode.FileType.File && matchesMadrTitleFormat(name)) {
 			const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folderUri, name));
 			adrs.push({
 				adr: new TextDecoder().decode(content),
-				path: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
+				fullPath: vscode.Uri.joinPath(folderUri, name).fsPath,
+				relativePath: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
 				fileName: name,
 			});
 		}
@@ -186,23 +189,41 @@ export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
 	// Listen for file changes
 	const watcher = vscode.workspace.createFileSystemWatcher("**/*.md");
 	watcher.onDidCreate(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
+			[];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+			allAdrs.push({
+				adr: md2adr(md.adr),
+				fullPath: md.fullPath,
+				relativePath: md.relativePath,
+				fileName: md.fileName,
+			});
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});
 	watcher.onDidChange(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
+			[];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+			allAdrs.push({
+				adr: md2adr(md.adr),
+				fullPath: md.fullPath,
+				relativePath: md.relativePath,
+				fileName: md.fileName,
+			});
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});
 	watcher.onDidDelete(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
+			[];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+			allAdrs.push({
+				adr: md2adr(md.adr),
+				fullPath: md.fullPath,
+				relativePath: md.relativePath,
+				fileName: md.fileName,
+			});
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});

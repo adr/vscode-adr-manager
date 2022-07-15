@@ -3,9 +3,10 @@ declare const vscode: any;
 
 export default {
 	methods: {
-		sendMessage(message: string) {
+		sendMessage(command: string, data?: any | undefined) {
 			vscode.postMessage({
-				type: message,
+				command: command,
+				data: data,
 			});
 		},
 	},

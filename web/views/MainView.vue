@@ -2,7 +2,12 @@
 	<div id="main">
 		<img src="../assets/header-dark-theme.png" alt="ADR Manager Header Image" class="logo" />
 		<div id="adrList">
-			<ADRContainer v-for="(adr, index) in sortedAdrs" :key="index" :adr="adr"> </ADRContainer>
+			<ADRContainer
+				v-for="(adr, index) in sortedAdrs"
+				:key="index"
+				:adr="adr"
+				@requestDelete="requestDelete(adr)"
+			></ADRContainer>
 		</div>
 		<button id="addAdrButton" @click="sendMessage('add')">Add ADR</button>
 	</div>
@@ -21,7 +26,12 @@
 		mixins: [vscode],
 		data() {
 			return {
-				allAdrs: [] as { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[],
+				allAdrs: [] as {
+					adr: ArchitecturalDecisionRecord;
+					fullPath: string;
+					relativePath: string;
+					fileName: string;
+				}[],
 			};
 		},
 		computed: {
@@ -32,8 +42,18 @@
 			sortedAdrs() {
 				return this.allAdrs.sort(
 					(
-						a: { adr: ArchitecturalDecisionRecord; path: string; fileName: string },
-						b: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }
+						a: {
+							adr: ArchitecturalDecisionRecord;
+							fullPath: string;
+							relativePath: string;
+							fileName: string;
+						},
+						b: {
+							adr: ArchitecturalDecisionRecord;
+							fullPath: string;
+							relativePath: string;
+							fileName: string;
+						}
 					) => {
 						return a.fileName.localeCompare(b.fileName, undefined, { numeric: true });
 					}
@@ -46,6 +66,14 @@
 			 */
 			async fetchAdrs() {
 				this.sendMessage("fetchAdrs");
+			},
+			requestDelete(adr: {
+				adr: ArchitecturalDecisionRecord;
+				fullPath: string;
+				relativePath: string;
+				fileName: string;
+			}) {
+				this.sendMessage("requestDelete", { title: adr.adr.title, fullPath: adr.fullPath });
 			},
 		},
 		/**
@@ -88,7 +116,7 @@
 	}
 
 	#adrList {
-		width: 80%;
+		width: 90%;
 		min-height: 40%;
 		max-height: 60%;
 		overflow: scroll;
@@ -99,6 +127,7 @@
 		@include button-sizing;
 		@include button-styling;
 		background: green;
+		border: 1px solid var(--vscode-contrastBorder);
 		margin: 0.5rem 0 2rem 0;
 	}
 </style>

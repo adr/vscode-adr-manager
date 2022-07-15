@@ -4,12 +4,12 @@
 			<div class="adrInfo">
 				<h3>{{ adr.adr.title ? adr.adr.title : "(No title)" }}</h3>
 				<h5>
-					<TT>{{ adr.path }}</TT>
+					<TT>{{ adr.relativePath }}</TT>
 				</h5>
 			</div>
 			<div class="buttonGroup">
-				<button id="view">{{ adr.adr.conforming ? "View" : "Convert" }}</button>
-				<button id="delete">Delete</button>
+				<button id="view" :disabled="!adr.adr.conforming">View</button>
+				<button id="delete" @click="requestDelete()">Delete</button>
 			</div>
 		</div>
 		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">Does not conform to MADR</h4>
@@ -24,6 +24,11 @@
 			adr: {
 				type: Object,
 				required: true,
+			},
+		},
+		methods: {
+			requestDelete() {
+				this.$emit("requestDelete");
 			},
 		},
 	});
@@ -63,13 +68,17 @@
 		padding: 0.5rem 1rem;
 		width: fit-content;
 		min-width: 73px;
+		@include button-styling;
+
 		&#delete {
-			@include button-styling;
 			background: var(--vscode-editorError-foreground);
 		}
 		&#view {
-			@include button-styling;
 			background: var(--vscode-button-background);
+		}
+		&:disabled {
+			filter: brightness(50%);
+			cursor: default;
 		}
 	}
 </style>

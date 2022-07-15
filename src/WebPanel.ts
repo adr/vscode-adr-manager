@@ -65,7 +65,7 @@ export class WebPanel {
 
 		// Handle messages from the webview to the VS Code API, mainly used for page navigation
 		this._panel.webview.onDidReceiveMessage(async (e) => {
-			switch (e.type) {
+			switch (e.command) {
 				case "main":
 					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
 					return;
@@ -73,11 +73,32 @@ export class WebPanel {
 					vscode.commands.executeCommand("vscode-adr-manager.openAddWebView");
 					return;
 				case "fetchAdrs":
-					let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+					let allAdrs: {
+						adr: ArchitecturalDecisionRecord;
+						fullPath: string;
+						relativePath: string;
+						fileName: string;
+					}[] = [];
 					(await getAllMDs()).forEach((md) => {
-						allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+						allAdrs.push({
+							adr: md2adr(md.adr),
+							fullPath: md.fullPath,
+							relativePath: md.relativePath,
+							fileName: md.fileName,
+						});
 					});
 					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+					return;
+				case "requestDelete":
+					const selection = await vscode.window.showWarningMessage(
+						`Are you sure you want to delete the ADR "${e.data.title}"?`,
+						"Yes",
+						"Cancel"
+					);
+					if (selection === "Yes") {
+						console.log(e.data.fullPath);
+						await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
+					}
 					return;
 			}
 		});
@@ -143,8 +164,13 @@ export class WebPanel {
 
 		// Local path to css styles
 		const STYLE_URI = vscode.Uri.joinPath(this._extensionUri, "dist-web", `${page}.css`);
-		// Uri to load styles into webview
+		// URI to load styles into webview
 		const STYLE_WEB_URI = webview.asWebviewUri(STYLE_URI);
+
+		// Codicons web URI
+		const CODICONS_WEB_URI = webview.asWebviewUri(
+			vscode.Uri.joinPath(this._extensionUri, "node_modules", "@vscode/codicons", "dist", "codicon.css")
+		);
 
 		// Use a NONCE to only allow specific scripts to be run
 		const NONCE = getNonce();
@@ -157,6 +183,8 @@ export class WebPanel {
 				<link href="${VSCODE_RESET_WEB_URI}" rel="stylesheet">
 				<link href="${VSCODE_STYLE_WEB_URI}" rel="stylesheet">
 				<link href="${STYLE_WEB_URI}" rel="stylesheet">
+				<link href="${CODICONS_WEB_URI}" rel="stylesheet">
+
 			</head>
 			<body>
 				<div id="app"></div>
@@ -176,9 +204,15 @@ export class WebPanel {
 function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
 	watchMarkdownChanges(panel);
 	vscode.workspace.onDidChangeWorkspaceFolders(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
+			[];
 		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+			allAdrs.push({
+				adr: md2adr(md.adr),
+				fullPath: md.fullPath,
+				relativePath: md.relativePath,
+				fileName: md.fileName,
+			});
 		});
 		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 	});
@@ -191,9 +225,19 @@ function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
 function watchForConfigurationChanges(panel: vscode.WebviewPanel) {
 	vscode.workspace.onDidChangeConfiguration(async (e) => {
 		if (e.affectsConfiguration("adrManager")) {
-			let allAdrs: { adr: ArchitecturalDecisionRecord; path: string; fileName: string }[] = [];
+			let allAdrs: {
+				adr: ArchitecturalDecisionRecord;
+				fullPath: string;
+				relativePath: string;
+				fileName: string;
+			}[] = [];
 			(await getAllMDs()).forEach((md) => {
-				allAdrs.push({ adr: md2adr(md.adr), path: md.path, fileName: md.fileName });
+				allAdrs.push({
+					adr: md2adr(md.adr),
+					fullPath: md.fullPath,
+					relativePath: md.relativePath,
+					fileName: md.fileName,
+				});
 			});
 			panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
 		}
