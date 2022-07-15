@@ -96,8 +96,8 @@ export class WebPanel {
 						"Cancel"
 					);
 					if (selection === "Yes") {
-						console.log(e.data.fullPath);
 						await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
+						vscode.window.showInformationMessage("ADR deleted successfully.");
 					}
 					return;
 			}
@@ -158,12 +158,12 @@ export class WebPanel {
 		const VSCODE_RESET_WEB_URI = webview.asWebviewUri(VSCODE_RESET_URI);
 
 		// Local path to main script run in the webview
-		const SCRIPT_URI = vscode.Uri.joinPath(this._extensionUri, "dist-web", `${page}.js`);
+		const SCRIPT_URI = vscode.Uri.joinPath(this._extensionUri, "dist/web", `${page}.js`);
 		// URI to load the script in the webview
 		const SCRIPT_WEB_URI = webview.asWebviewUri(SCRIPT_URI);
 
 		// Local path to css styles
-		const STYLE_URI = vscode.Uri.joinPath(this._extensionUri, "dist-web", `${page}.css`);
+		const STYLE_URI = vscode.Uri.joinPath(this._extensionUri, "dist/web", `${page}.css`);
 		// URI to load styles into webview
 		const STYLE_WEB_URI = webview.asWebviewUri(STYLE_URI);
 

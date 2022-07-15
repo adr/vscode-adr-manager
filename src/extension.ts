@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { cleanPathString } from "./plugins/utils";
 import {
 	isSingleRootWorkspace,
 	isWorkspaceOpened,
@@ -38,6 +39,18 @@ export function activate(context: vscode.ExtensionContext) {
 					initializeAdrDirectory(folder.uri);
 				}
 			}
+		}
+	});
+
+	// Change the ADR directory
+	vscode.commands.registerCommand("vscode-adr-manager.changeAdrDirectory", async () => {
+		const newDirectory = await vscode.window.showInputBox({
+			prompt: "Specify the path of the ADR directory, relative to a root workspace folder.",
+			placeHolder: "docs/decisions",
+		});
+		if (newDirectory !== undefined) {
+			await vscode.workspace.getConfiguration("adrManager").update("adrDirectory", cleanPathString(newDirectory));
+			vscode.window.showInformationMessage("ADR directory changed successfully.");
 		}
 	});
 }
