@@ -33,11 +33,50 @@ export function isWorkspaceOpened(): boolean {
 }
 
 /**
- * Returns true iff the current workspace is a single-root workspace, i.e. iff there is exactly one folder opened in the current workspace.
- * @returns True iff there is exactly one folder opened in the current workspace
+ * Returns true iff the current workspace is a single-root workspace, i.e. iff there is exactly one root folder opened in the current workspace.
+ * @returns True iff there is exactly one root folder opened in the current workspace
  */
 export function isSingleRootWorkspace(): boolean {
 	return isWorkspaceOpened() && getWorkspaceFolders().length === 1;
+}
+
+/**
+ * Returns true iff the specified folder only contains other folders, implying that the specified folder is
+ * the root folder for many other root folders which may have ADR directories.
+ * @param folderUri The URI of a folder
+ * @returns True iff the folder only contains other folders, indicating that the specified folder is
+ *			the root folder of multiple root folders
+ */
+export async function containsOnlyRootFolders(folderUri: vscode.Uri): Promise<boolean> {
+	const directory = await vscode.workspace.fs.readDirectory(folderUri);
+	for (const [name, type] of directory) {
+		// skip ".DS_Store" files which may cause problems with macOS users
+		if (type !== vscode.FileType.Directory && name !== ".DS_Store") {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Returns an array of URIs of all the child root folders of the specified folder.
+ * If the specified folder is not a folder of root folders (i.e. it has files other than folders inside of it),
+ * then this returns an empty array.
+ * @param rootFolderUri The URI of the highest-level root folder (containing all other child root folders)
+ * @returns An array of URIs of all the child root folders within the highest-level root folder, or
+ * 			an empty array if the specified folder does not only have othe folders inside of it
+ */
+export async function getAllChildRootFolders(rootFolderUri: vscode.Uri): Promise<vscode.Uri[]> {
+	const childRootFolderUris: vscode.Uri[] = [];
+	if (await containsOnlyRootFolders(rootFolderUri)) {
+		const rootFolderDirectory = await vscode.workspace.fs.readDirectory(rootFolderUri);
+		for (const [name, type] of rootFolderDirectory) {
+			if (type === vscode.FileType.Directory) {
+				childRootFolderUris.push(vscode.Uri.joinPath(rootFolderUri, name));
+			}
+		}
+	}
+	return childRootFolderUris;
 }
 
 /**
@@ -72,20 +111,20 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 export async function adrDirectoryExists(folderUri: vscode.Uri) {
 	if (isWorkspaceOpened()) {
 		const subDirectories = cleanPathString(getAdrDirectoryString()).split("/");
-
-		// Iterate through subdirectories
 		let currentUri = folderUri;
 		let currentDirectoryFound = true;
+
+		// Iterate through subdirectories
 		for (let i = 0; i < subDirectories.length; i++) {
 			if (currentDirectoryFound) {
 				currentDirectoryFound = false;
 				let currentDirectory = await vscode.workspace.fs.readDirectory(currentUri);
 				for (const [name, type] of currentDirectory) {
-					if (name === subDirectories[i] && type === vscode.FileType.Directory) {
+					if (type === vscode.FileType.Directory && name === subDirectories[i]) {
+						currentDirectoryFound = true;
 						if (i === subDirectories.length - 1) {
 							return true; // last subdirectory found
 						} else {
-							currentDirectoryFound = true;
 							break; // check next subdirectory
 						}
 					}
@@ -96,6 +135,7 @@ export async function adrDirectoryExists(folderUri: vscode.Uri) {
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -142,14 +182,30 @@ export async function getAllMDs(): Promise<
 > {
 	let mds: { adr: string; fullPath: string; relativePath: string; fileName: string }[] = [];
 	if (isWorkspaceOpened()) {
-		for (let i = 0; i < getWorkspaceFolders().length; i++) {
-			if (await adrDirectoryExists(getWorkspaceFolders()[i].uri)) {
-				mds = [
-					...mds,
-					...(await getMDsFromFolder(
-						vscode.Uri.joinPath(getWorkspaceFolders()[i].uri, getAdrDirectoryString())
-					)),
-				];
+		const workspaceFolders = getWorkspaceFolders();
+		// Check if single-root folder is root folder of other root folders
+		if (isSingleRootWorkspace() && (await containsOnlyRootFolders(workspaceFolders[0].uri))) {
+			const childRootFolderUris = await getAllChildRootFolders(workspaceFolders[0].uri);
+			for (let i = 0; i < childRootFolderUris.length; i++) {
+				if (await adrDirectoryExists(childRootFolderUris[i])) {
+					mds = [
+						...mds,
+						...(await getMDsFromFolder(
+							vscode.Uri.joinPath(childRootFolderUris[i], getAdrDirectoryString())
+						)),
+					];
+				}
+			}
+		} else {
+			for (let i = 0; i < workspaceFolders.length; i++) {
+				if (await adrDirectoryExists(workspaceFolders[i].uri)) {
+					mds = [
+						...mds,
+						...(await getMDsFromFolder(
+							vscode.Uri.joinPath(workspaceFolders[i].uri, getAdrDirectoryString())
+						)),
+					];
+				}
 			}
 		}
 	}
