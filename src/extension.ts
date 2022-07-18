@@ -7,7 +7,7 @@ import {
 	isWorkspaceOpened,
 	getWorkspaceFolders,
 	initializeAdrDirectory,
-} from "./plugins/extension-functions";
+} from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 
 /**

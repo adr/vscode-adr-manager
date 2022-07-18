@@ -1,9 +1,9 @@
 // Functions using the VS Code Extension API
 import * as vscode from "vscode";
-import { ArchitecturalDecisionRecord } from "./classes";
-import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./constants";
-import { adr2md, md2adr } from "./parser";
-import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase } from "./utils";
+import { ArchitecturalDecisionRecord } from "./plugins/classes";
+import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./plugins/constants";
+import { adr2md, md2adr } from "./plugins/parser";
+import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase } from "./plugins/utils";
 var _ = require("lodash");
 
 /**
@@ -258,6 +258,11 @@ export async function getMDsFromFolder(
 	return adrs;
 }
 
+/**
+ * Creates a new  ArchitecturalDecision object with the minimum required fields (short ADR) and
+ * saves the ADR as a Markdown file in the ADR directory.
+ * @param fields The fields of the new short ADR
+ */
 export function createShortAdr(fields: {
 	title: string;
 	contextAndProblemStatement: string;
@@ -325,7 +330,8 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 			// Check if single-root folder is root folder of other root folders
 			if (await containsOnlyRootFolders(getWorkspaceFolders()[0].uri)) {
 				const childRootFolder = await vscode.window.showQuickPick(
-					getAllChildRootFoldersAsStrings(getWorkspaceFolders()[0].uri)
+					getAllChildRootFoldersAsStrings(getWorkspaceFolders()[0].uri),
+					{ title: "Choose the folder to save the ADR to:" }
 				);
 				if (childRootFolder) {
 					const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(

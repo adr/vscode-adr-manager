@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
-import { createShortAdr, getAllMDs, watchMarkdownChanges } from "./plugins/extension-functions";
+import { createShortAdr, getAllMDs, watchMarkdownChanges } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { md2adr } from "./plugins/parser";
 
@@ -101,7 +101,7 @@ export class WebPanel {
 					}
 					return;
 				case "addOptionShort":
-					const option = await vscode.window.showInputBox({ prompt: "Enter a concise name for the option." });
+					const option = await vscode.window.showInputBox({ title: "Enter a concise name for the option:" });
 					if (option) {
 						this._panel.webview.postMessage({ command: "addOptionShort", option: option });
 					}
