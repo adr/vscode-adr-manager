@@ -15,5 +15,9 @@
 		"baseUrl": ".",
 		"lib": ["esnext", "dom", "dom.iterable", "scripthost"]
 	},
+	"vueCompilerOptions": {
+		"target": 2.7,
+		"experimentalDisableTemplateSupport": true
+	},
 	"include": ["pages/**/*.ts", "pages/**/*.tsx", "**/*.vue"]
 }

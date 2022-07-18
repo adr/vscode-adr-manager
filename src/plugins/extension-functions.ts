@@ -1,9 +1,10 @@
-// File with helpers specifically using the VS Code Extension API
+// Functions using the VS Code Extension API
 import * as vscode from "vscode";
 import { ArchitecturalDecisionRecord } from "./classes";
 import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./constants";
-import { md2adr } from "./parser";
-import { cleanPathString, matchesMadrTitleFormat } from "./utils";
+import { adr2md, md2adr } from "./parser";
+import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase } from "./utils";
+var _ = require("lodash");
 
 /**
  * Returns the workspace folders opened in the current VS Code instance.
@@ -64,7 +65,7 @@ export async function containsOnlyRootFolders(folderUri: vscode.Uri): Promise<bo
  * then this returns an empty array.
  * @param rootFolderUri The URI of the highest-level root folder (containing all other child root folders)
  * @returns An array of URIs of all the child root folders within the highest-level root folder, or
- * 			an empty array if the specified folder does not only have othe folders inside of it
+ * 			an empty array if the specified folder does not only have other folders inside of it
  */
 export async function getAllChildRootFolders(rootFolderUri: vscode.Uri): Promise<vscode.Uri[]> {
 	const childRootFolderUris: vscode.Uri[] = [];
@@ -77,6 +78,27 @@ export async function getAllChildRootFolders(rootFolderUri: vscode.Uri): Promise
 		}
 	}
 	return childRootFolderUris;
+}
+
+/**
+ * Returns an array of strings of all the child root folder names of the specified folder.
+ * If the specified folder is not a folder of root folders (i.e. it has files other than folders inside of it),
+ * then this returns an empty array.
+ * @param rootFolderUri The URI of the highest-level root folder (containing all other child root folders)
+ * @returns An array of strings of all the child root folder names within the highest-level root folder, or
+ * 			an empty array if the specified folder does not only have other folders inside of it
+ */
+async function getAllChildRootFoldersAsStrings(rootFolderUri: vscode.Uri): Promise<string[]> {
+	const childRootFolderStrings: string[] = [];
+	if (await containsOnlyRootFolders(rootFolderUri)) {
+		const rootFolderDirectory = await vscode.workspace.fs.readDirectory(rootFolderUri);
+		for (const [name, type] of rootFolderDirectory) {
+			if (type === vscode.FileType.Directory) {
+				childRootFolderStrings.push(name);
+			}
+		}
+	}
+	return childRootFolderStrings;
 }
 
 /**
@@ -234,6 +256,132 @@ export async function getMDsFromFolder(
 		}
 	}
 	return adrs;
+}
+
+export function createShortAdr(fields: {
+	title: string;
+	contextAndProblemStatement: string;
+	consideredOptions: string[];
+	chosenOption: string;
+	explanation: string;
+}) {
+	// Get Considered Options
+	const consideredOptions = getConsideredOptionsFromStrings(fields.consideredOptions);
+
+	// Get Decision Outcome
+	const decisionOutcome: {
+		chosenOption: string;
+		explanation: string;
+		positiveConsequences: string[];
+		negativeConsequences: string[];
+	} = {
+		chosenOption: fields.chosenOption,
+		explanation: fields.explanation,
+		positiveConsequences: [],
+		negativeConsequences: [],
+	};
+
+	// Create ADR object
+	const newAdr = new ArchitecturalDecisionRecord({
+		title: fields.title,
+		contextAndProblemStatement: fields.contextAndProblemStatement,
+		consideredOptions: consideredOptions,
+		decisionOutcome: decisionOutcome,
+	});
+
+	// Convert ADR object to Markdown and save it in the ADR directory
+	const newMD = adr2md(newAdr);
+	saveMarkdownToAdrDirectory(newMD, newAdr.title);
+}
+
+/**
+ * Returns an array of objects that each represent one considered option. This
+ * @param options A string array of option titles
+ * @returns An array of objects which each represent an option with only a title
+ */
+function getConsideredOptionsFromStrings(options: string[]) {
+	const consideredOptions: { title: string; description: string; pros: string[]; cons: string[] }[] = [];
+	for (const option of options) {
+		consideredOptions.push({
+			title: option,
+			description: "",
+			pros: [],
+			cons: [],
+		});
+	}
+	return consideredOptions;
+}
+
+/**
+ * Saves the specified Markdown string in the ADR directory specified by the user
+ * @param md The content of the Markdown file as a string
+ * @param title The title of the ADR
+ */
+async function saveMarkdownToAdrDirectory(md: string, title: string) {
+	if (!isWorkspaceOpened()) {
+		vscode.window.showErrorMessage("Please open a workspace folder to initialize ADR directory");
+	} else {
+		if (isSingleRootWorkspace()) {
+			// Check if single-root folder is root folder of other root folders
+			if (await containsOnlyRootFolders(getWorkspaceFolders()[0].uri)) {
+				const childRootFolder = await vscode.window.showQuickPick(
+					getAllChildRootFoldersAsStrings(getWorkspaceFolders()[0].uri)
+				);
+				if (childRootFolder) {
+					const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(
+						title
+					)}.md`;
+					const fileUri = vscode.Uri.joinPath(
+						getWorkspaceFolders()[0].uri,
+						childRootFolder,
+						getAdrDirectoryString(),
+						fileName
+					);
+					await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
+					// Show success message and open file in separate editor
+					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+					await vscode.window.showInformationMessage("ADR created successfully.");
+				}
+			} else {
+				// "Real" single-root workspace
+				const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(
+					title
+				)}.md`;
+				const fileUri = vscode.Uri.joinPath(getWorkspaceFolders()[0].uri, getAdrDirectoryString(), fileName);
+				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
+				// Show success message and open file in separate editor
+				vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+				vscode.window.showInformationMessage("ADR created successfully.");
+			}
+		} else {
+			// Multi-root workspace
+			const destinationFolder = await vscode.window.showWorkspaceFolderPick();
+			if (destinationFolder) {
+				const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(
+					title
+				)}.md`;
+				const fileUri = vscode.Uri.joinPath(destinationFolder.uri, getAdrDirectoryString(), fileName);
+				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
+				// Show success message and open file in separate editor
+				vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+				vscode.window.showInformationMessage("ADR created successfully.");
+			}
+		}
+	}
+}
+
+/**
+ * Returns the highest number ADR of all ADRs detected in the current workspace.
+ * @returns The highest number of all ADRs in all ADR directories of the workspace
+ */
+async function getHighestAdrNumber(): Promise<number> {
+	const allAdrs = await getAllMDs();
+	const titleNumbers = allAdrs.map((md) => {
+		return Number.parseInt(
+			md.fileName.substring(md.fileName.lastIndexOf("/") + 1, md.fileName.lastIndexOf("/") + 5)
+		);
+	});
+	return titleNumbers.sort((a, b) => a - b)[titleNumbers.length - 1];
 }
 
 /**

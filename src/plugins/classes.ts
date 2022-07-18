@@ -42,7 +42,7 @@ export class ArchitecturalDecisionRecord {
 			positiveConsequences: [] as string[],
 			negativeConsequences: [] as string[],
 		},
-		links = [],
+		links = [] as string[],
 	} = {}) {
 		this.title = title;
 		this.status = status;
@@ -84,7 +84,7 @@ export class ArchitecturalDecisionRecord {
 	 *
 	 * @param option an object with optional attributes title, description, pros, cons
 	 */
-	addOption(option: { title: string; description: string; pros: string[]; cons: string[] }) {
+	addOption(option: { title?: string; description?: string; pros?: string[]; cons?: string[] }) {
 		let id = this.highestOptionId;
 		this.highestOptionId = this.highestOptionId + 1;
 		let newOpt = {

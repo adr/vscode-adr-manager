@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
-import { getAllMDs, watchMarkdownChanges } from "./plugins/vscode-utils";
+import { createShortAdr, getAllMDs, watchMarkdownChanges } from "./plugins/extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { md2adr } from "./plugins/parser";
 
@@ -99,6 +99,15 @@ export class WebPanel {
 						await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
 						vscode.window.showInformationMessage("ADR deleted successfully.");
 					}
+					return;
+				case "addOptionShort":
+					const option = await vscode.window.showInputBox({ prompt: "Enter a concise name for the option." });
+					if (option) {
+						this._panel.webview.postMessage({ command: "addOptionShort", option: option });
+					}
+					return;
+				case "createShortAdr":
+					createShortAdr(JSON.parse(e.data));
 					return;
 			}
 		});

@@ -4,12 +4,11 @@
 			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
 		<div id="madr">
-			<MadrTemplateShort></MadrTemplateShort>
+			<MadrTemplateShort @validated="getValidInput"></MadrTemplateShort>
 		</div>
 		<p id="shortTemplateNote"><em>Note: Some fields of the ADR are not shown in the Short ADR template.</em></p>
 		<div class="buttonGroup">
-			<button id="createButton">Create ADR</button>
-			<!--<button id="cancelButton">Cancel</button>-->
+			<button id="createButton" :disabled="!validated" @click="createAdr">Create ADR</button>
 		</div>
 	</div>
 </template>
@@ -25,20 +24,48 @@
 		},
 		mixins: [vscode],
 		data() {
-			return {};
+			return {
+				validated: false,
+				title: "",
+				contextAndProblemStatement: "",
+				consideredOptions: [] as string[],
+				chosenOption: "",
+				explanation: "",
+			};
 		},
 		computed: {},
-		methods: {},
+		methods: {
+			getValidInput(fields: {
+				title: string;
+				contextAndProblemStatement: string;
+				consideredOptions: string[];
+				chosenOption: string;
+				explanation: string;
+			}) {
+				this.title = fields.title;
+				this.contextAndProblemStatement = fields.contextAndProblemStatement;
+				this.consideredOptions = fields.consideredOptions;
+				this.chosenOption = fields.chosenOption;
+				this.explanation = fields.explanation;
+				this.validated = true;
+			},
+			createAdr() {
+				this.sendMessage(
+					"createShortAdr",
+					JSON.stringify({
+						title: this.title,
+						contextAndProblemStatement: this.contextAndProblemStatement,
+						consideredOptions: this.consideredOptions,
+						chosenOption: this.chosenOption,
+						explanation: this.explanation,
+					})
+				);
+			},
+		},
 		/**
 		 * Sets up event listeners to receive messages and data from the extension.
 		 */
-		mounted() {
-			window.addEventListener("message", (event) => {
-				const message = event.data;
-				switch (message.command) {
-				}
-			});
-		},
+		mounted() {},
 	});
 </script>
 
@@ -74,20 +101,16 @@
 
 	.buttonGroup {
 		@include centered-flex(row);
-		justify-content: center;
-		width: 100%;
-		& button {
+		& #createButton {
 			@include button-sizing;
 			@include button-styling;
+			background: var(--vscode-button-background);
 			margin: 1rem;
 			padding: 0.5rem 1rem;
-		}
-
-		& #createButton {
-			background: var(--vscode-button-background);
-		}
-		& #cancelButton {
-			background: var(--vscode-button-secondaryBackground);
+			&:disabled {
+				filter: brightness(50%);
+				cursor: default;
+			}
 		}
 	}
 </style>

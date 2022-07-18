@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, replace } from "lodash";
 
 import antlr4 from "antlr4";
 import MADRLexer from "./parser/MADRLexer.js";
@@ -230,7 +230,7 @@ export function md2adr(md) {
 export function adr2md(adrToParse) {
 	let adr = cloneDeep(adrToParse);
 	adr.cleanUp();
-	var md = "# " + adr.title + "\n";
+	var md = "# " + naturalCase2titleCase(adr.title) + "\n";
 
 	if ((adr.status !== "" && adr.status !== "null") || adr.deciders.length > 0 || adr.date !== "") {
 		if (adr.status !== "" && adr.status !== "null") {
@@ -265,7 +265,7 @@ export function adr2md(adrToParse) {
 		md = adr.consideredOptions.reduce((total, opt) => total + "* " + opt.title + "\n", md);
 	}
 
-	md = md.concat('\n## Decision Outcome\n\nChosen option: "' + adr.decisionOutcome.chosenOption);
+	md = md.concat('\n## Decision Outcome\n\nChosen option: "' + adr.decisionOutcome.chosenOption.replaceAll('"', "'"));
 
 	if (adr.decisionOutcome.explanation.trim() !== "") {
 		let isList = adr.decisionOutcome.explanation.trim().match(/^[*-+]/);

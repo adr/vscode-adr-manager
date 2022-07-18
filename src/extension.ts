@@ -7,7 +7,7 @@ import {
 	isWorkspaceOpened,
 	getWorkspaceFolders,
 	initializeAdrDirectory,
-} from "./plugins/vscode-utils";
+} from "./plugins/extension-functions";
 import { WebPanel } from "./WebPanel";
 
 /**
