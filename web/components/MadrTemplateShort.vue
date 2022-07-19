@@ -37,20 +37,24 @@
 		</div>
 		<hr />
 		<div id="consideredOptions">
-			<TemplateHeader
-				:name="'Considered Options'"
-				:infoText="'List of all considered options.\nClick to select an option.\nOnly write a concise description; you can add a more detailed description when using the Long ADR template.'"
-			></TemplateHeader>
+			<div id="optionsHeader">
+				<TemplateHeader
+					:name="'Considered Options'"
+					:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.\nOnly write a concise description; you can add a more detailed description when using the Long ADR template.'"
+				></TemplateHeader>
+				<AddOptionButton @addOption="addOption" draggable="false"></AddOptionButton>
+			</div>
 			<div id="options">
-				<OptionContainerShort
-					v-for="(option, index) in consideredOptions"
-					:key="index"
-					:title="option"
-					:class="option === chosenOption ? 'selectedOption' : 'unselectedOption'"
-					@selectOption="selectOption(index)"
-					@deleteOption="deleteOption(index)"
-				></OptionContainerShort>
-				<AddOptionButton @addOption="addOption"></AddOptionButton>
+				<draggable class="dragArea" :list="consideredOptions" :sort="true">
+					<OptionContainerShort
+						v-for="(option, index) in consideredOptions"
+						:key="index"
+						:title="option"
+						:class="option === chosenOption ? 'selectedOption' : 'unselectedOption'"
+						@selectOption="selectOption(index)"
+						@deleteOption="deleteOption(index)"
+					></OptionContainerShort>
+				</draggable>
 			</div>
 		</div>
 		<hr />
@@ -85,6 +89,7 @@
 	import vscode from "../../src/plugins/vscode-api-mixin";
 	import useValidate from "@vuelidate/core";
 	import { required } from "@vuelidate/validators";
+	import { VueDraggableNext } from "vue-draggable-next";
 	import TemplateHeader from "./TemplateHeader.vue";
 	import OptionContainerShort from "./OptionContainerShort.vue";
 	import AddOptionButton from "./AddOptionButton.vue";
@@ -95,6 +100,7 @@
 			TemplateHeader,
 			OptionContainerShort,
 			AddOptionButton,
+			draggable: VueDraggableNext,
 		},
 		mixins: [vscode],
 		setup() {
@@ -329,9 +335,18 @@
 		}
 	}
 
+	#optionsHeader {
+		display: flex;
+	}
+
 	#options {
 		@include centered-flex(row);
-		justify-content: start;
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.dragArea {
+		display: flex;
 		flex-wrap: wrap;
 	}
 

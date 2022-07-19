@@ -1,6 +1,7 @@
 <template>
 	<div id="container">
 		<i id="addOptionIcon" class="codicon codicon-add" @click="addOption"></i>
+		<h4>Add Option</h4>
 	</div>
 </template>
 
@@ -31,16 +32,16 @@
 	@use "../static/mixins.scss" as *;
 
 	#container {
-		@include centered-flex(column);
-		width: 10rem;
-		height: 10rem;
-		margin: 1rem;
+		display: flex;
+		align-items: baseline;
+		justify-content: baseline;
+		margin: 0 1rem 1rem 2rem;
 	}
 
 	#addOptionIcon {
 		background: green;
-		border: 1px solid var(--vscode-descriptionForeground);
 		border-radius: 5px;
 		padding: 3px;
+		margin-right: 0.5rem;
 	}
 </style>

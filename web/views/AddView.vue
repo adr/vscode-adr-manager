@@ -77,10 +77,6 @@
 				);
 			},
 		},
-		/**
-		 * Sets up event listeners to receive messages and data from the extension.
-		 */
-		mounted() {},
 	});
 </script>
 
