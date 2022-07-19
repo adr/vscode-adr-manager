@@ -4,7 +4,7 @@
 			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
 		<div id="madr">
-			<MadrTemplateShort @validated="getValidInput"></MadrTemplateShort>
+			<MadrTemplateShort @validated="getValidInput" @invalidated="invalidate"></MadrTemplateShort>
 		</div>
 		<p id="shortTemplateNote"><em>Note: Some fields of the ADR are not shown in the Short ADR template.</em></p>
 		<div class="buttonGroup">
@@ -35,6 +35,10 @@
 		},
 		computed: {},
 		methods: {
+			/**
+			 * Saves the values of the Short MADR template in this component's data variables.
+			 * @param fields The values of the ADR fields
+			 */
 			getValidInput(fields: {
 				title: string;
 				contextAndProblemStatement: string;
@@ -49,6 +53,17 @@
 				this.explanation = fields.explanation;
 				this.validated = true;
 			},
+			/**
+			 * Sets the validated flag to false if the template has not been filled out properly, thus disabling the
+			 * "Create ADR" button.
+			 */
+			invalidate() {
+				this.validated = false;
+			},
+			/**
+			 * Sends a message to the extension to create and save the ADR as a Markdown file
+			 * in the ADR directory.
+			 */
 			createAdr() {
 				this.sendMessage(
 					"createShortAdr",

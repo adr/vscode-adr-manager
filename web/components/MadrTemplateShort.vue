@@ -46,10 +46,11 @@
 					v-for="(option, index) in consideredOptions"
 					:key="index"
 					:title="option"
-					:class="selectedIndex === index ? 'selectedOption' : 'unselectedOption'"
-					@click="selectOption(index)"
+					:class="option === chosenOption ? 'selectedOption' : 'unselectedOption'"
+					@selectOption="selectOption(index)"
+					@deleteOption="deleteOption(index)"
 				></OptionContainerShort>
-				<AddOptionButton @click="addOption"></AddOptionButton>
+				<AddOptionButton @addOption="addOption"></AddOptionButton>
 			</div>
 		</div>
 		<hr />
@@ -59,7 +60,7 @@
 				:infoText="'Add an explanation for the chosen option.\nYou can add consequences when using the Long ADR template.'"
 			></TemplateHeader>
 			<h3 id="chosenOptionText">
-				Chosen Option: <b>{{ chosenOption === "" ? "none" : chosenOption }}</b>
+				Chosen Option: <b>{{ chosenOptionText }}</b>
 			</h3>
 			<div id="explanation">
 				<h3>because</h3>
@@ -118,51 +119,117 @@
 				},
 			};
 		},
+		computed: {
+			chosenOptionText() {
+				return this.chosenOption !== "" ? this.chosenOption : "none";
+			},
+		},
 		methods: {
+			/**
+			 * Handles the selection of options using clicks and validates that an option has been chosen.
+			 * @param index The index of the clicked option
+			 */
 			selectOption(index: number) {
 				this.selectedIndex = index;
-				this.chosenOption = this.consideredOptions[this.selectedIndex];
+				if (index !== -1) {
+					this.chosenOption = this.consideredOptions[this.selectedIndex];
+				} else {
+					this.chosenOption = "";
+				}
 				this.validate("consideredOptions");
 				this.validate("chosenOption");
 			},
+			/**
+			 * Updates the selected option after an option has been deleted from the list of considered
+			 * options.
+			 * @param originalIndex The original index of the deleted option (before deletion)
+			 */
+			selectOptionAfterDeletion(originalIndex: number) {
+				// check if selected option has been deleted
+				if (originalIndex === this.selectedIndex) {
+					// unselect any option such that the user has to actively select a new option
+					this.selectOption(-1);
+				} else if (originalIndex < this.selectedIndex) {
+					// shift selected index by -1 if the deleted option came before the selected option
+					this.selectOption(this.selectedIndex - 1);
+				}
+			},
+			/**
+			 * Removes the considered option with the specified index from the list of considered options
+			 * and selects another option in the list of considered options.
+			 * @param index The index of the option to be deleted
+			 */
+			deleteOption(index: number) {
+				this.consideredOptions.splice(index, 1);
+				this.selectOptionAfterDeletion(index);
+			},
+			/**
+			 * Sends a message to the extension to ask the user for a title when adding a new option.
+			 */
 			addOption() {
 				this.sendMessage("addOptionShort");
 			},
+			/**
+			 * Validates a specified field of the ADR and sets a flag for each field.
+			 * The user can click on the "Create ADR" button iff all fields are valid,
+			 * i.e. iff all properties of this.valid have the value true.
+			 * @param field The ADR field to be validated
+			 */
 			validate(field: string) {
 				switch (field) {
 					case "title":
 						//@ts-ignore
 						if (!this.v$.title.$error) {
 							this.valid.title = true;
+						} else {
+							this.valid.title = false;
 						}
 						break;
 					case "contextAndProblemStatement":
 						//@ts-ignore
 						if (!this.v$.contextAndProblemStatement.$error) {
 							this.valid.contextAndProblemStatement = true;
+						} else {
+							this.valid.contextAndProblemStatement = false;
 						}
 						break;
 					case "consideredOptions":
-						//@ts-ignore
-						if (!this.v$.consideredOptions.$error) {
+						if (
+							//@ts-ignore
+							!this.v$.consideredOptions.$error &&
+							this.consideredOptions[this.selectedIndex] === this.chosenOption
+						) {
 							this.valid.consideredOptions = true;
+						} else {
+							this.valid.consideredOptions = false;
 						}
 						break;
 					case "chosenOption":
-						//@ts-ignore
-						if (!this.v$.chosenOption.$error) {
+						if (
+							//@ts-ignore
+							!this.v$.chosenOption.$error &&
+							this.chosenOption !== ""
+						) {
 							this.valid.chosenOption = true;
+						} else {
+							this.valid.chosenOption = false;
 						}
 						break;
 					case "explanation":
 						//@ts-ignore
 						if (!this.v$.explanation.$error) {
 							this.valid.explanation = true;
+						} else {
+							this.valid.explanation = false;
 						}
 						break;
 				}
 				this.activateAddButton();
 			},
+			/**
+			 * Enables the "Create ADR" button iff all fields are valid, i.e. every property of
+			 * this.valid has a value of true.
+			 */
 			activateAddButton() {
 				if (Object.values(this.valid).every((value) => value)) {
 					this.$emit("validated", {
@@ -172,6 +239,8 @@
 						chosenOption: this.chosenOption,
 						explanation: this.explanation,
 					});
+				} else {
+					this.$emit("invalidated");
 				}
 			},
 		},
@@ -182,6 +251,7 @@
 				textarea.style.height = "auto";
 				textarea.style.height = `${textarea.scrollHeight}px`;
 			});
+			// add listener to receive option title from user input
 			window.addEventListener("message", (event) => {
 				const message = event.data;
 				switch (message.command) {

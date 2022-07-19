@@ -1,6 +1,6 @@
 <template>
 	<div id="container">
-		<i id="addOptionIcon" class="codicon codicon-add"></i>
+		<i id="addOptionIcon" class="codicon codicon-add" @click="addOption"></i>
 	</div>
 </template>
 
@@ -15,7 +15,15 @@
 				required: true,
 			},
 		},
-		methods: {},
+		methods: {
+			/**
+			 * Emits the "addOption" event which triggers the parent component to add a new option
+			 * to the list of considered options.
+			 */
+			addOption() {
+				this.$emit("addOption");
+			},
+		},
 	});
 </script>
 
