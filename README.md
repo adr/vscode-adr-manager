@@ -15,7 +15,7 @@ In the following, the main structure and most important files will be briefly de
 * `src`: Stores all source code for the extension that is written in TypeScript.
     * `plugins`: Stores useful modules and libraries that will be reused throughout the extension.
     * `extension.ts`: The main TypeScript file in which the extension will be set up (i.e. registering VS Code commands and their functionality etc.).
-    * `WebPanel.ts`: This TypeScript file is used to handle the webview panel for rendering different custom HTML content.
+    * `WebPanel.ts`: This TypeScript file is used to handle the webview panel for rendering different custom HTML content and handling message passing between the extension and the webview.
 
 * `web`: Stores all files relevant to Vue for specifying what to render in the webview, i.e. components, views etc.
     * `pages`: Because we don't have access to a router, we can simulate that using different TypeScript files that specify different views to mount to the DOM. Each TypeScript file stored in this directory will be compiled into separate JavaScript files using [rollup.js](https://rollupjs.org/guide/en/) that will be used to render the webview by specifying a specific key when fetching the HTML content for the webview.
@@ -65,8 +65,10 @@ Here is a step-by-step guide on how to start the extension:
   
 <i>Note</i>: Only Markdown files in the ADR directory that follow the naming format of MADR (NNNN-lowercase-title.md, in (lower) kebab-case and N corresponds to a number between 0-9) are listed in this webview.
 
+* `Add New ADR`: Opens the webview panel where the user can add a new MADR using the template provided by the extension. The extension chooses the basic or the professional MADR template according to the user's preferences configured in the user/workspace settings. (Currently, only basic mode has been implemented.)
+
 * `Initialize ADR Directory`: Upon running this command, the extension will generate the ADR directory specified in the settings (default: "docs/decisions"). In addition, the files "0000-use-markdown-architectural-decision-records.md", "adr-template.md" and "README.md" are created inside the ADR directory as boilerplate. <br/>
 If the ADR directory already exists in the workspace folder, the extension will ask the user if he wants to generate the boilerplate files or not.<br/>
 If the user has opened multiple folders in the same workspace, the extension will ask the user for a specific folder in which the ADR directory should be initialized.
 
-
+* `Change ADR Directory`: Upon executing this command, the extension will ask the user to enter a new directory in which the extension will search for potential MADR files. Alternatively, this can be configured in the user/workspace settings.
