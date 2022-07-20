@@ -29,7 +29,7 @@
 				"category": "ADR Manager"
 			},
 			{
-				"command": "vscode-adr-manager.openAddWebView",
+				"command": "vscode-adr-manager.openAddBasicAdrWebView",
 				"title": "Add New ADR",
 				"category": "ADR Manager"
 			},
@@ -53,6 +53,25 @@
 					"description": "Specifies the path of the ADR directory, relative to a root workspace folder.",
 					"pattern": "^([^?*:\"<>|]+[\\/]?)+$",
 					"patternErrorMessage": "Invalid directory.\nNote that these characters are not allowed in directory names:\n? * : \" < > |"
+				},
+				"adrManager.editorMode.addAdrEditorMode": {
+					"type": "string",
+					"default": "Basic",
+					"enum": [
+						"Basic",
+						"Professional"
+					],
+					"description": "Specifies the grade of detail of the MADR template when adding a new ADR."
+				},
+				"adrManager.editorMode.viewAdrEditorMode": {
+					"type": "string",
+					"default": "Sufficient",
+					"enum": [
+						"Basic",
+						"Professional",
+						"Sufficient"
+					],
+					"description": "Specifies the grade of detail of the MADR template when editing an existing ADR."
 				}
 			}
 		}

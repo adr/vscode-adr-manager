@@ -3,21 +3,29 @@
 		<div id="iconDiv" @click="deleteOption">
 			<i class="codicon codicon-close"></i>
 		</div>
-		<h3>
-			<b>{{ title }}</b>
-		</h3>
+		<div id="text">
+			<h3 @click="selectOption">
+				<b>{{ shortTitle }}</b>
+			</h3>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 	import { defineComponent } from "vue";
+	import { createShortTitle } from "../../src/plugins/utils";
 
 	export default defineComponent({
-		name: "OptionContainerShort",
+		name: "OptionContainerBasic",
 		props: {
 			title: {
 				type: String,
 				required: true,
+			},
+		},
+		computed: {
+			shortTitle() {
+				return createShortTitle(this.title);
 			},
 		},
 		methods: {
@@ -48,28 +56,29 @@
 	}
 
 	#optionBox {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		grid-template-rows: repeat(3, 1fr);
-		grid-column-gap: 0px;
-		grid-row-gap: 0px;
-		width: 10rem;
-		height: 10rem;
+		@include centered-flex(row);
+		width: 12rem;
+		height: 12rem;
 		margin: 1rem;
 		border: 1px solid var(--vscode-input-foreground);
 		border-radius: 5px;
+	}
+
+	#text {
+		@include centered-flex(row);
+
+		text-align: center;
+		width: 100%;
+		margin: 10px;
+		overflow-wrap: anywhere;
 		& h3 {
-			grid-area: 2 / 2 / 3 / 3;
-			align-self: center;
-			justify-self: center;
-			color: var(--vscode-editor-foreground);
+			padding: 0;
 		}
 	}
 
 	#iconDiv {
-		grid-area: 1 / 3 / 2 / 4;
-		justify-self: right;
-
+		position: absolute;
+		transform: translate(250%, -250%);
 		& i {
 			transform: scale(1.5);
 			padding: 5px;

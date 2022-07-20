@@ -40,20 +40,20 @@
 			<div id="optionsHeader">
 				<TemplateHeader
 					:name="'Considered Options'"
-					:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.\nOnly write a concise description; you can add a more detailed description when using the Long ADR template.'"
+					:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.\nOnly write a concise description; you can add a more detailed description when using the Professional MADR template.'"
 				></TemplateHeader>
 				<AddOptionButton @addOption="addOption" draggable="false"></AddOptionButton>
 			</div>
 			<div id="options">
 				<draggable class="dragArea" :list="consideredOptions" :sort="true">
-					<OptionContainerShort
+					<OptionContainerBasic
 						v-for="(option, index) in consideredOptions"
 						:key="index"
 						:title="option"
 						:class="option === chosenOption ? 'selectedOption' : 'unselectedOption'"
 						@selectOption="selectOption(index)"
 						@deleteOption="deleteOption(index)"
-					></OptionContainerShort>
+					></OptionContainerBasic>
 				</draggable>
 			</div>
 		</div>
@@ -61,7 +61,7 @@
 		<div id="decisionOutcome">
 			<TemplateHeader
 				:name="'Decision Outcome'"
-				:infoText="'Add an explanation for the chosen option.\nYou can add consequences when using the Long ADR template.'"
+				:infoText="'Add an explanation for the chosen option.\nYou can add consequences when using the Professional MADR template.'"
 			></TemplateHeader>
 			<h3 id="chosenOptionText">
 				Chosen Option: <b>{{ chosenOptionText }}</b>
@@ -91,14 +91,15 @@
 	import { required } from "@vuelidate/validators";
 	import { VueDraggableNext } from "vue-draggable-next";
 	import TemplateHeader from "./TemplateHeader.vue";
-	import OptionContainerShort from "./OptionContainerShort.vue";
+	import OptionContainerBasic from "./OptionContainerBasic.vue";
 	import AddOptionButton from "./AddOptionButton.vue";
+	import { createShortTitle } from "../../src/plugins/utils";
 
 	export default defineComponent({
-		name: "MadrTemplateShort",
+		name: "MadrTemplateBasic",
 		components: {
 			TemplateHeader,
-			OptionContainerShort,
+			OptionContainerBasic,
 			AddOptionButton,
 			draggable: VueDraggableNext,
 		},
@@ -111,6 +112,7 @@
 		data() {
 			return {
 				title: "",
+				oldTitle: "",
 				contextAndProblemStatement: "",
 				consideredOptions: [] as string[],
 				chosenOption: "",
@@ -127,10 +129,38 @@
 		},
 		computed: {
 			chosenOptionText() {
-				return this.chosenOption !== "" ? this.chosenOption : "none";
+				return this.chosenOption !== "" ? createShortTitle(this.chosenOption) : "none";
 			},
 		},
 		methods: {
+			/**
+			 * Fills the fields with the existing values of the ADR.
+			 */
+			fillFields(adr: {
+				title: string;
+				contextAndProblemStatement: string;
+				consideredOptions: string[];
+				chosenOption: string;
+				explanation: string;
+			}) {
+				this.title = adr.title;
+				this.oldTitle = adr.title;
+				this.contextAndProblemStatement = adr.contextAndProblemStatement;
+				this.consideredOptions = adr.consideredOptions;
+				this.chosenOption = adr.chosenOption;
+				this.explanation = adr.explanation;
+				this.selectOption(
+					this.consideredOptions
+						.map((option) => {
+							return createShortTitle(option);
+						})
+						.findIndex((option) => {
+							return option === this.chosenOption;
+						})
+				);
+				this.v$.$validate();
+				this.validateAll();
+			},
 			/**
 			 * Handles the selection of options using clicks and validates that an option has been chosen.
 			 * @param index The index of the clicked option
@@ -173,7 +203,17 @@
 			 * Sends a message to the extension to ask the user for a title when adding a new option.
 			 */
 			addOption() {
-				this.sendMessage("addOptionShort");
+				this.sendMessage("addOptionBasic");
+			},
+			/**
+			 * Validates every field of the ADR.
+			 */
+			validateAll() {
+				this.validate("title");
+				this.validate("contextAndProblemStatement");
+				this.validate("consideredOptions");
+				this.validate("chosenOption");
+				this.validate("explanation");
 			},
 			/**
 			 * Validates a specified field of the ADR and sets a flag for each field.
@@ -240,6 +280,7 @@
 				if (Object.values(this.valid).every((value) => value)) {
 					this.$emit("validated", {
 						title: this.title,
+						oldTitle: this.oldTitle,
 						contextAndProblemStatement: this.contextAndProblemStatement,
 						consideredOptions: this.consideredOptions,
 						chosenOption: this.chosenOption,
@@ -261,12 +302,17 @@
 			window.addEventListener("message", (event) => {
 				const message = event.data;
 				switch (message.command) {
-					case "addOptionShort":
+					case "addOptionBasic":
 						this.consideredOptions.push(message.option);
 						if (this.consideredOptions.length === 1) {
 							this.selectOption(0);
 						}
 						break;
+					case "fetchAdrValues":
+						this.fillFields(message.adr);
+						break;
+					case "saveSuccessful":
+						this.oldTitle = this.title;
 				}
 			});
 		},

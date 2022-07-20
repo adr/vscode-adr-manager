@@ -26,6 +26,59 @@ function getAdrDirectoryString(): string {
 }
 
 /**
+ * Returns the string of the preferred editor mode specified by the user in the user/workspace setting
+ * when adding a new ADR
+ * @returns The preferred editor mode when adding a new ADR
+ */
+export function getAddEditorMode(): string {
+	return vscode.workspace.getConfiguration("adrManager.editorMode").get("addAdrEditorMode")!;
+}
+
+/**
+ * Returns the string of the preferred editor mode specified by the user in the user/workspace setting
+ * when editing an existing ADR
+ * @returns The preferred editor mode when editing an existing ADR
+ */
+export function getViewEditorMode(): string {
+	return vscode.workspace.getConfiguration("adrManager.editorMode").get("viewAdrEditorMode")!;
+}
+
+/**
+ * Returns either "Basic" or "Professional" based on the sufficiency of the MADR template
+ * when editing an existing ADR specified by the file URI.
+ * @param fileUri The URI to the ADR to be edited
+ */
+export async function determineViewEditorMode(mdString: string): Promise<string> {
+	const adr = md2adr(mdString);
+	if (isProfessionalAdr(adr)) {
+		return "Professional";
+	} else {
+		return "Basic";
+	}
+}
+
+/**
+ * Returns true iff the specified ADR object contains at least one non-empty optional field.
+ * @param adr The ADR object to check for grade of detail
+ * @returns True iff the specified ADR object has any non-empty optional fields
+ */
+function isProfessionalAdr(adr: ArchitecturalDecisionRecord) {
+	return (
+		adr.status ||
+		adr.deciders ||
+		adr.date ||
+		adr.technicalStory ||
+		adr.decisionDrivers.length ||
+		adr.consideredOptions.some((option) => {
+			return option.pros.length || option.cons.length;
+		}) ||
+		adr.decisionOutcome.positiveConsequences.length ||
+		adr.decisionOutcome.negativeConsequences.length ||
+		adr.links.length
+	);
+}
+
+/**
  * Returns true iff there is a folder opened in the current workspace of the VS Code instance.
  * @returns True iff a folder is opened in the current workspace of the VS Code instance
  */
@@ -300,11 +353,84 @@ export function createShortAdr(fields: {
 }
 
 /**
- * Returns an array of objects that each represent one considered option. This
+ * Saves any changes made to an ADR in the corresponding file, overwriting existing data.
+ * @param fields The fields of the edited short ADR
+ * @param oldTitle The old title of the ADR, used for locating the Markdown file to edit
+ */
+export async function saveShortAdr(
+	fields: {
+		title: string;
+		contextAndProblemStatement: string;
+		consideredOptions: string[];
+		chosenOption: string;
+		explanation: string;
+	},
+	oldTitle: string
+) {
+	// Get Considered Options
+	const consideredOptions = getConsideredOptionsFromStrings(fields.consideredOptions);
+
+	// Get Decision Outcome
+	const decisionOutcome: {
+		chosenOption: string;
+		explanation: string;
+		positiveConsequences: string[];
+		negativeConsequences: string[];
+	} = {
+		chosenOption: fields.chosenOption,
+		explanation: fields.explanation,
+		positiveConsequences: [],
+		negativeConsequences: [],
+	};
+
+	// Create ADR object
+	const newAdr = new ArchitecturalDecisionRecord({
+		title: fields.title,
+		contextAndProblemStatement: fields.contextAndProblemStatement,
+		consideredOptions: consideredOptions,
+		decisionOutcome: decisionOutcome,
+	});
+
+	// Convert ADR object to Markdown and save
+	const newMD = adr2md(newAdr);
+	const fileUri = await getExistingAdrUri(oldTitle);
+	if (fileUri) {
+		const newUri = getRenamedUri(fileUri, newAdr.title);
+		await vscode.workspace.fs.rename(fileUri, newUri);
+		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(newMD));
+	} else {
+		vscode.window.showWarningMessage("ADR could not be found in the workspace.");
+	}
+}
+
+/**
+ * Returns a URI of the Markdown file iff there exists an ADR that has the same title as the specified string.
+ * @param title The title of an existing ADR
+ * @returns The URI of the existing ADR corresponding to the specified ADR title
+ */
+async function getExistingAdrUri(title: string): Promise<vscode.Uri | undefined> {
+	const allMDs = await getAllMDs();
+	for (const md of allMDs) {
+		if (md2adr(md.adr).title === title) {
+			return vscode.Uri.parse(md.fullPath);
+		}
+	}
+}
+
+function getRenamedUri(fileUri: vscode.Uri, newName: string): vscode.Uri {
+	const uriWithoutTitleInFileName = fileUri.toString().substring(0, fileUri.toString().lastIndexOf("/") + 6);
+	const newUriString = uriWithoutTitleInFileName.concat(naturalCase2snakeCase(newName), ".md");
+	return vscode.Uri.parse(newUriString);
+}
+
+/**
+ * Returns an array of objects that each represent one considered option.
  * @param options A string array of option titles
  * @returns An array of objects which each represent an option with only a title
  */
-function getConsideredOptionsFromStrings(options: string[]) {
+function getConsideredOptionsFromStrings(
+	options: string[]
+): { title: string; description: string; pros: string[]; cons: string[] }[] {
 	const consideredOptions: { title: string; description: string; pros: string[]; cons: string[] }[] = [];
 	for (const option of options) {
 		consideredOptions.push({
@@ -315,6 +441,26 @@ function getConsideredOptionsFromStrings(options: string[]) {
 		});
 	}
 	return consideredOptions;
+}
+
+/**
+ * Returns an array of strings that each represent the title of one considered option. This
+ * @param options An array of considered option objects
+ * @returns An array of strings which each represent an option
+ */
+export function getOptionStringsFromConsideredOptions(
+	options: {
+		title: string;
+		description: string;
+		pros: string[];
+		cons: string[];
+	}[]
+): string[] {
+	const optionStrings: string[] = [];
+	for (const option of options) {
+		optionStrings.push(option.title);
+	}
+	return optionStrings;
 }
 
 /**

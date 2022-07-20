@@ -7,6 +7,7 @@
 				:key="index"
 				:adr="adr"
 				@requestDelete="requestDelete(adr)"
+				@requestView="requestView(adr)"
 			></ADRContainer>
 		</div>
 		<button id="addAdrButton" @click="sendMessage('add')">Add ADR</button>
@@ -74,6 +75,14 @@
 				fileName: string;
 			}) {
 				this.sendMessage("requestDelete", { title: adr.adr.title, fullPath: adr.fullPath });
+			},
+			requestView(adr: {
+				adr: ArchitecturalDecisionRecord;
+				fullPath: string;
+				relativePath: string;
+				fileName: string;
+			}) {
+				this.sendMessage("view", { fullPath: adr.fullPath });
 			},
 		},
 		/**

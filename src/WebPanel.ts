@@ -1,7 +1,16 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
-import { createShortAdr, getAllMDs, watchMarkdownChanges } from "./extension-functions";
+import {
+	createShortAdr,
+	determineViewEditorMode,
+	getAddEditorMode,
+	getAllMDs,
+	getOptionStringsFromConsideredOptions,
+	getViewEditorMode,
+	saveShortAdr,
+	watchMarkdownChanges,
+} from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { md2adr } from "./plugins/parser";
 
@@ -70,8 +79,33 @@ export class WebPanel {
 					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
 					return;
 				case "add":
-					vscode.commands.executeCommand("vscode-adr-manager.openAddWebView");
+					if (getAddEditorMode() === "Basic") {
+						vscode.commands.executeCommand("vscode-adr-manager.openAddBasicAdrWebView");
+					} else {
+						// execute command for adding Professional ADR
+					}
 					return;
+				case "view": {
+					const fileUri = vscode.Uri.parse(e.data.fullPath);
+					const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
+					switch (getViewEditorMode()) {
+						case "Sufficient":
+							if ((await determineViewEditorMode(mdString)) === "Basic") {
+								// execute command for viewing Basic ADR
+								await this.viewBasicAdr(mdString);
+							} else {
+								// execute command for viewing Professional ADR
+							}
+							return;
+						case "Basic":
+							// execute command for viewing Basic ADR
+							await this.viewBasicAdr(mdString);
+							return;
+						case "Professional":
+							// execute command for viewing Professional ADR
+							return;
+					}
+				}
 				case "fetchAdrs":
 					let allAdrs: {
 						adr: ArchitecturalDecisionRecord;
@@ -100,16 +134,39 @@ export class WebPanel {
 						vscode.window.showInformationMessage("ADR deleted successfully.");
 					}
 					return;
-				case "addOptionShort":
+				case "addOptionBasic":
 					const option = await vscode.window.showInputBox({ title: "Enter a concise name for the option:" });
 					if (option) {
-						this._panel.webview.postMessage({ command: "addOptionShort", option: option });
+						this._panel.webview.postMessage({ command: "addOptionBasic", option: option });
 					}
 					return;
-				case "createShortAdr":
+				case "createBasicAdr":
 					createShortAdr(JSON.parse(e.data));
 					return;
+				case "saveBasicAdr":
+					await saveShortAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
+					this._panel.webview.postMessage({ command: "saveSuccessful" });
+					await vscode.window.showInformationMessage("ADR saved successfully.");
+					return;
 			}
+		});
+	}
+	/**
+	 * Opens the Basic MADR template and fills the fields with existing values of the specified ADR.
+	 * @param mdString The Markdown ADR as a string
+	 */
+	async viewBasicAdr(mdString: string) {
+		const adr = md2adr(mdString);
+		await vscode.commands.executeCommand("vscode-adr-manager.openViewBasicAdrWebView");
+		this._panel.webview.postMessage({
+			command: "fetchAdrValues",
+			adr: {
+				title: adr.title,
+				contextAndProblemStatement: adr.contextAndProblemStatement,
+				consideredOptions: getOptionStringsFromConsideredOptions(adr.consideredOptions),
+				chosenOption: adr.decisionOutcome.chosenOption,
+				explanation: adr.decisionOutcome.explanation,
+			},
 		});
 	}
 
@@ -149,8 +206,12 @@ export class WebPanel {
 			case "main":
 				this._panel.title = "ADR Manager";
 				return;
-			case "add":
+			case "add-basic" || "add-professional":
 				this._panel.title = "ADR Manager - New ADR";
+				return;
+			case "view-basic" || "view-professional":
+				this._panel.title = "ADR Manager - View ADR";
+				return;
 		}
 	}
 

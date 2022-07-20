@@ -265,7 +265,10 @@ export function adr2md(adrToParse) {
 		md = adr.consideredOptions.reduce((total, opt) => total + "* " + opt.title + "\n", md);
 	}
 
-	md = md.concat('\n## Decision Outcome\n\nChosen option: "' + adr.decisionOutcome.chosenOption.replaceAll('"', "'"));
+	md = md.concat(
+		'\n## Decision Outcome\n\nChosen option: "' +
+			createShortTitle(adr.decisionOutcome.chosenOption.replaceAll('"', "'"))
+	);
 
 	if (adr.decisionOutcome.explanation.trim() !== "") {
 		let isList = adr.decisionOutcome.explanation.trim().match(/^[*-+]/);

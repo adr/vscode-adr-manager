@@ -4,9 +4,9 @@
 			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
 		<div id="madr">
-			<MadrTemplateShort @validated="getValidInput" @invalidated="invalidate"></MadrTemplateShort>
+			<MadrTemplateBasic @validated="getValidInput" @invalidated="invalidate"></MadrTemplateBasic>
 		</div>
-		<p id="shortTemplateNote"><em>Note: Some fields of the ADR are not shown in the Short ADR template.</em></p>
+		<p id="basicTemplateNote"><em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em></p>
 		<div class="buttonGroup">
 			<button id="createButton" :disabled="!validated" @click="createAdr">Create ADR</button>
 		</div>
@@ -15,12 +15,12 @@
 
 <script lang="ts">
 	import { defineComponent } from "vue";
-	import MadrTemplateShort from "../components/MadrTemplateShort.vue";
+	import MadrTemplateBasic from "../components/MadrTemplateBasic.vue";
 	import vscode from "../../src/plugins/vscode-api-mixin";
 
 	export default defineComponent({
 		components: {
-			MadrTemplateShort,
+			MadrTemplateBasic,
 		},
 		mixins: [vscode],
 		data() {
@@ -66,7 +66,7 @@
 			 */
 			createAdr() {
 				this.sendMessage(
-					"createShortAdr",
+					"createBasicAdr",
 					JSON.stringify({
 						title: this.title,
 						contextAndProblemStatement: this.contextAndProblemStatement,
@@ -106,7 +106,7 @@
 		@include centered-flex(row);
 	}
 
-	#shortTemplateNote {
+	#basicTemplateNote {
 		margin: -0.75rem 0 2rem 1rem;
 	}
 
