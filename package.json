@@ -50,28 +50,37 @@
 				"adrManager.adrDirectory": {
 					"type": "string",
 					"default": "docs/decisions",
-					"description": "Specifies the path of the ADR directory, relative to a root workspace folder.",
+					"description": "Specifies the path of the ADR directory, relative to a root workspace folder",
 					"pattern": "^([^?*:\"<>|]+[\\/]?)+$",
 					"patternErrorMessage": "Invalid directory.\nNote that these characters are not allowed in directory names:\n? * : \" < > |"
 				},
 				"adrManager.editorMode.addAdrEditorMode": {
 					"type": "string",
-					"default": "Basic",
+					"default": "basic",
 					"enum": [
-						"Basic",
-						"Professional"
+						"basic",
+						"professional"
 					],
-					"description": "Specifies the grade of detail of the MADR template when adding a new ADR."
+					"enumDescriptions": [
+						"Use a short MADR template with only required fields of a MADR",
+						"Use a long MADR template with access to every field of a MADR"
+					],
+					"description": "Specifies the grade of detail of the MADR template when adding a new MADR"
 				},
 				"adrManager.editorMode.viewAdrEditorMode": {
 					"type": "string",
-					"default": "Sufficient",
+					"default": "sufficient",
 					"enum": [
-						"Basic",
-						"Professional",
-						"Sufficient"
+						"basic",
+						"professional",
+						"sufficient"
 					],
-					"description": "Specifies the grade of detail of the MADR template when editing an existing ADR."
+					"enumDescriptions": [
+						"Use a short MADR template with only required fields of a MADR",
+						"Use a long MADR template with access to every field of a MADR",
+						"Automatically select the least sufficient editor mode based on the displayed MADR"
+					],
+					"description": "Specifies the grade of detail of the MADR template when editing an existing MADR"
 				}
 			}
 		}

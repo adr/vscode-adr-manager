@@ -79,7 +79,7 @@ export class WebPanel {
 					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
 					return;
 				case "add":
-					if (getAddEditorMode() === "Basic") {
+					if (getAddEditorMode() === "basic") {
 						vscode.commands.executeCommand("vscode-adr-manager.openAddBasicAdrWebView");
 					} else {
 						// execute command for adding Professional ADR
@@ -89,19 +89,19 @@ export class WebPanel {
 					const fileUri = vscode.Uri.parse(e.data.fullPath);
 					const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
 					switch (getViewEditorMode()) {
-						case "Sufficient":
-							if ((await determineViewEditorMode(mdString)) === "Basic") {
+						case "sufficient":
+							if ((await determineViewEditorMode(mdString)) === "basic") {
 								// execute command for viewing Basic ADR
 								await this.viewBasicAdr(mdString);
 							} else {
 								// execute command for viewing Professional ADR
 							}
 							return;
-						case "Basic":
+						case "basic":
 							// execute command for viewing Basic ADR
 							await this.viewBasicAdr(mdString);
 							return;
-						case "Professional":
+						case "professional":
 							// execute command for viewing Professional ADR
 							return;
 					}
@@ -146,7 +146,7 @@ export class WebPanel {
 				case "saveBasicAdr":
 					await saveShortAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
 					this._panel.webview.postMessage({ command: "saveSuccessful" });
-					await vscode.window.showInformationMessage("ADR saved successfully.");
+					await vscode.window.showInformationMessage("ADR saved successfully");
 					return;
 			}
 		});

@@ -44,16 +44,16 @@ export function getViewEditorMode(): string {
 }
 
 /**
- * Returns either "Basic" or "Professional" based on the sufficiency of the MADR template
+ * Returns either "basic" or "professional" based on the sufficiency of the MADR template
  * when editing an existing ADR specified by the file URI.
- * @param fileUri The URI to the ADR to be edited
+ * @param mdString The Markdown string of the ADR to be edited
  */
 export async function determineViewEditorMode(mdString: string): Promise<string> {
 	const adr = md2adr(mdString);
 	if (isProfessionalAdr(adr)) {
-		return "Professional";
+		return "professional";
 	} else {
-		return "Basic";
+		return "basic";
 	}
 }
 
@@ -492,7 +492,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 					await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
 					// Show success message and open file in separate editor
 					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-					await vscode.window.showInformationMessage("ADR created successfully.");
+					await vscode.window.showInformationMessage("ADR created successfully");
 				}
 			} else {
 				// "Real" single-root workspace
@@ -503,7 +503,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
 				// Show success message and open file in separate editor
 				vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-				vscode.window.showInformationMessage("ADR created successfully.");
+				vscode.window.showInformationMessage("ADR created successfully");
 			}
 		} else {
 			// Multi-root workspace
@@ -516,7 +516,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
 				// Show success message and open file in separate editor
 				vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-				vscode.window.showInformationMessage("ADR created successfully.");
+				vscode.window.showInformationMessage("ADR created successfully");
 			}
 		}
 	}
