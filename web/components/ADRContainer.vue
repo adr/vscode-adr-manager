@@ -67,11 +67,11 @@
 	}
 
 	.conforming {
-		border: 1px solid var(--vscode-descriptionForeground);
+		border: 1.5px solid var(--vscode-descriptionForeground);
 	}
 
 	.not-conforming {
-		border: 1px solid var(--vscode-editorError-foreground);
+		border: 1.5px solid var(--vscode-editorError-foreground);
 	}
 
 	.not-conforming-message {

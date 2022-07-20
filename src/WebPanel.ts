@@ -135,9 +135,22 @@ export class WebPanel {
 					}
 					return;
 				case "addOptionBasic":
-					const option = await vscode.window.showInputBox({ title: "Enter a concise name for the option:" });
+					const option = await vscode.window.showInputBox({ prompt: "Enter a concise name for the option:" });
 					if (option) {
 						this._panel.webview.postMessage({ command: "addOptionBasic", option: option });
+					}
+					return;
+				case "requestBasicOptionEdit":
+					const newTitle = await vscode.window.showInputBox({
+						prompt: "Enter a concise name for the option:",
+						value: e.data.currentTitle,
+					});
+					if (newTitle) {
+						this._panel.webview.postMessage({
+							command: "requestBasicOptionEdit",
+							newTitle: newTitle,
+							index: e.data.index,
+						});
 					}
 					return;
 				case "createBasicAdr":

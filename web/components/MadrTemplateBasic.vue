@@ -52,6 +52,7 @@
 						:title="option"
 						:class="option === chosenOption ? 'selectedOption' : 'unselectedOption'"
 						@selectOption="selectOption(index)"
+						@editOption="editOption(option, index)"
 						@deleteOption="deleteOption(index)"
 					></OptionContainerBasic>
 				</draggable>
@@ -191,6 +192,13 @@
 				}
 			},
 			/**
+			 * Sends a message to the extension to promt the user to enter a new name for the option.
+			 * @param index The index of the option to edit
+			 */
+			editOption(option: string, index: number) {
+				this.sendMessage("requestBasicOptionEdit", { currentTitle: option, index: index });
+			},
+			/**
 			 * Removes the considered option with the specified index from the list of considered options
 			 * and selects another option in the list of considered options.
 			 * @param index The index of the option to be deleted
@@ -308,6 +316,11 @@
 							this.selectOption(0);
 						}
 						break;
+					case "requestBasicOptionEdit":
+						if (message.newTitle) {
+							this.consideredOptions[message.index] = message.newTitle;
+						}
+						break;
 					case "fetchAdrValues":
 						this.fillFields(message.adr);
 						break;
@@ -349,7 +362,7 @@
 	body.vscode-high-contrast {
 		& input,
 		textarea {
-			border: 1px solid var(--vscode-contrastBorder);
+			border: 1.5px solid var(--vscode-contrastBorder);
 		}
 	}
 
@@ -357,7 +370,7 @@
 		width: 100%;
 		height: auto;
 		background: var(--vscode-textBlockQuote-background);
-		border: 1px solid var(--vscode-input-foreground);
+		border: 1.5px solid var(--vscode-input-foreground);
 		margin: 1.5rem 1rem;
 		padding: 1.5rem;
 	}
@@ -429,13 +442,13 @@
 
 	.validInput,
 	.validInput:focus {
-		border: 1px solid green !important;
+		border: 1.5px solid green !important;
 		outline-color: green !important;
 	}
 
 	.invalidInput,
 	.invalidInput:focus {
-		border: 1px solid var(--vscode-editorError-foreground) !important;
+		border: 1.5px solid var(--vscode-editorError-foreground) !important;
 		outline-color: var(--vscode-editorError-foreground) !important;
 	}
 

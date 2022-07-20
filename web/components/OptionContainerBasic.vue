@@ -1,6 +1,9 @@
 <template>
 	<div id="optionBox" @click.self="selectOption">
-		<div id="iconDiv" @click="deleteOption">
+		<div id="editIconDiv" @click="editOption">
+			<i class="codicon codicon-edit"></i>
+		</div>
+		<div id="deleteIconDiv" @click="deleteOption">
 			<i class="codicon codicon-close"></i>
 		</div>
 		<div id="text">
@@ -42,6 +45,12 @@
 			deleteOption() {
 				this.$emit("deleteOption");
 			},
+			/**
+			 * Emits the "editOption" event which triggers the parent component to edit the specified option.
+			 */
+			editOption() {
+				this.$emit("editOption");
+			},
 		},
 	});
 </script>
@@ -52,6 +61,9 @@
 	body.vscode-high-contrast {
 		& #optionBox {
 			border: 1px solid var(--vscode-contrastBorder);
+		}
+		& .selectedOption .codicon {
+			color: var(--vscode-editor-background);
 		}
 	}
 
@@ -76,7 +88,16 @@
 		}
 	}
 
-	#iconDiv {
+	#editIconDiv {
+		position: absolute;
+		transform: translate(-250%, -250%);
+		& i {
+			transform: scale(1.2);
+			padding: 5px;
+		}
+	}
+
+	#deleteIconDiv {
 		position: absolute;
 		transform: translate(250%, -250%);
 		& i {

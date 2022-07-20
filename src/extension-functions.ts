@@ -323,29 +323,7 @@ export function createShortAdr(fields: {
 	chosenOption: string;
 	explanation: string;
 }) {
-	// Get Considered Options
-	const consideredOptions = getConsideredOptionsFromStrings(fields.consideredOptions);
-
-	// Get Decision Outcome
-	const decisionOutcome: {
-		chosenOption: string;
-		explanation: string;
-		positiveConsequences: string[];
-		negativeConsequences: string[];
-	} = {
-		chosenOption: fields.chosenOption,
-		explanation: fields.explanation,
-		positiveConsequences: [],
-		negativeConsequences: [],
-	};
-
-	// Create ADR object
-	const newAdr = new ArchitecturalDecisionRecord({
-		title: fields.title,
-		contextAndProblemStatement: fields.contextAndProblemStatement,
-		consideredOptions: consideredOptions,
-		decisionOutcome: decisionOutcome,
-	});
+	const newAdr = getBasicAdrObjectFromFields(fields);
 
 	// Convert ADR object to Markdown and save it in the ADR directory
 	const newMD = adr2md(newAdr);
@@ -367,6 +345,32 @@ export async function saveShortAdr(
 	},
 	oldTitle: string
 ) {
+	const newAdr = getBasicAdrObjectFromFields(fields);
+
+	// Convert ADR object to Markdown and save
+	const newMD = adr2md(newAdr);
+	const fileUri = await getExistingAdrUri(oldTitle);
+	if (fileUri) {
+		const newUri = getRenamedUri(fileUri, newAdr.title);
+		await vscode.workspace.fs.rename(fileUri, newUri);
+		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(newMD));
+	} else {
+		vscode.window.showWarningMessage("ADR could not be found in the workspace.");
+	}
+}
+
+/**
+ * Returns a new (basic) ADR object with only the specified required fields.
+ * @param fields The required fields of the basic ADR object
+ * @returns A new ADR object with the specified required fields
+ */
+function getBasicAdrObjectFromFields(fields: {
+	title: string;
+	contextAndProblemStatement: string;
+	consideredOptions: string[];
+	chosenOption: string;
+	explanation: string;
+}): ArchitecturalDecisionRecord {
 	// Get Considered Options
 	const consideredOptions = getConsideredOptionsFromStrings(fields.consideredOptions);
 
@@ -391,16 +395,7 @@ export async function saveShortAdr(
 		decisionOutcome: decisionOutcome,
 	});
 
-	// Convert ADR object to Markdown and save
-	const newMD = adr2md(newAdr);
-	const fileUri = await getExistingAdrUri(oldTitle);
-	if (fileUri) {
-		const newUri = getRenamedUri(fileUri, newAdr.title);
-		await vscode.workspace.fs.rename(fileUri, newUri);
-		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(newMD));
-	} else {
-		vscode.window.showWarningMessage("ADR could not be found in the workspace.");
-	}
+	return newAdr;
 }
 
 /**
@@ -417,6 +412,13 @@ async function getExistingAdrUri(title: string): Promise<vscode.Uri | undefined>
 	}
 }
 
+/**
+ * Returns a URI of a MADR file that has been renamed to the specified name.
+ * The Markdown file keeps its original ADR number, only its "actual" name will be changed.
+ * @param fileUri The URI of the original file that should be renamed
+ * @param newName A string to which a file should be renamed to
+ * @returns A new URI with the replaced file name
+ */
 function getRenamedUri(fileUri: vscode.Uri, newName: string): vscode.Uri {
 	const uriWithoutTitleInFileName = fileUri.toString().substring(0, fileUri.toString().lastIndexOf("/") + 6);
 	const newUriString = uriWithoutTitleInFileName.concat(naturalCase2snakeCase(newName), ".md");
@@ -444,7 +446,7 @@ function getConsideredOptionsFromStrings(
 }
 
 /**
- * Returns an array of strings that each represent the title of one considered option. This
+ * Returns an array of strings that each represent the title of one considered option.
  * @param options An array of considered option objects
  * @returns An array of strings which each represent an option
  */
