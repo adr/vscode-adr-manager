@@ -74,6 +74,11 @@
 		margin: 1rem;
 		border: 1px solid var(--vscode-input-foreground);
 		border-radius: 5px;
+		&:hover {
+			cursor: pointer;
+			filter: brightness(110%);
+			transform: scale(1.02);
+		}
 	}
 
 	#text {

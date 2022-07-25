@@ -317,7 +317,7 @@
 				const message = event.data;
 				switch (message.command) {
 					case "addOptionBasic":
-						this.consideredOptions.push(message.option);
+						this.consideredOptions.push({ title: message.option, description: "", pros: [], cons: [] });
 						if (this.consideredOptions.length === 1) {
 							this.selectOption(0);
 						}
