@@ -590,7 +590,7 @@ export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
 				fileName: md.fileName,
 			});
 		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 	});
 	watcher.onDidChange(async (e) => {
 		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
@@ -603,7 +603,7 @@ export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
 				fileName: md.fileName,
 			});
 		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 	});
 	watcher.onDidDelete(async (e) => {
 		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
@@ -616,7 +616,7 @@ export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
 				fileName: md.fileName,
 			});
 		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+		panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 	});
 }
 
