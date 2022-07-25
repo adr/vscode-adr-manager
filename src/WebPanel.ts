@@ -53,7 +53,7 @@ export class WebPanel {
 
 		// listen for changes on Markdown files to dynamically update ADR list in webview
 		watchForWorkspaceChanges(panel);
-		panel.iconPath = vscode.Uri.joinPath(extensionUri, "src/assets/logo.png");
+		panel.iconPath = vscode.Uri.joinPath(extensionUri, "assets/logo.png");
 
 		watchForConfigurationChanges(panel);
 

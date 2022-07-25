@@ -4,8 +4,6 @@ Visual Studio Code (VS Code) extension based on the [ADR Manager](https://github
 
 The VS Code extension is part of a Bachelor Thesis written at the University of Stuttgart by Steven Chen.
 
-<br/>
-
 ## Features
 
 ### Commands
@@ -24,7 +22,6 @@ If the user has opened multiple folders in the same workspace, the extension wil
 
 * `Change ADR Directory`: Upon executing this command, the extension will ask the user to enter a new directory in which the extension will search for potential MADR files. Alternatively, this can be configured in the user/workspace settings.
 
-<br/>
 
 ### Settings
 
@@ -36,7 +33,6 @@ As of now, this extension contributes the following settings:
   
 * `adrManager.editorMode.viewAdrEditorMode`: Specifies the preferred editor mode when viewing/editing an existing ADR using the extension's webview
 
-<br/>
 
 ## Known Issues
 
