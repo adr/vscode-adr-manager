@@ -136,7 +136,7 @@ export function snakeCase2naturalCase(snake: string): string {
  * @param {string} natural - a string in natural case
  */
 export function naturalCase2snakeCase(natural: string): string {
-	return natural.toLowerCase().split(" ").join("-");
+	return natural.trim().toLowerCase().split(" ").join("-");
 }
 
 /**
@@ -196,7 +196,7 @@ export function naturalCase2titleCase(natural: string): string {
 		str = str.replace(regex, uppers[i] + "s");
 	}
 
-	return str;
+	return str.trim();
 }
 
 /**

@@ -121,7 +121,7 @@ export class WebPanel {
 							fileName: md.fileName,
 						});
 					});
-					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 					return;
 				case "requestDelete":
 					const selection = await vscode.window.showWarningMessage(
@@ -157,9 +157,18 @@ export class WebPanel {
 					createShortAdr(JSON.parse(e.data));
 					return;
 				case "saveBasicAdr":
-					await saveShortAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
-					this._panel.webview.postMessage({ command: "saveSuccessful" });
-					await vscode.window.showInformationMessage("ADR saved successfully");
+					const uri = await saveShortAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
+					if (uri) {
+						this._panel.webview.postMessage({ command: "saveSuccessful" });
+						const open = await vscode.window.showInformationMessage(
+							"ADR saved successfully. Do you want to open the Markdown file?",
+							"Yes",
+							"No"
+						);
+						if (open === "Yes") {
+							vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
+						}
+					}
 					return;
 			}
 		});
@@ -173,13 +182,13 @@ export class WebPanel {
 		await vscode.commands.executeCommand("vscode-adr-manager.openViewBasicAdrWebView");
 		this._panel.webview.postMessage({
 			command: "fetchAdrValues",
-			adr: {
+			adr: JSON.stringify({
 				title: adr.title,
 				contextAndProblemStatement: adr.contextAndProblemStatement,
-				consideredOptions: getOptionStringsFromConsideredOptions(adr.consideredOptions),
+				consideredOptions: adr.consideredOptions,
 				chosenOption: adr.decisionOutcome.chosenOption,
 				explanation: adr.decisionOutcome.explanation,
-			},
+			}),
 		});
 	}
 

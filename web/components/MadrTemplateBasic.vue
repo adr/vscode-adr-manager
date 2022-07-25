@@ -49,10 +49,10 @@
 					<OptionContainerBasic
 						v-for="(option, index) in consideredOptions"
 						:key="index"
-						:title="option"
-						:class="option === chosenOption ? 'selectedOption' : 'unselectedOption'"
+						:title="option.title"
+						:class="option.title === chosenOption ? 'selectedOption' : 'unselectedOption'"
 						@selectOption="selectOption(index)"
-						@editOption="editOption(option, index)"
+						@editOption="editOption(option.title, index)"
 						@deleteOption="deleteOption(index)"
 					></OptionContainerBasic>
 				</draggable>
@@ -115,7 +115,12 @@
 				title: "",
 				oldTitle: "",
 				contextAndProblemStatement: "",
-				consideredOptions: [] as string[],
+				consideredOptions: [] as {
+					title: string;
+					description: string;
+					pros: string[];
+					cons: string[];
+				}[],
 				chosenOption: "",
 				explanation: "",
 				selectedIndex: -1,
@@ -140,7 +145,12 @@
 			fillFields(adr: {
 				title: string;
 				contextAndProblemStatement: string;
-				consideredOptions: string[];
+				consideredOptions: {
+					title: string;
+					description: string;
+					pros: string[];
+					cons: string[];
+				}[];
 				chosenOption: string;
 				explanation: string;
 			}) {
@@ -151,13 +161,9 @@
 				this.chosenOption = adr.chosenOption;
 				this.explanation = adr.explanation;
 				this.selectOption(
-					this.consideredOptions
-						.map((option) => {
-							return createShortTitle(option);
-						})
-						.findIndex((option) => {
-							return option === this.chosenOption;
-						})
+					this.consideredOptions.findIndex((option) => {
+						return createShortTitle(option.title) === createShortTitle(this.chosenOption);
+					})
 				);
 				this.v$.$validate();
 				this.validateAll();
@@ -169,7 +175,7 @@
 			selectOption(index: number) {
 				this.selectedIndex = index;
 				if (index !== -1) {
-					this.chosenOption = this.consideredOptions[this.selectedIndex];
+					this.chosenOption = this.consideredOptions[this.selectedIndex].title;
 				} else {
 					this.chosenOption = "";
 				}
@@ -251,7 +257,7 @@
 						if (
 							//@ts-ignore
 							!this.v$.consideredOptions.$error &&
-							this.consideredOptions[this.selectedIndex] === this.chosenOption
+							this.consideredOptions[this.selectedIndex].title === this.chosenOption
 						) {
 							this.valid.consideredOptions = true;
 						} else {
@@ -291,7 +297,7 @@
 						oldTitle: this.oldTitle,
 						contextAndProblemStatement: this.contextAndProblemStatement,
 						consideredOptions: this.consideredOptions,
-						chosenOption: this.chosenOption,
+						chosenOption: createShortTitle(this.chosenOption),
 						explanation: this.explanation,
 					});
 				} else {
@@ -318,14 +324,15 @@
 						break;
 					case "requestBasicOptionEdit":
 						if (message.newTitle) {
-							this.consideredOptions[message.index] = message.newTitle;
+							this.consideredOptions[message.index].title = message.newTitle;
 						}
 						break;
 					case "fetchAdrValues":
-						this.fillFields(message.adr);
+						this.fillFields(JSON.parse(message.adr));
 						break;
 					case "saveSuccessful":
 						this.oldTitle = this.title;
+						break;
 				}
 			});
 		},

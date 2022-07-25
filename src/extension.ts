@@ -58,6 +58,11 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showInformationMessage("ADR directory changed successfully.");
 		}
 	});
+
+	// Open ADR Manager on currently open Markdown file
+	vscode.commands.registerCommand("vscode-adr-manager.viewInAdrManager", () => {
+		vscode.window.showInformationMessage("Test");
+	});
 }
 
 /**

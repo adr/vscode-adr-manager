@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./plugins/constants";
 import { adr2md, md2adr } from "./plugins/parser";
-import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase } from "./plugins/utils";
+import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase, naturalCase2titleCase } from "./plugins/utils";
 var _ = require("lodash");
 
 /**
@@ -339,21 +339,36 @@ export async function saveShortAdr(
 	fields: {
 		title: string;
 		contextAndProblemStatement: string;
-		consideredOptions: string[];
+		consideredOptions: {
+			title: string;
+			description: string;
+			pros: string[];
+			cons: string[];
+		}[];
 		chosenOption: string;
 		explanation: string;
 	},
 	oldTitle: string
-) {
-	const newAdr = getBasicAdrObjectFromFields(fields);
-
-	// Convert ADR object to Markdown and save
-	const newMD = adr2md(newAdr);
+): Promise<vscode.Uri | undefined> {
+	// Update, convert ADR object to Markdown and save
 	const fileUri = await getExistingAdrUri(oldTitle);
 	if (fileUri) {
-		const newUri = getRenamedUri(fileUri, newAdr.title);
+		const adr = md2adr(new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri)));
+		adr.update({
+			title: fields.title,
+			contextAndProblemStatement: fields.contextAndProblemStatement,
+			consideredOptions: fields.consideredOptions,
+			decisionOutcome: {
+				chosenOption: fields.chosenOption,
+				explanation: fields.explanation,
+				positiveConsequences: adr.decisionOutcome.positiveConsequences,
+				negativeConsequences: adr.decisionOutcome.negativeConsequences,
+			},
+		});
+		const newUri = getRenamedUri(fileUri, adr.title);
 		await vscode.workspace.fs.rename(fileUri, newUri);
-		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(newMD));
+		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(adr2md(adr)));
+		return newUri;
 	} else {
 		vscode.window.showWarningMessage("ADR could not be found in the workspace.");
 	}
@@ -406,7 +421,7 @@ function getBasicAdrObjectFromFields(fields: {
 async function getExistingAdrUri(title: string): Promise<vscode.Uri | undefined> {
 	const allMDs = await getAllMDs();
 	for (const md of allMDs) {
-		if (md2adr(md.adr).title === title) {
+		if (naturalCase2titleCase(md2adr(md.adr).title) === naturalCase2titleCase(title)) {
 			return vscode.Uri.parse(md.fullPath);
 		}
 	}
@@ -426,7 +441,7 @@ function getRenamedUri(fileUri: vscode.Uri, newName: string): vscode.Uri {
 }
 
 /**
- * Returns an array of objects that each represent one considered option.
+ * Returns an array of objects that each represent one considered option with only a title.
  * @param options A string array of option titles
  * @returns An array of objects which each represent an option with only a title
  */
@@ -492,9 +507,15 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 						fileName
 					);
 					await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
-					// Show success message and open file in separate editor
-					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-					await vscode.window.showInformationMessage("ADR created successfully");
+					// Show success message and potentially open file in separate editor
+					const open = await vscode.window.showInformationMessage(
+						"ADR created successfully. Do you want to open the Markdown file?",
+						"Yes",
+						"Cancel"
+					);
+					if (open === "Yes") {
+						vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+					}
 				}
 			} else {
 				// "Real" single-root workspace
@@ -503,9 +524,15 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 				)}.md`;
 				const fileUri = vscode.Uri.joinPath(getWorkspaceFolders()[0].uri, getAdrDirectoryString(), fileName);
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
-				// Show success message and open file in separate editor
-				vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-				vscode.window.showInformationMessage("ADR created successfully");
+				// Show success message and potentially open file in separate editor
+				const open = await vscode.window.showInformationMessage(
+					"ADR created successfully. Do you want to open the Markdown file?",
+					"Yes",
+					"Cancel"
+				);
+				if (open === "Yes") {
+					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+				}
 			}
 		} else {
 			// Multi-root workspace
@@ -516,9 +543,15 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 				)}.md`;
 				const fileUri = vscode.Uri.joinPath(destinationFolder.uri, getAdrDirectoryString(), fileName);
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
-				// Show success message and open file in separate editor
-				vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-				vscode.window.showInformationMessage("ADR created successfully");
+				// Show success message and potentially open file in separate editor
+				const open = await vscode.window.showInformationMessage(
+					"ADR created successfully. Do you want to open the Markdown file?",
+					"Yes",
+					"Cancel"
+				);
+				if (open === "Yes") {
+					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+				}
 			}
 		}
 	}

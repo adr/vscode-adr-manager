@@ -154,4 +154,52 @@ export class ArchitecturalDecisionRecord {
 		});
 		this.links.filter((el) => el !== "");
 	}
+
+	/**
+	 * Updates the fields of the ADR object if a field is passed with a truthy value.
+	 * Otherwise, the field of the ADR remains unchanged.
+	 * @param fields The fields that may be updated when editing an ADR
+	 */
+	update(fields: {
+		title?: string;
+		status?: string;
+		deciders?: string;
+		date?: string;
+		technicalStory?: string;
+		contextAndProblemStatement?: string;
+		decisionDrivers?: string[];
+		consideredOptions?: { title: string; description: string; pros: string[]; cons: string[] }[];
+		decisionOutcome?: {
+			chosenOption: string;
+			explanation: string;
+			positiveConsequences: string[];
+			negativeConsequences: string[];
+		};
+		links?: string[];
+	}) {
+		this.title = fields.title ?? this.title;
+		this.status = fields.status ?? this.status;
+		this.deciders = fields.deciders ?? this.deciders;
+		this.date = fields.date ?? this.date;
+		this.technicalStory = fields.technicalStory ?? this.technicalStory;
+		this.contextAndProblemStatement = fields.contextAndProblemStatement ?? this.contextAndProblemStatement;
+		this.decisionDrivers = fields.decisionDrivers ?? this.decisionDrivers;
+		this.decisionOutcome = fields.decisionOutcome ?? this.decisionOutcome;
+		this.links = fields.links ?? this.links;
+		if (fields.consideredOptions && fields.consideredOptions.length) {
+			this.updateConsideredOptions(fields.consideredOptions);
+		}
+	}
+
+	/**
+	 * Updates the considered options of the ADR, along with the highest options ID.
+	 * @param options The updated considered options of the ADR
+	 */
+	private updateConsideredOptions(options: { title: string; description: string; pros: string[]; cons: string[] }[]) {
+		this.highestOptionId = 0;
+		this.consideredOptions = [];
+		for (const option of options) {
+			this.addOption(option);
+		}
+	}
 }

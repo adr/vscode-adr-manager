@@ -41,24 +41,9 @@
 			 * from all workspace folders is displayed at the top.
 			 */
 			sortedAdrs() {
-				return this.allAdrs.sort(
-					(
-						a: {
-							adr: ArchitecturalDecisionRecord;
-							fullPath: string;
-							relativePath: string;
-							fileName: string;
-						},
-						b: {
-							adr: ArchitecturalDecisionRecord;
-							fullPath: string;
-							relativePath: string;
-							fileName: string;
-						}
-					) => {
-						return a.fileName.localeCompare(b.fileName, undefined, { numeric: true });
-					}
-				);
+				return this.allAdrs.sort((a, b) => {
+					return a.fileName.localeCompare(b.fileName, undefined, { numeric: true });
+				});
 			},
 		},
 		methods: {
@@ -94,7 +79,7 @@
 				const message = event.data;
 				switch (message.command) {
 					case "fetchAdrs":
-						this.allAdrs = message.adrs;
+						this.allAdrs = JSON.parse(message.adrs);
 						break;
 				}
 			});

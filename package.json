@@ -17,8 +17,9 @@
 	"activationEvents": [
 		"onCommand:vscode-adr-manager.openMainWebView",
 		"onCommand:vscode-adr-manager.initializeAdrDirectory",
-		"onCommand:vscode-adr-manager.openAddWebView",
-		"onCommand:vscode-adr-manager.changeAdrDirectory"
+		"onCommand:vscode-adr-manager.openAddBasicAdrWebView",
+		"onCommand:vscode-adr-manager.changeAdrDirectory",
+		"onCommand:vscode-adr-manager.viewInAdrManager"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -41,6 +42,11 @@
 			{
 				"command": "vscode-adr-manager.changeAdrDirectory",
 				"title": "Change ADR Directory",
+				"category": "ADR Manager"
+			},
+			{
+				"command": "vscode-adr-manager.viewInAdrManager",
+				"title": "Open ADR Manager on This File",
 				"category": "ADR Manager"
 			}
 		],
@@ -83,6 +89,14 @@
 					"description": "Specifies the grade of detail of the MADR template when editing an existing MADR"
 				}
 			}
+		},
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "vscode-adr-manager.viewInAdrManager",
+					"when": "editorLangId == markdown"
+				}
+			]
 		}
 	},
 	"scripts": {

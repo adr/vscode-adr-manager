@@ -29,7 +29,12 @@
 				oldTitle: "",
 				title: "",
 				contextAndProblemStatement: "",
-				consideredOptions: [] as string[],
+				consideredOptions: [] as {
+					title: string;
+					description: string;
+					pros: string[];
+					cons: string[];
+				}[],
 				chosenOption: "",
 				explanation: "",
 			};
@@ -44,7 +49,12 @@
 				title: string;
 				oldTitle: string;
 				contextAndProblemStatement: string;
-				consideredOptions: string[];
+				consideredOptions: {
+					title: string;
+					description: string;
+					pros: string[];
+					cons: string[];
+				}[];
 				chosenOption: string;
 				explanation: string;
 			}) {
