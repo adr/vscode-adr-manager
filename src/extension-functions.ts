@@ -319,7 +319,12 @@ export async function getMDsFromFolder(
 export function createShortAdr(fields: {
 	title: string;
 	contextAndProblemStatement: string;
-	consideredOptions: string[];
+	consideredOptions: {
+		title: string;
+		description: string;
+		pros: string[];
+		cons: string[];
+	}[];
 	chosenOption: string;
 	explanation: string;
 }) {
@@ -382,13 +387,15 @@ export async function saveShortAdr(
 function getBasicAdrObjectFromFields(fields: {
 	title: string;
 	contextAndProblemStatement: string;
-	consideredOptions: string[];
+	consideredOptions: {
+		title: string;
+		description: string;
+		pros: string[];
+		cons: string[];
+	}[];
 	chosenOption: string;
 	explanation: string;
 }): ArchitecturalDecisionRecord {
-	// Get Considered Options
-	const consideredOptions = getConsideredOptionsFromStrings(fields.consideredOptions);
-
 	// Get Decision Outcome
 	const decisionOutcome: {
 		chosenOption: string;
@@ -406,7 +413,7 @@ function getBasicAdrObjectFromFields(fields: {
 	const newAdr = new ArchitecturalDecisionRecord({
 		title: fields.title,
 		contextAndProblemStatement: fields.contextAndProblemStatement,
-		consideredOptions: consideredOptions,
+		consideredOptions: fields.consideredOptions,
 		decisionOutcome: decisionOutcome,
 	});
 
