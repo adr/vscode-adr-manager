@@ -1,42 +1,51 @@
 <template>
-	<div id="view">
+	<div id="add">
 		<button id="backButton" class="secondary" @click="sendMessage('main')">
 			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
 		<div id="madr">
-			<MadrTemplateBasic @validated="getValidInput" @invalidated="invalidate"></MadrTemplateBasic>
+			<MadrTemplateProfessional @validated="getValidInput" @invalidated="invalidate"></MadrTemplateProfessional>
 		</div>
-		<p id="basicTemplateNote"><em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em></p>
 		<div class="buttonGroup">
-			<button id="saveButton" :disabled="!validated" @click="saveAdr">Save ADR</button>
+			<button id="createButton" :disabled="!validated" @click="saveAdr">Save ADR</button>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 	import { defineComponent } from "vue";
-	import MadrTemplateBasic from "../components/MadrTemplateBasic.vue";
+	import MadrTemplateProfessional from "../components/MadrTemplateProfessional.vue";
 	import vscode from "../../src/plugins/vscode-api-mixin";
 
 	export default defineComponent({
 		components: {
-			MadrTemplateBasic,
+			MadrTemplateProfessional,
 		},
 		mixins: [vscode],
 		data() {
 			return {
 				validated: false,
-				oldTitle: "",
 				title: "",
+				oldTitle: "",
+				date: "",
+				status: "",
+				deciders: "",
+				technicalStory: "",
 				contextAndProblemStatement: "",
+				decisionDrivers: [] as string[],
 				consideredOptions: [] as {
 					title: string;
 					description: string;
 					pros: string[];
 					cons: string[];
 				}[],
-				chosenOption: "",
-				explanation: "",
+				decisionOutcome: {
+					chosenOption: "",
+					explanation: "",
+					positiveConsequences: [] as string[],
+					negativeConsequences: [] as string[],
+				},
+				links: [] as string[],
 			};
 		},
 		computed: {},
@@ -48,22 +57,37 @@
 			getValidInput(fields: {
 				title: string;
 				oldTitle: string;
+				date: string;
+				status: string;
+				deciders: string;
+				technicalStory: string;
 				contextAndProblemStatement: string;
+				decisionDrivers: string[];
 				consideredOptions: {
 					title: string;
 					description: string;
 					pros: string[];
 					cons: string[];
 				}[];
-				chosenOption: string;
-				explanation: string;
+				decisionOutcome: {
+					chosenOption: string;
+					explanation: string;
+					positiveConsequences: string[];
+					negativeConsequences: string[];
+				};
+				links: string[];
 			}) {
 				this.title = fields.title;
 				this.oldTitle = fields.oldTitle;
+				this.date = fields.date;
+				this.status = fields.status;
+				this.deciders = fields.deciders;
+				this.technicalStory = fields.technicalStory;
 				this.contextAndProblemStatement = fields.contextAndProblemStatement;
+				this.decisionDrivers = fields.decisionDrivers;
 				this.consideredOptions = fields.consideredOptions;
-				this.chosenOption = fields.chosenOption;
-				this.explanation = fields.explanation;
+				this.decisionOutcome = fields.decisionOutcome;
+				this.links = fields.links;
 				this.validated = true;
 			},
 			/**
@@ -74,7 +98,7 @@
 				this.validated = false;
 			},
 			/**
-			 * Sends a message to the extension to  save the changed ADR as a Markdown file
+			 * Sends a message to the extension to create and save the ADR as a Markdown file
 			 * in the ADR directory.
 			 */
 			saveAdr() {
@@ -83,10 +107,16 @@
 					JSON.stringify({
 						adr: {
 							title: this.title,
+							oldTitle: this.oldTitle,
+							date: this.date,
+							status: this.status,
+							deciders: this.deciders,
+							technicalStory: this.technicalStory,
 							contextAndProblemStatement: this.contextAndProblemStatement,
+							decisionDrivers: this.decisionDrivers,
 							consideredOptions: this.consideredOptions,
-							chosenOption: this.chosenOption,
-							explanation: this.explanation,
+							decisionOutcome: this.decisionOutcome,
+							links: this.links,
 						},
 						oldTitle: this.oldTitle,
 					})
@@ -99,7 +129,7 @@
 <style lang="scss">
 	@use "../static/mixins" as *;
 
-	#view {
+	#add {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -123,13 +153,9 @@
 		@include centered-flex(row);
 	}
 
-	#basicTemplateNote {
-		margin: -0.75rem 0 2rem 1rem;
-	}
-
 	.buttonGroup {
 		@include centered-flex(row);
-		& #saveButton {
+		& #createButton {
 			@include button-sizing;
 			@include button-styling;
 			background: var(--vscode-button-background);

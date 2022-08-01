@@ -153,22 +153,32 @@
 			 */
 			fillFields(adr: {
 				title: string;
+				date: string;
+				status: string;
+				deciders: string;
+				technicalStory: string;
 				contextAndProblemStatement: string;
+				decisionDrivers: string[];
 				consideredOptions: {
 					title: string;
 					description: string;
 					pros: string[];
 					cons: string[];
 				}[];
-				chosenOption: string;
-				explanation: string;
+				decisionOutcome: {
+					chosenOption: string;
+					explanation: string;
+					positiveConsequences: string[];
+					negativeConsequences: string[];
+				};
+				links: string[];
 			}) {
 				this.title = adr.title;
 				this.oldTitle = adr.title;
 				this.contextAndProblemStatement = adr.contextAndProblemStatement;
 				this.consideredOptions = adr.consideredOptions;
-				this.chosenOption = adr.chosenOption;
-				this.explanation = adr.explanation;
+				this.chosenOption = adr.decisionOutcome.chosenOption;
+				this.explanation = adr.decisionOutcome.explanation;
 				this.selectOption(
 					this.consideredOptions.findIndex((option) => {
 						return createShortTitle(option.title) === createShortTitle(this.chosenOption);

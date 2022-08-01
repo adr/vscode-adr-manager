@@ -25,7 +25,7 @@
 			<TemplateHeader :infoText="'Technical context of the ADR, e.g., a ticket or issue URL'">
 				<h2>Technical Story</h2>
 			</TemplateHeader>
-			<input type="text" v-model="technicalStory" />
+			<input type="text" v-model="technicalStory" @input="validateAll" />
 		</div>
 		<hr />
 		<div id="contextAndProblemStatement" class="inputGroup">
@@ -543,11 +543,6 @@
 						this.consideredOptions.push({ title: message.option, description: "", pros: [], cons: [] });
 						if (this.consideredOptions.length === 1) {
 							this.selectOption(0);
-						}
-						break;
-					case "requestBasicOptionEdit":
-						if (message.newTitle) {
-							this.consideredOptions[message.index].title = message.newTitle;
 						}
 						break;
 					case "fetchAdrValues":

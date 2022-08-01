@@ -390,18 +390,28 @@ export function createProfessionalAdr(fields: {
  * @param fields The fields of the edited short ADR
  * @param oldTitle The old title of the ADR, used for locating the Markdown file to edit
  */
-export async function saveBasicAdr(
+export async function saveAdr(
 	fields: {
-		title: string;
-		contextAndProblemStatement: string;
-		consideredOptions: {
+		title?: string;
+		date?: string;
+		status?: string;
+		deciders?: string;
+		technicalStory?: string;
+		contextAndProblemStatement?: string;
+		decisionDrivers?: string[];
+		consideredOptions?: {
 			title: string;
 			description: string;
 			pros: string[];
 			cons: string[];
 		}[];
-		chosenOption: string;
-		explanation: string;
+		decisionOutcome?: {
+			chosenOption: string;
+			explanation: string;
+			positiveConsequences: string[];
+			negativeConsequences: string[];
+		};
+		links?: string[];
 	},
 	oldTitle: string
 ): Promise<vscode.Uri | undefined> {
@@ -411,14 +421,15 @@ export async function saveBasicAdr(
 		const adr = md2adr(new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri)));
 		adr.update({
 			title: fields.title,
+			date: fields.date,
+			status: fields.status,
+			deciders: fields.deciders,
+			technicalStory: fields.technicalStory,
 			contextAndProblemStatement: fields.contextAndProblemStatement,
+			decisionDrivers: fields.decisionDrivers,
 			consideredOptions: fields.consideredOptions,
-			decisionOutcome: {
-				chosenOption: fields.chosenOption,
-				explanation: fields.explanation,
-				positiveConsequences: adr.decisionOutcome.positiveConsequences,
-				negativeConsequences: adr.decisionOutcome.negativeConsequences,
-			},
+			decisionOutcome: fields.decisionOutcome,
+			links: fields.links,
 		});
 		const newUri = getRenamedUri(fileUri, adr.title);
 		await vscode.workspace.fs.rename(fileUri, newUri);

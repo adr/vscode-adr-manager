@@ -12,7 +12,9 @@
 				<button id="delete" @click="$emit('requestDelete')">Delete</button>
 			</div>
 		</div>
-		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">Does not conform to MADR</h4>
+		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">
+			Does not conform to MADR; please edit the Markdown file such that it conforms to MADR.
+		</h4>
 	</div>
 </template>
 

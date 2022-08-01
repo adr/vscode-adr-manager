@@ -7,7 +7,7 @@ import {
 	determineViewEditorMode,
 	getAllMDs,
 	getViewEditorMode,
-	saveBasicAdr,
+	saveAdr,
 	watchMarkdownChanges,
 } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
@@ -83,23 +83,7 @@ export class WebPanel {
 				case "view": {
 					const fileUri = vscode.Uri.parse(e.data.fullPath);
 					const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
-					switch (getViewEditorMode()) {
-						case "sufficient":
-							if ((await determineViewEditorMode(mdString)) === "basic") {
-								// execute command for viewing Basic ADR
-								await this.viewBasicAdr(mdString);
-							} else {
-								// execute command for viewing Professional ADR
-							}
-							return;
-						case "basic":
-							// execute command for viewing Basic ADR
-							await this.viewBasicAdr(mdString);
-							return;
-						case "professional":
-							// execute command for viewing Professional ADR
-							return;
-					}
+					await this.viewAdr(mdString);
 				}
 				case "fetchAdrs":
 					let allAdrs: {
@@ -154,8 +138,8 @@ export class WebPanel {
 				case "createProfessionalAdr":
 					createProfessionalAdr(JSON.parse(e.data));
 					return;
-				case "saveBasicAdr":
-					const uri = await saveBasicAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
+				case "saveAdr":
+					let uri = await saveAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
 					if (uri) {
 						this._panel.webview.postMessage({ command: "saveSuccessful" });
 						const open = await vscode.window.showInformationMessage(
@@ -175,17 +159,22 @@ export class WebPanel {
 	 * Opens the Basic MADR template and fills the fields with existing values of the specified ADR.
 	 * @param mdString The Markdown ADR as a string
 	 */
-	async viewBasicAdr(mdString: string) {
+	async viewAdr(mdString: string) {
 		const adr = md2adr(mdString);
 		await vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString);
 		this._panel.webview.postMessage({
 			command: "fetchAdrValues",
 			adr: JSON.stringify({
 				title: adr.title,
+				date: adr.date,
+				status: adr.status,
+				deciders: adr.deciders,
+				technicalStory: adr.technicalStory,
 				contextAndProblemStatement: adr.contextAndProblemStatement,
+				decisionDrivers: adr.decisionDrivers,
 				consideredOptions: adr.consideredOptions,
-				chosenOption: adr.decisionOutcome.chosenOption,
-				explanation: adr.decisionOutcome.explanation,
+				decisionOutcome: adr.decisionOutcome,
+				links: adr.links,
 			}),
 		});
 	}
