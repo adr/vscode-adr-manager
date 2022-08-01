@@ -1,3 +1,5 @@
+<!-- TODO: Make all lists draggable -->
+<!-- TODO: Create separate components for all template sections -->
 <template>
 	<div id="template">
 		<div id="title" class="inputGroup">
