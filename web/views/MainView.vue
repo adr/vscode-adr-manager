@@ -9,7 +9,9 @@
 				@requestDelete="requestDelete(adr)"
 				@requestView="requestView(adr)"
 			></ADRContainer>
+			<h1 v-if="sortedAdrs.length === 0">No ADRs detected in the workspace.</h1>
 		</div>
+
 		<button id="addAdrButton" @click="sendMessage('add')">Add ADR</button>
 	</div>
 </template>
@@ -115,6 +117,11 @@
 		max-height: 60%;
 		overflow: scroll;
 		margin: 1rem;
+
+		& h1 {
+			margin-top: 5rem;
+			text-align: center;
+		}
 	}
 
 	#addAdrButton {

@@ -7,6 +7,9 @@ import {
 	isWorkspaceOpened,
 	getWorkspaceFolders,
 	initializeAdrDirectory,
+	getAddEditorMode,
+	getViewEditorMode,
+	determineViewEditorMode,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 
@@ -21,14 +24,28 @@ export function activate(context: vscode.ExtensionContext) {
 		WebPanel.createOrShow(context.extensionUri, "main");
 	});
 
-	// Open ADR Manager Add Basic ADR Webview
-	vscode.commands.registerCommand("vscode-adr-manager.openAddBasicAdrWebView", () => {
-		WebPanel.createOrShow(context.extensionUri, "add-basic");
+	// Open ADR Manager Add ADR Webview
+	vscode.commands.registerCommand("vscode-adr-manager.openAddAdrWebView", () => {
+		if (getAddEditorMode() === "basic") {
+			WebPanel.createOrShow(context.extensionUri, "add-basic");
+		} else {
+			WebPanel.createOrShow(context.extensionUri, "add-professional");
+		}
 	});
 
 	// Open ADR Manager View Basic ADR Webview
-	vscode.commands.registerCommand("vscode-adr-manager.openViewBasicAdrWebView", () => {
-		WebPanel.createOrShow(context.extensionUri, "view-basic");
+	vscode.commands.registerCommand("vscode-adr-manager.openViewAdrWebView", async (mdString) => {
+		if (getViewEditorMode() === "sufficient") {
+			if ((await determineViewEditorMode(mdString)) === "basic") {
+				WebPanel.createOrShow(context.extensionUri, "view-basic");
+			} else {
+				WebPanel.createOrShow(context.extensionUri, "view-professional");
+			}
+		} else if (getViewEditorMode() === "basic") {
+			WebPanel.createOrShow(context.extensionUri, "view-basic");
+		} else {
+			WebPanel.createOrShow(context.extensionUri, "view-professional");
+		}
 	});
 
 	// Initialize ADR directory based on configuration

@@ -1,9 +1,15 @@
 // Functions using the VS Code Extension API
 import * as vscode from "vscode";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
-import { adrTemplatemarkdownContent, initialMarkdownContent, readmeMarkdownContent } from "./plugins/constants";
+import {
+	adrTemplatemarkdownContent,
+	EXTENSION_URI,
+	initialMarkdownContent,
+	readmeMarkdownContent,
+} from "./plugins/constants";
 import { adr2md, md2adr } from "./plugins/parser";
 import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase, naturalCase2titleCase } from "./plugins/utils";
+import { WebPanel } from "./WebPanel";
 var _ = require("lodash");
 
 /**
@@ -312,11 +318,11 @@ export async function getMDsFromFolder(
 }
 
 /**
- * Creates a new  ArchitecturalDecision object with the minimum required fields (short ADR) and
+ * Creates a new ArchitecturalDecision object with the minimum required fields (basic ADR) and
  * saves the ADR as a Markdown file in the ADR directory.
  * @param fields The fields of the new short ADR
  */
-export function createShortAdr(fields: {
+export function createBasicAdr(fields: {
 	title: string;
 	contextAndProblemStatement: string;
 	consideredOptions: {
@@ -328,7 +334,51 @@ export function createShortAdr(fields: {
 	chosenOption: string;
 	explanation: string;
 }) {
-	const newAdr = getBasicAdrObjectFromFields(fields);
+	const adrFields = {
+		title: fields.title,
+		contextAndProblemStatement: fields.contextAndProblemStatement,
+		consideredOptions: fields.consideredOptions,
+		decisionOutcome: {
+			chosenOption: fields.chosenOption,
+			explanation: fields.explanation,
+			positiveConsequences: [],
+			negativeConsequences: [],
+		},
+	};
+	const newAdr = getAdrObjectFromFields(adrFields);
+
+	// Convert ADR object to Markdown and save it in the ADR directory
+	const newMD = adr2md(newAdr);
+	saveMarkdownToAdrDirectory(newMD, newAdr.title);
+}
+
+/**
+ * Creates a new ArchitecturalDecision object with all fields the user has filled out using the professional template and
+ * saves the ADR as a Markdown file in the ADR directory.
+ * @param fields The fields of the new short ADR
+ */
+export function createProfessionalAdr(fields: {
+	title: string;
+	date: string;
+	status: string;
+	deciders: string;
+	technicalStory: string;
+	contextAndProblemStatement: string;
+	consideredOptions: {
+		title: string;
+		description: string;
+		pros: string[];
+		cons: string[];
+	}[];
+	decisionOutcome: {
+		chosenOption: string;
+		explanation: string;
+		positiveConsequences: string[];
+		negativeConsequences: string[];
+	};
+	links: string[];
+}) {
+	const newAdr = getAdrObjectFromFields(fields);
 
 	// Convert ADR object to Markdown and save it in the ADR directory
 	const newMD = adr2md(newAdr);
@@ -340,7 +390,7 @@ export function createShortAdr(fields: {
  * @param fields The fields of the edited short ADR
  * @param oldTitle The old title of the ADR, used for locating the Markdown file to edit
  */
-export async function saveShortAdr(
+export async function saveBasicAdr(
 	fields: {
 		title: string;
 		contextAndProblemStatement: string;
@@ -384,38 +434,48 @@ export async function saveShortAdr(
  * @param fields The required fields of the basic ADR object
  * @returns A new ADR object with the specified required fields
  */
-function getBasicAdrObjectFromFields(fields: {
+function getAdrObjectFromFields(fields: {
 	title: string;
+	date?: string;
+	status?: string;
+	deciders?: string;
+	technicalStory?: string;
 	contextAndProblemStatement: string;
+	decisionDrivers?: string[];
 	consideredOptions: {
 		title: string;
 		description: string;
 		pros: string[];
 		cons: string[];
 	}[];
-	chosenOption: string;
-	explanation: string;
-}): ArchitecturalDecisionRecord {
-	// Get Decision Outcome
-	const decisionOutcome: {
+	decisionOutcome: {
 		chosenOption: string;
 		explanation: string;
-		positiveConsequences: string[];
-		negativeConsequences: string[];
-	} = {
-		chosenOption: fields.chosenOption,
-		explanation: fields.explanation,
-		positiveConsequences: [],
-		negativeConsequences: [],
+		positiveConsequences?: string[];
+		negativeConsequences?: string[];
 	};
-
+	links?: string[];
+}): ArchitecturalDecisionRecord {
 	// Create ADR object
 	const newAdr = new ArchitecturalDecisionRecord({
 		title: fields.title,
+		date: fields.date ?? "",
+		status: fields.status ?? "",
+		deciders: fields.deciders ?? "",
+		technicalStory: fields.technicalStory ?? "",
 		contextAndProblemStatement: fields.contextAndProblemStatement,
+		decisionDrivers: fields.decisionDrivers || [],
 		consideredOptions: fields.consideredOptions,
-		decisionOutcome: decisionOutcome,
+		decisionOutcome: {
+			chosenOption: fields.decisionOutcome.chosenOption,
+			explanation: fields.decisionOutcome.explanation,
+			positiveConsequences: fields.decisionOutcome.positiveConsequences || [],
+			negativeConsequences: fields.decisionOutcome.negativeConsequences || [],
+		},
+		links: fields.links || [],
 	});
+
+	newAdr.cleanUp();
 
 	return newAdr;
 }
@@ -428,7 +488,8 @@ function getBasicAdrObjectFromFields(fields: {
 async function getExistingAdrUri(title: string): Promise<vscode.Uri | undefined> {
 	const allMDs = await getAllMDs();
 	for (const md of allMDs) {
-		if (naturalCase2titleCase(md2adr(md.adr).title) === naturalCase2titleCase(title)) {
+		const adr = md2adr(md.adr);
+		if (naturalCase2titleCase(adr.title) === naturalCase2titleCase(title)) {
 			return vscode.Uri.parse(md.fullPath);
 		}
 	}
@@ -514,6 +575,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 						fileName
 					);
 					await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
+					WebPanel.createOrShow(EXTENSION_URI, "main");
 					// Show success message and potentially open file in separate editor
 					const open = await vscode.window.showInformationMessage(
 						"ADR created successfully. Do you want to open the Markdown file?",

@@ -8,8 +8,8 @@
 				</h5>
 			</div>
 			<div class="buttonGroup">
-				<button id="view" :disabled="!adr.adr.conforming" @click="requestView">View</button>
-				<button id="delete" @click="requestDelete">Delete</button>
+				<button id="view" :disabled="!adr.adr.conforming" @click="$emit('requestView')">View</button>
+				<button id="delete" @click="$emit('requestDelete')">Delete</button>
 			</div>
 		</div>
 		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">Does not conform to MADR</h4>
@@ -24,22 +24,6 @@
 			adr: {
 				type: Object,
 				required: true,
-			},
-		},
-		methods: {
-			/**
-			 * Emits the "requestDelete" event which triggers the parent component to start the deletion process
-			 * of that particular ADR.
-			 */
-			requestDelete() {
-				this.$emit("requestDelete");
-			},
-			/**
-			 * Emits the "requestView" event which triggers the parent component to show that particular ADR in
-			 * the template view, where the user may also edit the ADR.
-			 */
-			requestView() {
-				this.$emit("requestView");
 			},
 		},
 	});

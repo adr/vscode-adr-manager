@@ -1,6 +1,6 @@
 <template>
 	<div id="header">
-		<h2>{{ name }}</h2>
+		<slot></slot>
 		<div id="icon" class="tooltip">
 			<div class="right">
 				<p>{{ infoText }}</p>
@@ -17,10 +17,6 @@
 	export default defineComponent({
 		name: "TemplateHeader",
 		props: {
-			name: {
-				type: String,
-				required: true,
-			},
 			infoText: {
 				type: String,
 				required: true,
@@ -37,6 +33,7 @@
 		flex-direction: row;
 		margin-bottom: 1rem;
 		padding: 0;
+		align-items: center;
 	}
 
 	#icon {
@@ -59,8 +56,8 @@
 	}
 
 	.tooltip .right {
-		min-width: 25rem;
-		max-width: 50rem;
+		min-width: 16rem;
+		max-width: 30rem;
 		top: 50%;
 		left: 100%;
 		margin-left: 20px;

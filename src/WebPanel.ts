@@ -2,12 +2,12 @@ import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
 import {
-	createShortAdr,
+	createBasicAdr,
+	createProfessionalAdr,
 	determineViewEditorMode,
-	getAddEditorMode,
 	getAllMDs,
 	getViewEditorMode,
-	saveShortAdr,
+	saveBasicAdr,
 	watchMarkdownChanges,
 } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
@@ -78,11 +78,7 @@ export class WebPanel {
 					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
 					return;
 				case "add":
-					if (getAddEditorMode() === "basic") {
-						vscode.commands.executeCommand("vscode-adr-manager.openAddBasicAdrWebView");
-					} else {
-						// execute command for adding Professional ADR
-					}
+					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView");
 					return;
 				case "view": {
 					const fileUri = vscode.Uri.parse(e.data.fullPath);
@@ -133,10 +129,10 @@ export class WebPanel {
 						vscode.window.showInformationMessage("ADR deleted successfully.");
 					}
 					return;
-				case "addOptionBasic":
+				case "addOption":
 					const option = await vscode.window.showInputBox({ prompt: "Enter a concise name for the option:" });
 					if (option) {
-						this._panel.webview.postMessage({ command: "addOptionBasic", option: option });
+						this._panel.webview.postMessage({ command: "addOption", option: option });
 					}
 					return;
 				case "requestBasicOptionEdit":
@@ -153,10 +149,13 @@ export class WebPanel {
 					}
 					return;
 				case "createBasicAdr":
-					createShortAdr(JSON.parse(e.data));
+					createBasicAdr(JSON.parse(e.data));
+					return;
+				case "createProfessionalAdr":
+					createProfessionalAdr(JSON.parse(e.data));
 					return;
 				case "saveBasicAdr":
-					const uri = await saveShortAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
+					const uri = await saveBasicAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
 					if (uri) {
 						this._panel.webview.postMessage({ command: "saveSuccessful" });
 						const open = await vscode.window.showInformationMessage(
@@ -178,7 +177,7 @@ export class WebPanel {
 	 */
 	async viewBasicAdr(mdString: string) {
 		const adr = md2adr(mdString);
-		await vscode.commands.executeCommand("vscode-adr-manager.openViewBasicAdrWebView");
+		await vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString);
 		this._panel.webview.postMessage({
 			command: "fetchAdrValues",
 			adr: JSON.stringify({
@@ -227,10 +226,12 @@ export class WebPanel {
 			case "main":
 				this._panel.title = "ADR Manager";
 				return;
-			case "add-basic" || "add-professional":
-				this._panel.title = "ADR Manager - New ADR";
+			case "add-basic":
+			case "add-professional":
+				this._panel.title = "ADR Manager - Add ADR";
 				return;
-			case "view-basic" || "view-professional":
+			case "view-basic":
+			case "view-professional":
 				this._panel.title = "ADR Manager - View ADR";
 				return;
 		}
@@ -330,7 +331,7 @@ function watchForConfigurationChanges(panel: vscode.WebviewPanel) {
 					fileName: md.fileName,
 				});
 			});
-			panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+			panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 		}
 	});
 }

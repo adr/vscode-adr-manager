@@ -1,16 +1,22 @@
 <template>
-	<div id="optionBox" @click.self="selectOption">
-		<div id="editIconDiv" @click="editOption">
+	<div
+		id="optionBox"
+		@click.self="$emit('selectOption')"
+		@mouseenter="isHovered = true"
+		@mouseleave="isHovered = false"
+	>
+		<div id="editIconDiv" @click="$emit('editOption')">
 			<i class="codicon codicon-edit"></i>
 		</div>
-		<div id="deleteIconDiv" @click="deleteOption">
-			<i class="codicon codicon-close"></i>
+		<div id="deleteIconDiv" @click="$emit('deleteOption')">
+			<i class="codicon codicon-trash"></i>
 		</div>
 		<div id="text">
-			<h3 @click="selectOption">
+			<h3 @click="$emit('selectOption')">
 				<b>{{ shortTitle }}</b>
 			</h3>
 		</div>
+		<i id="grabber" class="codicon codicon-grabber" :class="isHovered ? 'visible' : 'invisible'"></i>
 	</div>
 </template>
 
@@ -23,33 +29,17 @@
 		props: {
 			title: {
 				type: String,
-				required: true,
+				default: "",
 			},
+		},
+		data() {
+			return {
+				isHovered: false,
+			};
 		},
 		computed: {
 			shortTitle() {
 				return createShortTitle(this.title);
-			},
-		},
-		methods: {
-			/**
-			 * Emits the "selectOption" event which triggers the parent component to select the specified option
-			 */
-			selectOption() {
-				this.$emit("selectOption");
-			},
-			/**
-			 * Emits the "deleteOption" event which triggers the parent component to delete the specified option
-			 * from the list of considered options.
-			 */
-			deleteOption() {
-				this.$emit("deleteOption");
-			},
-			/**
-			 * Emits the "editOption" event which triggers the parent component to edit the specified option.
-			 */
-			editOption() {
-				this.$emit("editOption");
 			},
 		},
 	});
@@ -68,6 +58,7 @@
 	}
 
 	#optionBox {
+		position: relative;
 		@include centered-flex(row);
 		width: 12rem;
 		height: 12rem;
@@ -99,6 +90,10 @@
 		& i {
 			transform: scale(1.2);
 			padding: 5px;
+
+			&:hover {
+				cursor: pointer;
+			}
 		}
 	}
 
@@ -106,8 +101,46 @@
 		position: absolute;
 		transform: translate(250%, -250%);
 		& i {
-			transform: scale(1.5);
+			transform: scale(1.25);
 			padding: 5px;
+
+			&:hover {
+				cursor: pointer;
+			}
 		}
+	}
+
+	.selectedOption {
+		background: var(--vscode-editor-selectionBackground);
+		& h3 {
+			color: var(--vscode-editor-selectionForeground) !important;
+		}
+	}
+
+	.unselectedOption {
+		background: var(--vscode-editor-background);
+	}
+
+	#grabber {
+		position: absolute;
+		bottom: 0.2rem;
+		right: 45%;
+		transform: scale(1.2);
+
+		&:hover {
+			cursor: grab;
+		}
+
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
+	.visible {
+		display: unset;
+	}
+
+	.invisible {
+		display: none !important;
 	}
 </style>

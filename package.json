@@ -3,7 +3,7 @@
 	"displayName": "ADR Manager",
 	"description": "A VS Code extension for the ADR Manager, for documenting and managing MADRs in VS Code.",
 	"version": "0.0.1",
-	"publisher": "StevenChen",
+	"publisher": "stevenChen",
 	"icon": "assets/logo.png",
 	"repository": {
 		"type": "git",
@@ -18,7 +18,8 @@
 	"activationEvents": [
 		"onCommand:vscode-adr-manager.openMainWebView",
 		"onCommand:vscode-adr-manager.initializeAdrDirectory",
-		"onCommand:vscode-adr-manager.openAddBasicAdrWebView",
+		"onCommand:vscode-adr-manager.openAddAdrWebView",
+		"onCommand:vscode-adr-manager.openViewAdrWebView",
 		"onCommand:vscode-adr-manager.changeAdrDirectory",
 		"onCommand:vscode-adr-manager.viewInAdrManager"
 	],
@@ -31,7 +32,7 @@
 				"category": "ADR Manager"
 			},
 			{
-				"command": "vscode-adr-manager.openAddBasicAdrWebView",
+				"command": "vscode-adr-manager.openAddAdrWebView",
 				"title": "Add New ADR",
 				"category": "ADR Manager"
 			},
@@ -160,6 +161,7 @@
 		"antlr4": "^4.10.1",
 		"vue": "^3.2.37",
 		"vue-class-component": "^8.0.0-0",
-		"vue-draggable-next": "^2.1.1"
+		"vue-draggable-next": "^2.1.1",
+		"vue-final-modal": "^3.4.4"
 	}
 }

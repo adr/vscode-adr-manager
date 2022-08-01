@@ -196,7 +196,6 @@ class MADRErrorListener extends antlr4.error.ErrorListener {
 	}
 
 	syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception) {
-		console.log(offendingSymbol, line);
 		this.syntaxErrors.push(new SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception));
 	}
 }

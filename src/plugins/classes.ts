@@ -145,14 +145,17 @@ export class ArchitecturalDecisionRecord {
 		this.decisionOutcome.positiveConsequences.forEach((el, idx) => {
 			this.decisionOutcome.positiveConsequences[idx] = cleanUpString(el);
 		});
-		this.decisionOutcome.positiveConsequences.forEach((el, idx) => {
-			this.decisionOutcome.positiveConsequences[idx] = cleanUpString(el);
+		this.decisionOutcome.positiveConsequences = this.decisionOutcome.positiveConsequences.filter((el) => el !== "");
+
+		this.decisionOutcome.negativeConsequences.forEach((el, idx) => {
+			this.decisionOutcome.negativeConsequences[idx] = cleanUpString(el);
 		});
+		this.decisionOutcome.negativeConsequences = this.decisionOutcome.negativeConsequences.filter((el) => el !== "");
 
 		this.links.forEach((el, idx) => {
 			this.links[idx] = cleanUpString(el);
 		});
-		this.links.filter((el) => el !== "");
+		this.links = this.links.filter((el) => el !== "");
 	}
 
 	/**

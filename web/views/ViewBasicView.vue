@@ -124,6 +124,7 @@
 		@include button-styling;
 		margin: 1.5rem 1rem;
 		padding: 0.5rem 1rem;
+		background: var(--vscode-button-secondaryBackground);
 	}
 
 	#backButtonContent {
