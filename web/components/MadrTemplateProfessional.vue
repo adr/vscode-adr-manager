@@ -71,25 +71,19 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import vscode from "../../src/plugins/vscode-api-mixin";
-	import useValidate from "@vuelidate/core";
-	import { required } from "@vuelidate/validators";
-	import { VueDraggableNext } from "vue-draggable-next";
-	import TemplateHeader from "./TemplateHeader.vue";
 	import TemplateDateStatusDecidersSection from "./TemplateDateStatusDecidersSection.vue";
 	import TemplateTitleSection from "./TemplateTitleSection.vue";
 	import TemplateTechnicalStorySection from "./TemplateTechnicalStorySection.vue";
-	import { createShortTitle } from "../../src/plugins/utils";
 	import TemplateContextAndProblemStatementSection from "./TemplateContextAndProblemStatementSection.vue";
 	import TemplateDecisionDriversSection from "./TemplateDecisionDriversSection.vue";
 	import TemplateConsideredOptionsProfessionalSection from "./TemplateConsideredOptionsProfessionalSection.vue";
 	import TemplateDecisionOutcomeProfessionalSection from "./TemplateDecisionOutcomeProfessionalSection.vue";
 	import TemplateLinksSection from "./TemplateLinksSection.vue";
+	import { createShortTitle } from "../../src/plugins/utils";
 
 	export default defineComponent({
 		name: "MadrTemplateProfessional",
 		components: {
-			TemplateHeader,
-			draggable: VueDraggableNext,
 			TemplateDateStatusDecidersSection,
 			TemplateTitleSection,
 			TemplateTechnicalStorySection,
@@ -100,11 +94,6 @@
 			TemplateLinksSection,
 		},
 		mixins: [vscode],
-		setup() {
-			return {
-				v$: useValidate(),
-			};
-		},
 		data() {
 			return {
 				title: "",
@@ -140,17 +129,6 @@
 				// key to re-render components upon receiving values of an existing ADR
 				dataFetched: false,
 			};
-		},
-		computed: {
-			/**
-			 * Computes a new links array with a blank entry at the end of the array such that
-			 * a blank input field is rendered for the user to enter a new link in.
-			 */
-			linksWithBlank() {
-				const linksWithBlank = this.links;
-				linksWithBlank.push("");
-				return linksWithBlank;
-			},
 		},
 		methods: {
 			/**
@@ -227,12 +205,18 @@
 				}
 			},
 			/**
-			 * Re-selects a previously selected option after dragging to prevent inconsistencies.
+			 * Re-selects the correct option after dragging to prevent inconsistencies.
 			 * @param evt The event object
 			 */
 			checkSelection(evt: any) {
+				// check if the dragged option is the chosen option
 				if (this.decisionOutcome.chosenOption === this.consideredOptions[evt.newIndex].title) {
 					this.selectOption(evt.newIndex);
+				} else {
+					const correctIndex = this.consideredOptions.findIndex(
+						(option) => option.title === this.decisionOutcome.chosenOption
+					);
+					this.selectOption(correctIndex);
 				}
 			},
 			/**
@@ -249,29 +233,6 @@
 			 */
 			addOption() {
 				this.sendMessage("addOption");
-			},
-			/**
-			 * Updates the list of decision drivers/links.
-			 */
-			updateArray(array: { name: string; text: string; index: number }) {
-				if (array.name === "decisionDrivers") {
-					this.decisionDrivers.splice(array.index, 1, array.text);
-					this.decisionDrivers = this.decisionDrivers.filter((driver) => driver);
-				} else if (array.name === "links") {
-					this.links.splice(array.index, 1, array.text);
-					this.links = this.links.filter((link) => link);
-				} else if (array.name === "positiveConsequences") {
-					this.decisionOutcome.positiveConsequences.splice(array.index, 1, array.text);
-					this.decisionOutcome.positiveConsequences = this.decisionOutcome.positiveConsequences.filter(
-						(positive) => positive
-					);
-				} else if (array.name === "negativeConsequences") {
-					this.decisionOutcome.negativeConsequences.splice(array.index, 1, array.text);
-					this.decisionOutcome.negativeConsequences = this.decisionOutcome.negativeConsequences.filter(
-						(negative) => negative
-					);
-				}
-				this.validateAll();
 			},
 			/**
 			 * Validates every required field of the ADR.
@@ -373,12 +334,6 @@
 			},
 		},
 		mounted() {
-			// Auto-grow textarea of Context and Problem Statement
-			const textarea = document.getElementById("autoGrow")!;
-			textarea.addEventListener("input", () => {
-				textarea.style.height = "auto";
-				textarea.style.height = `${textarea.scrollHeight}px`;
-			});
 			// add listener to receive option title from user input
 			window.addEventListener("message", (event) => {
 				const message = event.data;
@@ -397,32 +352,6 @@
 						break;
 				}
 			});
-		},
-		validations() {
-			return {
-				title: {
-					required,
-					$lazy: true,
-				},
-				contextAndProblemStatement: {
-					required,
-					$lazy: true,
-				},
-				consideredOptions: {
-					required,
-					$lazy: true,
-				},
-				decisionOutcome: {
-					chosenOption: {
-						required,
-						$lazy: true,
-					},
-					explanation: {
-						required,
-						$lazy: true,
-					},
-				},
-			};
 		},
 	});
 </script>
@@ -450,112 +379,5 @@
 		margin-top: 2rem;
 		margin-bottom: 2rem;
 		border: 0.5px solid var(--vscode-input-foreground);
-	}
-
-	.inputGroup {
-		margin-bottom: 1.5rem;
-
-		& input {
-			height: 3rem;
-		}
-
-		&#contextAndProblemStatement textarea {
-			min-height: 6rem;
-			resize: none;
-			overflow-y: hidden;
-		}
-	}
-
-	#optionsHeader {
-		display: flex;
-	}
-
-	#options {
-		@include centered-flex(column);
-		justify-content: flex-start;
-		flex-wrap: wrap;
-	}
-
-	.dragArea {
-		display: flex;
-		flex-wrap: wrap;
-		width: 100%;
-	}
-
-	.selectedOption {
-		background: var(--vscode-editor-selectionBackground);
-		& h3 {
-			color: var(--vscode-editor-selectionForeground) !important;
-		}
-	}
-
-	.unselectedOption {
-		background: var(--vscode-editor-background);
-	}
-
-	#chosenOptionText {
-		margin-top: 2rem;
-	}
-
-	#explanation {
-		display: flex;
-		flex-direction: row;
-		align-items: baseline;
-		margin-top: 1.5rem;
-		& h3 {
-			margin-right: 2rem;
-		}
-	}
-
-	#explanationInput {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-	}
-
-	#consequences {
-		display: flex;
-		margin: 1rem 0;
-	}
-
-	#positiveConsequences,
-	#negativeConsequences {
-		flex: 1;
-	}
-
-	#positives,
-	#negatives {
-		width: 95%;
-	}
-
-	.multiInput {
-		@include centered-flex(row);
-		justify-content: left;
-		margin: 0.5rem 0;
-	}
-
-	#multiInputDeleteIcon {
-		transform: scale(1.5);
-		margin-left: 0.5rem;
-
-		&:hover {
-			cursor: pointer;
-		}
-	}
-
-	.validInput,
-	.validInput:focus {
-		border: 1.5px solid green !important;
-		outline-color: green !important;
-	}
-
-	.invalidInput,
-	.invalidInput:focus {
-		border: 1.5px solid var(--vscode-editorError-foreground) !important;
-		outline-color: var(--vscode-editorError-foreground) !important;
-	}
-
-	.errorMessage {
-		color: var(--vscode-editorError-foreground);
 	}
 </style>

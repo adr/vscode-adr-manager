@@ -158,8 +158,14 @@
 			 * @param evt The event object
 			 */
 			checkSelection(evt: any) {
+				// check if the dragged option is the chosen option
 				if (this.chosenOption === this.consideredOptions[evt.newIndex].title) {
 					this.selectOption(evt.newIndex);
+				} else {
+					const correctIndex = this.consideredOptions.findIndex(
+						(option) => option.title === this.chosenOption
+					);
+					this.selectOption(correctIndex);
 				}
 			},
 			/**
