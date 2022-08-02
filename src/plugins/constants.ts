@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 
 // Extension constants
-export const EXTENSION = vscode.extensions.getExtension("stevenChen.vscode-adr-manager");
+export const EXTENSION = vscode.extensions.getExtension("StevenChen.vscode-adr-manager");
 export const EXTENSION_URI = vscode.Uri.parse(EXTENSION!.extensionPath);
 
 // Static VS Code style sheets

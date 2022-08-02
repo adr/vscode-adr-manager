@@ -3,7 +3,7 @@
 	"displayName": "ADR Manager",
 	"description": "A VS Code extension for the ADR Manager, for documenting and managing MADRs in VS Code.",
 	"version": "0.0.1",
-	"publisher": "stevenChen",
+	"publisher": "StevenChen",
 	"icon": "assets/logo.png",
 	"repository": {
 		"type": "git",

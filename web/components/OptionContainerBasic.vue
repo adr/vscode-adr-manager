@@ -11,8 +11,8 @@
 		<div id="deleteIconDiv" @click="$emit('deleteOption')">
 			<i class="codicon codicon-trash"></i>
 		</div>
-		<div id="text">
-			<h3 @click="$emit('selectOption')">
+		<div id="text" @click="$emit('selectOption')">
+			<h3>
 				<b>{{ shortTitle }}</b>
 			</h3>
 		</div>

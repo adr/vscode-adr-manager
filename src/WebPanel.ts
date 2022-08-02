@@ -1,15 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
-import {
-	createBasicAdr,
-	createProfessionalAdr,
-	determineViewEditorMode,
-	getAllMDs,
-	getViewEditorMode,
-	saveAdr,
-	watchMarkdownChanges,
-} from "./extension-functions";
+import { createBasicAdr, createProfessionalAdr, getAllMDs, saveAdr, watchMarkdownChanges } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { md2adr } from "./plugins/parser";
 

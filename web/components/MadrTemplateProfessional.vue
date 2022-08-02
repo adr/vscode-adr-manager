@@ -96,7 +96,11 @@
 						v-model:description="option.description"
 						v-model:pros="option.pros"
 						v-model:cons="option.cons"
-						:class="option.title === decisionOutcome.chosenOption ? 'selectedOption' : 'unselectedOption'"
+						:class="
+							option.title === decisionOutcome.chosenOption && index === selectedIndex
+								? 'selectedOption'
+								: 'unselectedOption'
+						"
 						@selectOption="selectOption(index)"
 						@deleteOption="deleteOption(index)"
 						@update:title="if (selectedIndex === index) selectOption(index);"
@@ -367,9 +371,6 @@
 				} else {
 					this.decisionOutcome.chosenOption = "";
 				}
-				console.log("SelectedIndex: ", this.selectedIndex);
-				console.log("Options: ", this.consideredOptions);
-				console.log("Decision Outcome: ", this.decisionOutcome);
 				this.validate("consideredOptions");
 				this.validate("chosenOption");
 			},
@@ -436,7 +437,7 @@
 				this.validateAll();
 			},
 			/**
-			 * Validates every field of the ADR.
+			 * Validates every required field of the ADR.
 			 */
 			validateAll() {
 				this.validate("title");

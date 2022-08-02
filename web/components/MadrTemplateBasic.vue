@@ -1,124 +1,64 @@
-<!-- TODO: Create separate components for all template sections -->
 <template>
 	<div id="template">
-		<div id="title" class="inputGroup">
-			<TemplateHeader
-				:infoText="'Describe the solved problem and the solution concisely.\n\nThe title is also used as the file name, so keep it short and avoid using special characters.'"
-			>
-				<h2>Title</h2>
-			</TemplateHeader>
-			<input
-				type="text"
-				:class="v$.title.$error ? 'invalidInput' : v$.title.$dirty ? 'validInput' : ''"
-				v-model="v$.title.$model"
-				@input="validate('title')"
-			/>
-			<h4 class="errorMessage" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
-		</div>
+		<TemplateTitleSection
+			:titleProp="title"
+			ref="title"
+			v-model:title="title"
+			@validate="validate('title')"
+			:key="dataFetched"
+		></TemplateTitleSection>
 		<hr />
-		<div id="contextAndProblemStatement" class="inputGroup">
-			<TemplateHeader
-				:infoText="'Describe the context and problem statement, e.g., in free form using two to three sentences or in the form of an illustrative story.\nYou may want to articulate the problem in form of a question.'"
-			>
-				<h2>Context and Problem Statement</h2>
-			</TemplateHeader>
-			<textarea
-				id="autoGrow"
-				:class="
-					v$.contextAndProblemStatement.$error
-						? 'invalidInput'
-						: v$.contextAndProblemStatement.$dirty
-						? 'validInput'
-						: ''
-				"
-				v-model="v$.contextAndProblemStatement.$model"
-				@input="validate('contextAndProblemStatement')"
-			/>
-			<h4 class="errorMessage" v-for="error of v$.contextAndProblemStatement.$errors" :key="error.$uid">
-				{{ error.$message }}
-			</h4>
-		</div>
+		<TemplateContextAndProblemStatementSection
+			:contextAndProblemStatementProp="contextAndProblemStatement"
+			ref="contextAndProblemStatement"
+			v-model:contextAndProblemStatement="contextAndProblemStatement"
+			@validate="validate('contextAndProblemStatement')"
+			:key="dataFetched"
+		></TemplateContextAndProblemStatementSection>
 		<hr />
-		<div id="consideredOptions">
-			<div id="optionsHeader">
-				<TemplateHeader
-					:name="'Considered Options'"
-					:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.\nOnly write a concise description; you can add a more detailed description when using the Professional MADR template.'"
-				>
-					<h2>Considered Options</h2>
-				</TemplateHeader>
-				<AddOptionButton @addOption="addOption" draggable="false"></AddOptionButton>
-			</div>
-			<div id="options">
-				<draggable class="dragArea" :list="consideredOptions" :sort="true" handle="#grabber">
-					<OptionContainerBasic
-						v-for="(option, index) in consideredOptions"
-						:key="index"
-						:title="option.title"
-						:class="option.title === chosenOption ? 'selectedOption' : 'unselectedOption'"
-						@selectOption="selectOption(index)"
-						@editOption="editOption(option.title, index)"
-						@deleteOption="deleteOption(index)"
-					></OptionContainerBasic>
-				</draggable>
-				<h4 v-if="consideredOptions.length >= 2">
-					<i>Click to choose an option; rearrange options with drag & drop.</i>
-				</h4>
-			</div>
-		</div>
+		<TemplateConsideredOptionsBasicSection
+			:consideredOptionsProp="consideredOptions"
+			ref="consideredOptions"
+			v-model:consideredOptions="consideredOptions"
+			v-model:chosenOption="chosenOption"
+			v-model:selectedIndex="selectedIndex"
+			@addOption="addOption"
+			@selectOption="selectOption"
+			@editOption="editOption"
+			@deleteOption="deleteOption"
+			@checkSelection="checkSelection"
+			:key="dataFetched"
+		></TemplateConsideredOptionsBasicSection>
 		<hr />
-		<div id="decisionOutcome">
-			<TemplateHeader
-				:infoText="'Add an explanation for the chosen option.\nYou can add consequences when using the Professional MADR template.'"
-			>
-				<h2>Decision Outcome</h2>
-			</TemplateHeader>
-			<h3 id="chosenOptionText">
-				Chosen Option: <b>{{ chosenOptionText }}</b>
-			</h3>
-			<div id="explanation">
-				<h3>because</h3>
-				<div id="explanationInput">
-					<input
-						type="text"
-						:class="v$.explanation.$error ? 'invalidInput' : v$.explanation.$dirty ? 'validInput' : ''"
-						v-model="v$.explanation.$model"
-						@input="validate('explanation')"
-					/>
-					<h4 class="errorMessage" v-for="error of v$.explanation.$errors" :key="error.$uid">
-						{{ error.$message }}
-					</h4>
-				</div>
-			</div>
-		</div>
+		<TemplateDecisionOutcomeBasicSection
+			:explanationProp="explanation"
+			ref="decisionOutcome"
+			v-model:chosenOption="chosenOption"
+			v-model:explanation="explanation"
+			@validate="validate('explanation')"
+			:key="dataFetched"
+		></TemplateDecisionOutcomeBasicSection>
 	</div>
 </template>
 
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import vscode from "../../src/plugins/vscode-api-mixin";
-	import useValidate from "@vuelidate/core";
-	import { required } from "@vuelidate/validators";
-	import { VueDraggableNext } from "vue-draggable-next";
-	import TemplateHeader from "./TemplateHeader.vue";
-	import OptionContainerBasic from "./OptionContainerBasic.vue";
-	import AddOptionButton from "./AddOptionButton.vue";
+	import TemplateTitleSection from "./TemplateTitleSection.vue";
+	import TemplateContextAndProblemStatementSection from "./TemplateContextAndProblemStatementSection.vue";
+	import TemplateConsideredOptionsBasicSection from "./TemplateConsideredOptionsBasicSection.vue";
 	import { createShortTitle } from "../../src/plugins/utils";
+	import TemplateDecisionOutcomeBasicSection from "./TemplateDecisionOutcomeBasicSection.vue";
 
 	export default defineComponent({
 		name: "MadrTemplateBasic",
 		components: {
-			TemplateHeader,
-			OptionContainerBasic,
-			AddOptionButton,
-			draggable: VueDraggableNext,
+			TemplateTitleSection,
+			TemplateContextAndProblemStatementSection,
+			TemplateConsideredOptionsBasicSection,
+			TemplateDecisionOutcomeBasicSection,
 		},
 		mixins: [vscode],
-		setup() {
-			return {
-				v$: useValidate(),
-			};
-		},
 		data() {
 			return {
 				title: "",
@@ -140,12 +80,9 @@
 					chosenOption: false,
 					explanation: false,
 				},
+				// key to re-render components upon receiving values of an existing ADR
+				dataFetched: false,
 			};
-		},
-		computed: {
-			chosenOptionText() {
-				return this.chosenOption !== "" ? createShortTitle(this.chosenOption) : "none";
-			},
 		},
 		methods: {
 			/**
@@ -184,7 +121,7 @@
 						return createShortTitle(option.title) === createShortTitle(this.chosenOption);
 					})
 				);
-				this.v$.$validate();
+				this.dataFetched = true;
 				this.validateAll();
 			},
 			/**
@@ -217,11 +154,20 @@
 				}
 			},
 			/**
-			 * Sends a message to the extension to promt the user to enter a new name for the option.
-			 * @param index The index of the option to edit
+			 * Re-selects a previously selected option after dragging to prevent inconsistencies.
+			 * @param evt The event object
 			 */
-			editOption(option: string, index: number) {
-				this.sendMessage("requestBasicOptionEdit", { currentTitle: option, index: index });
+			checkSelection(evt: any) {
+				if (this.chosenOption === this.consideredOptions[evt.newIndex].title) {
+					this.selectOption(evt.newIndex);
+				}
+			},
+			/**
+			 * Sends a message to the extension to promt the user to enter a new name for the option.
+			 * @param option The option to edit
+			 */
+			editOption(option: { title: string; index: number }) {
+				this.sendMessage("requestBasicOptionEdit", { currentTitle: option.title, index: option.index });
 			},
 			/**
 			 * Removes the considered option with the specified index from the list of considered options
@@ -239,7 +185,7 @@
 				this.sendMessage("addOption");
 			},
 			/**
-			 * Validates every field of the ADR.
+			 * Validates every required field of the ADR.
 			 */
 			validateAll() {
 				this.validate("title");
@@ -258,7 +204,7 @@
 				switch (field) {
 					case "title":
 						//@ts-ignore
-						if (!this.v$.title.$error) {
+						if (!this.$refs.title.v$.title.$error) {
 							this.valid.title = true;
 						} else {
 							this.valid.title = false;
@@ -266,7 +212,7 @@
 						break;
 					case "contextAndProblemStatement":
 						//@ts-ignore
-						if (!this.v$.contextAndProblemStatement.$error) {
+						if (!this.$refs.contextAndProblemStatement.v$.contextAndProblemStatement.$error) {
 							this.valid.contextAndProblemStatement = true;
 						} else {
 							this.valid.contextAndProblemStatement = false;
@@ -275,8 +221,7 @@
 					case "consideredOptions":
 						if (
 							//@ts-ignore
-							!this.v$.consideredOptions.$error &&
-							this.consideredOptions[this.selectedIndex].title === this.chosenOption
+							!this.$refs.consideredOptions.v$.consideredOptions.$error
 						) {
 							this.valid.consideredOptions = true;
 						} else {
@@ -286,7 +231,9 @@
 					case "chosenOption":
 						if (
 							//@ts-ignore
-							!this.v$.chosenOption.$error &&
+							!this.$refs.decisionOutcome.v$.chosenOption.$error &&
+							this.selectedIndex !== -1 &&
+							this.consideredOptions[this.selectedIndex].title === this.chosenOption &&
 							this.chosenOption !== ""
 						) {
 							this.valid.chosenOption = true;
@@ -296,7 +243,7 @@
 						break;
 					case "explanation":
 						//@ts-ignore
-						if (!this.v$.explanation.$error) {
+						if (!this.$refs.decisionOutcome.v$.explanation.$error) {
 							this.valid.explanation = true;
 						} else {
 							this.valid.explanation = false;
@@ -325,13 +272,7 @@
 			},
 		},
 		mounted() {
-			// Auto-grow textarea of Context and Problem Statement
-			const textarea = document.getElementById("autoGrow")!;
-			textarea.addEventListener("input", () => {
-				textarea.style.height = "auto";
-				textarea.style.height = `${textarea.scrollHeight}px`;
-			});
-			// add listener to receive option title from user input
+			// add listener to receive data from extension
 			window.addEventListener("message", (event) => {
 				const message = event.data;
 				switch (message.command) {
@@ -343,7 +284,11 @@
 						break;
 					case "requestBasicOptionEdit":
 						if (message.newTitle) {
+							const oldTitle = this.consideredOptions[message.index].title;
 							this.consideredOptions[message.index].title = message.newTitle;
+							if (this.chosenOption === oldTitle) {
+								this.selectOption(message.index);
+							}
 						}
 						break;
 					case "fetchAdrValues":
@@ -355,34 +300,10 @@
 				}
 			});
 		},
-		validations() {
-			return {
-				title: {
-					required,
-					$lazy: true,
-				},
-				contextAndProblemStatement: {
-					required,
-					$lazy: true,
-				},
-				consideredOptions: {
-					required,
-					$lazy: true,
-				},
-				chosenOption: {
-					required,
-					$lazy: true,
-				},
-				explanation: {
-					required,
-					$lazy: true,
-				},
-			};
-		},
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	body.vscode-high-contrast {
@@ -405,81 +326,5 @@
 		margin-top: 2rem;
 		margin-bottom: 2rem;
 		border: 0.5px solid var(--vscode-input-foreground);
-	}
-
-	.inputGroup {
-		margin-bottom: 1.5rem;
-
-		& input {
-			height: 3rem;
-		}
-
-		&#contextAndProblemStatement textarea {
-			min-height: 6rem;
-			resize: none;
-			overflow-y: hidden;
-		}
-	}
-
-	#optionsHeader {
-		display: flex;
-	}
-
-	#options {
-		@include centered-flex(column);
-		justify-content: flex-start;
-		flex-wrap: wrap;
-	}
-
-	.dragArea {
-		display: flex;
-		flex-wrap: wrap;
-	}
-
-	.selectedOption {
-		background: var(--vscode-editor-selectionBackground);
-		& h3 {
-			color: var(--vscode-editor-selectionForeground) !important;
-		}
-	}
-
-	.unselectedOption {
-		background: var(--vscode-editor-background);
-	}
-
-	#chosenOptionText {
-		margin-top: 2rem;
-	}
-
-	#explanation {
-		display: flex;
-		flex-direction: row;
-		align-items: baseline;
-		margin-top: 1.5rem;
-		& h3 {
-			margin-right: 2rem;
-		}
-	}
-
-	#explanationInput {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-	}
-
-	.validInput,
-	.validInput:focus {
-		border: 1.5px solid green !important;
-		outline-color: green !important;
-	}
-
-	.invalidInput,
-	.invalidInput:focus {
-		border: 1.5px solid var(--vscode-editorError-foreground) !important;
-		outline-color: var(--vscode-editorError-foreground) !important;
-	}
-
-	.errorMessage {
-		color: var(--vscode-editorError-foreground);
 	}
 </style>
