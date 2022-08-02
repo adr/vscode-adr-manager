@@ -33,7 +33,7 @@
 	import TemplateHeader from "./TemplateHeader.vue";
 
 	export default defineComponent({
-		name: "TemplateTitleSection",
+		name: "TemplateContextAndProblemStatementSection",
 		components: {
 			TemplateHeader,
 		},

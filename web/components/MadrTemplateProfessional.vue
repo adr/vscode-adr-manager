@@ -1,210 +1,70 @@
-<!-- TODO: Make all lists draggable -->
-<!-- TODO: Create separate components for all template sections -->
 <template>
 	<div id="template">
-		<div id="title" class="inputGroup">
-			<TemplateHeader
-				:infoText="'Describe the solved problem and the solution concisely.\n\nThe title is also used as the file name, so keep it short and avoid using special characters.'"
-			>
-				<h2>Title</h2>
-			</TemplateHeader>
-			<input
-				type="text"
-				:class="v$.title.$error ? 'invalidInput' : v$.title.$dirty ? 'validInput' : ''"
-				v-model="v$.title.$model"
-				@input="validate('title')"
-			/>
-			<h4 class="errorMessage" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
-		</div>
-		<TemplateDateStatusDeciders
+		<TemplateTitleSection
+			:titleProp="title"
+			ref="title"
+			v-model:title="title"
+			@validate="validate('title')"
+			:key="dataFetched"
+		></TemplateTitleSection>
+		<TemplateDateStatusDecidersSection
 			v-model:date="date"
 			v-model:status="status"
 			v-model:deciders="deciders"
-		></TemplateDateStatusDeciders>
-		<div id="technicalStory" class="inputGroup">
-			<TemplateHeader :infoText="'Technical context of the ADR, e.g., a ticket or issue URL'">
-				<h2>Technical Story</h2>
-			</TemplateHeader>
-			<input type="text" v-model="technicalStory" @input="validateAll" />
-		</div>
+			@validate="validateAll"
+			:key="dataFetched"
+		></TemplateDateStatusDecidersSection>
+		<TemplateTechnicalStorySection
+			v-model:technicalStory="technicalStory"
+			@validate="validateAll"
+			:key="dataFetched"
+		></TemplateTechnicalStorySection>
 		<hr />
-		<div id="contextAndProblemStatement" class="inputGroup">
-			<TemplateHeader
-				:infoText="'Describe the context and problem statement, e.g., in free form using two to three sentences or in the form of an illustrative story.\nYou may want to articulate the problem in form of a question.'"
-			>
-				<h2>Context and Problem Statement</h2>
-			</TemplateHeader>
-			<textarea
-				id="autoGrow"
-				:class="
-					v$.contextAndProblemStatement.$error
-						? 'invalidInput'
-						: v$.contextAndProblemStatement.$dirty
-						? 'validInput'
-						: ''
-				"
-				v-model="v$.contextAndProblemStatement.$model"
-				@input="validate('contextAndProblemStatement')"
-			/>
-			<h4 class="errorMessage" v-for="error of v$.contextAndProblemStatement.$errors" :key="error.$uid">
-				{{ error.$message }}
-			</h4>
-		</div>
+		<TemplateContextAndProblemStatementSection
+			:contextAndProblemStatementProp="contextAndProblemStatement"
+			ref="contextAndProblemStatement"
+			v-model:contextAndProblemStatement="contextAndProblemStatement"
+			@validate="validate('contextAndProblemStatement')"
+			:key="dataFetched"
+		></TemplateContextAndProblemStatementSection>
 		<hr />
-		<div id="decisionDrivers" class="inputGroup">
-			<TemplateHeader
-				:infoText="'Decision Drivers are competing forces or facing concerns that influence the decision.'"
-			>
-				<h2>Decision Drivers</h2>
-			</TemplateHeader>
-			<div v-for="(driver, index) in decisionDriversWithBlank" :key="index" class="multiInput">
-				<input
-					v-model="decisionDrivers[index]"
-					@input="updateArray('decisionDrivers', $event.target.value, index)"
-				/>
-				<i
-					id="multiInputDeleteIcon"
-					class="codicon codicon-close"
-					v-if="decisionDrivers[index] !== ''"
-					@click="updateArray('decisionDrivers', '', index)"
-				></i>
-			</div>
-		</div>
+		<TemplateDecisionDriversSection
+			:decisionDriversProp="decisionDrivers"
+			v-model:decisionDrivers="decisionDrivers"
+			@update:decisionDrivers="validateAll"
+			:key="dataFetched"
+		></TemplateDecisionDriversSection>
 		<hr />
-		<div id="consideredOptions">
-			<div id="optionsHeader">
-				<TemplateHeader
-					:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.'"
-				>
-					<h2>Considered Options</h2>
-				</TemplateHeader>
-				<AddOptionButton @addOption="addOption" draggable="false"></AddOptionButton>
-			</div>
-			<div id="options">
-				<draggable
-					class="dragArea"
-					:list="consideredOptions"
-					:sort="true"
-					handle="#grabber"
-					item-key="title"
-					@update="checkSelection"
-				>
-					<OptionContainerProfessional
-						v-for="(option, index) in consideredOptions"
-						:key="option"
-						v-model:title="option.title"
-						v-model:description="option.description"
-						v-model:pros="option.pros"
-						v-model:cons="option.cons"
-						:class="
-							option.title === decisionOutcome.chosenOption && index === selectedIndex
-								? 'selectedOption'
-								: 'unselectedOption'
-						"
-						@selectOption="selectOption(index)"
-						@deleteOption="deleteOption(index)"
-						@update:title="if (selectedIndex === index) selectOption(index);"
-					></OptionContainerProfessional>
-				</draggable>
-				<h4 v-if="consideredOptions.length >= 2">
-					<i>Click to choose an option; rearrange options with drag & drop.</i>
-				</h4>
-			</div>
-		</div>
+		<TemplateConsideredOptionsProfessionalSection
+			:consideredOptionsProp="consideredOptions"
+			ref="consideredOptions"
+			v-model:consideredOptions="consideredOptions"
+			v-model:chosenOption="decisionOutcome.chosenOption"
+			v-model:selectedIndex="selectedIndex"
+			@addOption="addOption"
+			@selectOption="selectOption"
+			@deleteOption="deleteOption"
+			@checkSelection="checkSelection"
+			:key="dataFetched"
+		></TemplateConsideredOptionsProfessionalSection>
 		<hr />
-		<div id="decisionOutcome">
-			<TemplateHeader :infoText="'Add an explanation for the chosen option.'">
-				<h2>Decision Outcome</h2>
-			</TemplateHeader>
-			<h3 id="chosenOptionText">
-				Chosen Option: <b>{{ chosenOptionText }}</b>
-			</h3>
-			<div id="explanation">
-				<h3>because</h3>
-				<div id="explanationInput" class="inputGroup">
-					<input
-						type="text"
-						:class="
-							v$.decisionOutcome.explanation.$error
-								? 'invalidInput'
-								: v$.decisionOutcome.explanation.$dirty
-								? 'validInput'
-								: ''
-						"
-						v-model="v$.decisionOutcome.explanation.$model"
-						@input="validate('explanation')"
-					/>
-					<h4 class="errorMessage" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
-						{{ error.$message }}
-					</h4>
-				</div>
-			</div>
-			<div id="consequences">
-				<div id="positiveConsequences">
-					<TemplateHeader
-						:infoText="'Give positive consequences, e.g., improvement of a quality attribute, follow-up decisions required, ...'"
-					>
-						<h3>Positive Consequences</h3>
-					</TemplateHeader>
-					<div
-						v-for="(positive, index) in positiveConsequencesWithBlank"
-						:key="index"
-						class="multiInput"
-						id="positives"
-					>
-						<input
-							v-model="decisionOutcome.positiveConsequences[index]"
-							@input="updateArray('positiveConsequences', $event.target.value, index)"
-						/>
-						<i
-							id="multiInputDeleteIcon"
-							class="codicon codicon-close"
-							v-if="decisionOutcome.positiveConsequences[index] !== ''"
-							@click="updateArray('positiveConsequences', '', index)"
-						></i>
-					</div>
-				</div>
-				<div id="negativeConsequences">
-					<TemplateHeader
-						:infoText="'Give negative consequences, e.g., afflicted quality attributes, follow-up decisions required, ...'"
-					>
-						<h3>Negative Consequences:</h3>
-					</TemplateHeader>
-					<div
-						v-for="(negative, index) in negativeConsequencesWithBlank"
-						:key="index"
-						class="multiInput"
-						id="negatives"
-					>
-						<input
-							v-model="decisionOutcome.negativeConsequences[index]"
-							@input="updateArray('negativeConsequences', $event.target.value, index)"
-						/>
-						<i
-							id="multiInputDeleteIcon"
-							class="codicon codicon-close"
-							v-if="decisionOutcome.negativeConsequences[index] !== ''"
-							@click="updateArray('negativeConsequences', '', index)"
-						></i>
-					</div>
-				</div>
-			</div>
-		</div>
+		<TemplateDecisionOutcomeProfessionalSection
+			:decisionOutcomeProp="decisionOutcome"
+			ref="decisionOutcome"
+			v-model:explanation="decisionOutcome.explanation"
+			v-model:positiveConsequences="decisionOutcome.positiveConsequences"
+			v-model:negativeConsequences="decisionOutcome.negativeConsequences"
+			@validate="validate('explanation')"
+			@updateArray="validateAll"
+			:key="dataFetched"
+		></TemplateDecisionOutcomeProfessionalSection>
 		<hr />
-		<div id="links" class="inputGroup">
-			<TemplateHeader :infoText="'Add references, e.g., to related ADRs.'">
-				<h2>Links</h2>
-			</TemplateHeader>
-			<div v-for="(link, index) in linksWithBlank" :key="index" class="multiInput">
-				<input v-model="links[index]" @input="updateArray('links', $event.target.value, index)" />
-				<i
-					id="multiInputDeleteIcon"
-					class="codicon codicon-close"
-					v-if="links[index] !== ''"
-					@click="updateArray('links', '', index)"
-				></i>
-			</div>
-		</div>
+		<TemplateLinksSection
+			:linksProp="links"
+			v-model:links="links"
+			@update:links="validateAll"
+			:key="dataFetched"
+		></TemplateLinksSection>
 	</div>
 </template>
 
@@ -215,19 +75,29 @@
 	import { required } from "@vuelidate/validators";
 	import { VueDraggableNext } from "vue-draggable-next";
 	import TemplateHeader from "./TemplateHeader.vue";
-	import TemplateDateStatusDeciders from "./TemplateDateStatusDeciders.vue";
-	import OptionContainerProfessional from "./OptionContainerProfessional.vue";
-	import AddOptionButton from "./AddOptionButton.vue";
+	import TemplateDateStatusDecidersSection from "./TemplateDateStatusDecidersSection.vue";
+	import TemplateTitleSection from "./TemplateTitleSection.vue";
+	import TemplateTechnicalStorySection from "./TemplateTechnicalStorySection.vue";
 	import { createShortTitle } from "../../src/plugins/utils";
+	import TemplateContextAndProblemStatementSection from "./TemplateContextAndProblemStatementSection.vue";
+	import TemplateDecisionDriversSection from "./TemplateDecisionDriversSection.vue";
+	import TemplateConsideredOptionsProfessionalSection from "./TemplateConsideredOptionsProfessionalSection.vue";
+	import TemplateDecisionOutcomeProfessionalSection from "./TemplateDecisionOutcomeProfessionalSection.vue";
+	import TemplateLinksSection from "./TemplateLinksSection.vue";
 
 	export default defineComponent({
-		name: "MadrTemplateBasic",
+		name: "MadrTemplateProfessional",
 		components: {
 			TemplateHeader,
-			OptionContainerProfessional,
-			AddOptionButton,
 			draggable: VueDraggableNext,
-			TemplateDateStatusDeciders,
+			TemplateDateStatusDecidersSection,
+			TemplateTitleSection,
+			TemplateTechnicalStorySection,
+			TemplateContextAndProblemStatementSection,
+			TemplateDecisionDriversSection,
+			TemplateConsideredOptionsProfessionalSection,
+			TemplateDecisionOutcomeProfessionalSection,
+			TemplateLinksSection,
 		},
 		mixins: [vscode],
 		setup() {
@@ -267,44 +137,11 @@
 					chosenOption: false,
 					explanation: false,
 				},
+				// key to re-render components upon receiving values of an existing ADR
+				dataFetched: false,
 			};
 		},
 		computed: {
-			/**
-			 * Computes the short title of the option that has been chosen by the user.
-			 */
-			chosenOptionText() {
-				return this.decisionOutcome.chosenOption !== ""
-					? createShortTitle(this.decisionOutcome.chosenOption)
-					: "none";
-			},
-			/**
-			 * Computes a new decision drivers array with a blank entry at the end of the array such that
-			 * a blank input field is rendered for the user to enter a new decision driver in.
-			 */
-			decisionDriversWithBlank() {
-				const decisionDriversWithBlank = this.decisionDrivers;
-				decisionDriversWithBlank.push("");
-				return decisionDriversWithBlank;
-			},
-			/**
-			 * Computes a new positive consequences array with a blank entry at the end of the array such that
-			 * a blank input field is rendered for the user to enter a new decision driver in.
-			 */
-			positiveConsequencesWithBlank() {
-				const positiveConsequencesWithBlank = this.decisionOutcome.positiveConsequences;
-				positiveConsequencesWithBlank.push("");
-				return positiveConsequencesWithBlank;
-			},
-			/**
-			 * Computes a new negative consequences array with a blank entry at the end of the array such that
-			 * a blank input field is rendered for the user to enter a new decision driver in.
-			 */
-			negativeConsequencesWithBlank() {
-				const negativeConsequencesWithBlank = this.decisionOutcome.negativeConsequences;
-				negativeConsequencesWithBlank.push("");
-				return negativeConsequencesWithBlank;
-			},
 			/**
 			 * Computes a new links array with a blank entry at the end of the array such that
 			 * a blank input field is rendered for the user to enter a new link in.
@@ -357,7 +194,7 @@
 						return createShortTitle(option.title) === createShortTitle(this.decisionOutcome.chosenOption);
 					})
 				);
-				this.v$.$validate();
+				this.dataFetched = true;
 				this.validateAll();
 			},
 			/**
@@ -394,7 +231,7 @@
 			 * @param evt The event object
 			 */
 			checkSelection(evt: any) {
-				if (evt.oldIndex === this.selectedIndex) {
+				if (this.decisionOutcome.chosenOption === this.consideredOptions[evt.newIndex].title) {
 					this.selectOption(evt.newIndex);
 				}
 			},
@@ -416,20 +253,20 @@
 			/**
 			 * Updates the list of decision drivers/links.
 			 */
-			updateArray(array: string, text: string, index: number) {
-				if (array === "decisionDrivers") {
-					this.decisionDrivers.splice(index, 1, text);
+			updateArray(array: { name: string; text: string; index: number }) {
+				if (array.name === "decisionDrivers") {
+					this.decisionDrivers.splice(array.index, 1, array.text);
 					this.decisionDrivers = this.decisionDrivers.filter((driver) => driver);
-				} else if (array === "links") {
-					this.links.splice(index, 1, text);
+				} else if (array.name === "links") {
+					this.links.splice(array.index, 1, array.text);
 					this.links = this.links.filter((link) => link);
-				} else if (array === "positiveConsequences") {
-					this.decisionOutcome.positiveConsequences.splice(index, 1, text);
+				} else if (array.name === "positiveConsequences") {
+					this.decisionOutcome.positiveConsequences.splice(array.index, 1, array.text);
 					this.decisionOutcome.positiveConsequences = this.decisionOutcome.positiveConsequences.filter(
 						(positive) => positive
 					);
-				} else if (array === "negativeConsequences") {
-					this.decisionOutcome.negativeConsequences.splice(index, 1, text);
+				} else if (array.name === "negativeConsequences") {
+					this.decisionOutcome.negativeConsequences.splice(array.index, 1, array.text);
 					this.decisionOutcome.negativeConsequences = this.decisionOutcome.negativeConsequences.filter(
 						(negative) => negative
 					);
@@ -456,15 +293,18 @@
 				switch (field) {
 					case "title":
 						//@ts-ignore
-						if (!this.v$.title.$error) {
+						if (!this.$refs.title.v$.title.$error) {
 							this.valid.title = true;
 						} else {
 							this.valid.title = false;
 						}
 						break;
 					case "contextAndProblemStatement":
-						//@ts-ignore
-						if (!this.v$.contextAndProblemStatement.$error) {
+						if (
+							//@ts-ignore
+							!this.$refs.contextAndProblemStatement.v$.contextAndProblemStatement.$error &&
+							this.contextAndProblemStatement !== ""
+						) {
 							this.valid.contextAndProblemStatement = true;
 						} else {
 							this.valid.contextAndProblemStatement = false;
@@ -473,18 +313,18 @@
 					case "consideredOptions":
 						if (
 							//@ts-ignore
-							!this.v$.consideredOptions.$error
+							!this.$refs.consideredOptions.v$.consideredOptions.$error &&
+							this.consideredOptions.length > 0
 						) {
 							this.valid.consideredOptions = true;
 						} else {
 							this.valid.consideredOptions = false;
 						}
-
 						break;
 					case "chosenOption":
 						if (
 							//@ts-ignore
-							!this.v$.decisionOutcome.chosenOption.$error &&
+							!this.$refs.decisionOutcome.v$.decisionOutcome.chosenOption.$error &&
 							this.selectedIndex !== -1 &&
 							this.consideredOptions[this.selectedIndex].title === this.decisionOutcome.chosenOption &&
 							this.decisionOutcome.chosenOption !== ""
@@ -495,8 +335,11 @@
 						}
 						break;
 					case "explanation":
-						//@ts-ignore
-						if (!this.v$.decisionOutcome.explanation.$error) {
+						if (
+							//@ts-ignore
+							!this.$refs.decisionOutcome.v$.decisionOutcome.explanation.$error &&
+							this.decisionOutcome.explanation !== ""
+						) {
 							this.valid.explanation = true;
 						} else {
 							this.valid.explanation = false;
@@ -584,7 +427,7 @@
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	body.vscode-high-contrast {
@@ -694,6 +537,10 @@
 	#multiInputDeleteIcon {
 		transform: scale(1.5);
 		margin-left: 0.5rem;
+
+		&:hover {
+			cursor: pointer;
+		}
 	}
 
 	.validInput,

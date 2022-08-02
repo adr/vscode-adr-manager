@@ -45,7 +45,7 @@
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	body.vscode-high-contrast {

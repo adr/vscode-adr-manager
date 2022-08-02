@@ -211,8 +211,11 @@
 						}
 						break;
 					case "contextAndProblemStatement":
-						//@ts-ignore
-						if (!this.$refs.contextAndProblemStatement.v$.contextAndProblemStatement.$error) {
+						if (
+							//@ts-ignore
+							!this.$refs.contextAndProblemStatement.v$.contextAndProblemStatement.$error &&
+							this.contextAndProblemStatement !== ""
+						) {
 							this.valid.contextAndProblemStatement = true;
 						} else {
 							this.valid.contextAndProblemStatement = false;
@@ -221,7 +224,8 @@
 					case "consideredOptions":
 						if (
 							//@ts-ignore
-							!this.$refs.consideredOptions.v$.consideredOptions.$error
+							!this.$refs.consideredOptions.v$.consideredOptions.$error &&
+							this.consideredOptions.length > 0
 						) {
 							this.valid.consideredOptions = true;
 						} else {
@@ -243,7 +247,7 @@
 						break;
 					case "explanation":
 						//@ts-ignore
-						if (!this.$refs.decisionOutcome.v$.explanation.$error) {
+						if (!this.$refs.decisionOutcome.v$.explanation.$error && this.explanation !== "") {
 							this.valid.explanation = true;
 						} else {
 							this.valid.explanation = false;

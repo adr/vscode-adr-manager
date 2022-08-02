@@ -22,6 +22,7 @@
 	import { defineComponent } from "vue";
 
 	export default defineComponent({
+		name: "ADRContainer",
 		props: {
 			adr: {
 				type: Object,
@@ -31,7 +32,7 @@
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	#adrBox {

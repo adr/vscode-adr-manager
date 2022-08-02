@@ -2,7 +2,15 @@
 	<div id="dateStatusDeciders">
 		<div class="input">
 			<p>Last Updated:</p>
-			<input type="date" id="date" :value="date" @input="$emit('update:date', $event.target.value)" />
+			<input
+				type="date"
+				id="date"
+				:value="date"
+				@input="
+					$emit('update:date', $event.target.value);
+					$emit('validate');
+				"
+			/>
 			<div id="icon" class="tooltip">
 				<div class="bottom">
 					<p>The date where this ADR has been updated the last time.</p>
@@ -13,7 +21,15 @@
 		</div>
 		<div class="input">
 			<p>Status:</p>
-			<select name="status" id="status" :value="status" @input="$emit('update:status', $event.target.value)">
+			<select
+				name="status"
+				id="status"
+				:value="status"
+				@input="
+					$emit('update:status', $event.target.value);
+					$emit('validate');
+				"
+			>
 				<option value="" selected></option>
 				<option value="Proposed">Proposed</option>
 				<option value="Accepted">Accepted</option>
@@ -30,7 +46,15 @@
 		</div>
 		<div class="input">
 			<p>Deciders:</p>
-			<input type="text" id="deciders" :value="deciders" @input="$emit('update:deciders', $event.target.value)" />
+			<input
+				type="text"
+				id="deciders"
+				:value="deciders"
+				@input="
+					$emit('update:deciders', $event.target.value);
+					$emit('validate');
+				"
+			/>
 			<div id="icon" class="tooltip">
 				<div class="bottom">
 					<p>Everyone involved in the decision, separated by commas.</p>
@@ -46,7 +70,7 @@
 	import { defineComponent } from "vue";
 
 	export default defineComponent({
-		name: "TemplateDateStatusDeciders",
+		name: "TemplateDateStatusDecidersSection",
 		props: {
 			date: String,
 			status: String,
@@ -60,7 +84,7 @@
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	body {

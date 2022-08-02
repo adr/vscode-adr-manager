@@ -2,11 +2,11 @@
 	<div id="consideredOptions">
 		<div id="optionsHeader">
 			<TemplateHeader
-				:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.\nOnly write a concise description; you can add a more detailed description when using the Professional MADR template.'"
+				:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.'"
 			>
 				<h2>Considered Options</h2>
 			</TemplateHeader>
-			<AddOptionButton @addOption="$emit('addOption')"></AddOptionButton>
+			<AddOptionButton @addOption="$emit('addOption')" draggable="false"></AddOptionButton>
 		</div>
 		<div id="options">
 			<draggable
@@ -16,17 +16,22 @@
 				handle="#grabber"
 				@update="$emit('checkSelection', $event)"
 			>
-				<OptionContainerBasic
+				<OptionContainerProfessional
 					v-for="(option, index) in consideredOptions"
-					:key="index"
-					:title="option.title"
+					:prosProp="option.pros"
+					:consProp="option.cons"
+					:key="option"
+					v-model:title="option.title"
+					v-model:description="option.description"
+					v-model:pros="option.pros"
+					v-model:cons="option.cons"
 					:class="
 						option.title === chosenOption && index === selectedIndex ? 'selectedOption' : 'unselectedOption'
 					"
 					@selectOption="$emit('selectOption', index)"
-					@editOption="$emit('editOption', { title: option.title, index: index })"
 					@deleteOption="$emit('deleteOption', index)"
-				></OptionContainerBasic>
+					@update:title="if (selectedIndex === index) $emit('selectOption', index);"
+				></OptionContainerProfessional>
 			</draggable>
 			<div id="rearrangeMessage" v-if="consideredOptions.length >= 2">
 				<h4>
@@ -42,17 +47,17 @@
 	import { defineComponent, PropType } from "vue";
 	import useValidate from "@vuelidate/core";
 	import { required } from "@vuelidate/validators";
-	import TemplateHeader from "./TemplateHeader.vue";
 	import { VueDraggableNext } from "vue-draggable-next";
-	import OptionContainerBasic from "./OptionContainerBasic.vue";
+	import TemplateHeader from "./TemplateHeader.vue";
 	import AddOptionButton from "./AddOptionButton.vue";
+	import OptionContainerProfessional from "./OptionContainerProfessional.vue";
 
 	export default defineComponent({
-		name: "TemplateConsideredOptionsBasicSection",
+		name: "TemplateConsideredOptionsProfessionalSection",
 		components: {
 			TemplateHeader,
-			OptionContainerBasic,
 			AddOptionButton,
+			OptionContainerProfessional,
 			draggable: VueDraggableNext,
 		},
 		setup() {
@@ -61,7 +66,9 @@
 			};
 		},
 		props: {
-			consideredOptionsProp: Array as PropType<string[]>,
+			consideredOptionsProp: Array as PropType<
+				{ title: string; description: string; pros: string[]; cons: string[] }[]
+			>,
 			chosenOption: String,
 			selectedIndex: Number,
 		},
@@ -97,6 +104,7 @@
 	.dragArea {
 		display: flex;
 		flex-wrap: wrap;
+		width: 100%;
 	}
 
 	.selectedOption {

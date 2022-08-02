@@ -9,13 +9,7 @@
 	import { defineComponent } from "vue";
 
 	export default defineComponent({
-		name: "OptionContainerShort",
-		props: {
-			title: {
-				type: String,
-				required: true,
-			},
-		},
+		name: "AddOptionButton",
 		methods: {
 			/**
 			 * Emits the "addOption" event which triggers the parent component to add a new option
@@ -28,7 +22,7 @@
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	#container {

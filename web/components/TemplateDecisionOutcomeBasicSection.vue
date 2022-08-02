@@ -36,7 +36,7 @@
 	import { createShortTitle } from "../../src/plugins/utils";
 
 	export default defineComponent({
-		name: "TemplateTitleSection",
+		name: "TemplateDecisionOutcomeBasicSection",
 		components: {
 			TemplateHeader,
 		},

@@ -15,25 +15,45 @@
 		<div id="prosAndCons" @click.self="$emit('selectOption')">
 			<div id="prosContainer" @click.self="$emit('selectOption')">
 				<h4 @click="$emit('selectOption')"><strong>Good, because...</strong></h4>
-				<div v-for="(pro, index) in prosWithBlank" :key="index" id="pros">
-					<input v-model="pros[index]" @input="updateArray('pros', $event.target.value, index)" />
-					<i
-						class="codicon codicon-close"
-						v-if="pros[index] !== ''"
-						@click="updateArray('pros', '', index)"
-					></i>
-				</div>
+				<draggable
+					class="dragArea"
+					:list="pros"
+					:sort="true"
+					handle="#prosGrabber"
+					@update="checkMove('pros', $event)"
+				>
+					<div v-for="(pro, index) in prosWithBlank" :key="index" id="pros">
+						<i id="prosGrabber" class="codicon codicon-grabber" v-if="pros[index] !== ''"></i>
+						<input v-model="pros[index]" @input="updateArray('pros', $event.target.value, index)" />
+						<i
+							id="multiInputDeleteIcon"
+							class="codicon codicon-close"
+							v-if="pros[index] !== ''"
+							@click="updateArray('pros', '', index)"
+						></i>
+					</div>
+				</draggable>
 			</div>
 			<div id="consContainer" @click.self="$emit('selectOption')">
 				<h4 @click="$emit('selectOption')"><strong>Bad, because...</strong></h4>
-				<div v-for="(con, index) in consWithBlank" :key="index" id="cons">
-					<input v-model="cons[index]" @input="updateArray('cons', $event.target.value, index)" />
-					<i
-						class="codicon codicon-close"
-						v-if="cons[index] !== ''"
-						@click="updateArray('cons', '', index)"
-					></i>
-				</div>
+				<draggable
+					class="dragArea"
+					:list="cons"
+					:sort="true"
+					handle="#consGrabber"
+					@update="checkMove('cons', $event)"
+				>
+					<div v-for="(con, index) in consWithBlank" :key="index" id="cons">
+						<i id="consGrabber" class="codicon codicon-grabber" v-if="cons[index] !== ''"></i>
+						<input v-model="cons[index]" @input="updateArray('cons', $event.target.value, index)" />
+						<i
+							id="multiInputDeleteIcon"
+							class="codicon codicon-close"
+							v-if="cons[index] !== ''"
+							@click="updateArray('cons', '', index)"
+						></i>
+					</div>
+				</draggable>
 			</div>
 		</div>
 		<i
@@ -54,55 +74,84 @@
 
 <script lang="ts">
 	import { defineComponent, PropType } from "vue";
+	import { VueDraggableNext } from "vue-draggable-next";
 
 	export default defineComponent({
 		name: "OptionContainerProfessional",
+		components: {
+			draggable: VueDraggableNext,
+		},
 		props: {
 			title: String,
 			description: String,
-			pros: Array as PropType<string[]>,
-			cons: Array as PropType<string[]>,
+			prosProp: {
+				type: Array as PropType<string[]>,
+				default: [],
+			},
+			consProp: {
+				type: Array as PropType<string[]>,
+				default: [],
+			},
 		},
 		data() {
 			return {
 				isExpanded: false,
 				isHovered: false,
+				pros: this.prosProp,
+				cons: this.consProp,
 			};
 		},
 		computed: {
 			prosWithBlank() {
-				const prosWithBlank = this.pros!;
+				const prosWithBlank = this.pros;
 				prosWithBlank.push("");
 				return prosWithBlank;
 			},
 			consWithBlank() {
-				const consWithBlank = this.cons!;
+				const consWithBlank = this.cons;
 				consWithBlank.push("");
 				return consWithBlank;
 			},
 		},
 		methods: {
 			/**
+			 * Prevents the user to drag an item below an empty input field that is reserved for new inputs.
+			 * @param evt The event fired upon causing an update with a drag
+			 */
+			checkMove(array: string, evt: any) {
+				if (array === "pros") {
+					if (this.pros[evt.newIndex - 1] === "") {
+						this.pros[evt.newIndex - 1] = this.pros[evt.newIndex];
+						this.pros.splice(evt.newIndex, 1);
+						this.pros = this.pros.filter((pro) => pro !== "");
+					}
+				} else if (array === "cons") {
+					if (this.cons[evt.newIndex - 1] === "") {
+						this.cons[evt.newIndex - 1] = this.cons[evt.newIndex];
+						this.cons.splice(evt.newIndex, 1);
+						this.cons = this.cons.filter((con) => con !== "");
+					}
+				}
+			},
+			/**
 			 * Updates the list of decision drivers/links.
 			 */
 			updateArray(array: string, text: string, index: number) {
 				if (array === "pros") {
-					let newPros = this.pros!;
-					newPros.splice(index, 1, text);
-					newPros = this.pros!.filter((pro) => pro.length);
-					this.$emit("update:pros", newPros);
+					this.pros.splice(index, 1, text);
+					this.pros = this.pros.filter((pro) => pro !== "");
+					this.$emit("update:pros", this.pros);
 				} else if (array === "cons") {
-					let newCons = this.cons!;
-					newCons.splice(index, 1, text);
-					newCons = this.cons!.filter((con) => con.length);
-					this.$emit("update:cons", newCons);
+					this.cons.splice(index, 1, text);
+					this.cons = this.cons.filter((con) => con !== "");
+					this.$emit("update:cons", this.cons);
 				}
 			},
 		},
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
 	body.vscode-high-contrast {
@@ -173,6 +222,13 @@
 		align-items: center;
 	}
 
+	.dragArea {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+
 	#expandArrow {
 		position: absolute;
 		top: 0.8rem;
@@ -196,6 +252,30 @@
 
 		&:active {
 			cursor: grabbing;
+		}
+	}
+
+	#prosGrabber,
+	#consGrabber {
+		position: initial;
+		margin-right: 0.5rem;
+		transform: scale(1.2);
+
+		&:hover {
+			cursor: grab;
+		}
+
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
+	#multiInputDeleteIcon {
+		transform: scale(1.5);
+		margin-left: 0.5rem;
+
+		&:hover {
+			cursor: pointer;
 		}
 	}
 
