@@ -48,13 +48,13 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	body.vscode-high-contrast {
-		& #optionBox {
-			border: 1px solid var(--vscode-contrastBorder);
-		}
-		& .selectedOption .codicon {
-			color: var(--vscode-editor-background);
-		}
+	body.vscode-high-contrast #optionBox {
+		border: 1px solid var(--vscode-contrastBorder);
+	}
+
+	body.vscode-high-contrast .selectedOption,
+	body.vscode-high-contrast .codicon {
+		color: var(--vscode-editor-foreground);
 	}
 
 	#optionBox {
@@ -115,6 +115,10 @@
 		& h3 {
 			color: var(--vscode-editor-selectionForeground) !important;
 		}
+	}
+
+	body.vscode-high-contrast .selectedOption .codicon {
+		color: var(--vscode-editor-background);
 	}
 
 	.unselectedOption {

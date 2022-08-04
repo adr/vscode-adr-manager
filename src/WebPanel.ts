@@ -102,7 +102,7 @@ export class WebPanel {
 					);
 					if (selection === "Yes") {
 						await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
-						vscode.window.showInformationMessage("ADR deleted successfully.");
+						vscode.window.showInformationMessage("ADR deleted.");
 					}
 					return;
 				case "addOption":
@@ -135,7 +135,7 @@ export class WebPanel {
 					if (uri) {
 						this._panel.webview.postMessage({ command: "saveSuccessful" });
 						const open = await vscode.window.showInformationMessage(
-							"ADR saved successfully. Do you want to open the Markdown file?",
+							"ADR saved. Do you want to open the Markdown file?",
 							"Yes",
 							"No"
 						);

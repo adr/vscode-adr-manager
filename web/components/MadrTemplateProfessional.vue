@@ -359,13 +359,6 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	body.vscode-high-contrast {
-		& input,
-		textarea {
-			border: 1.5px solid var(--vscode-contrastBorder);
-		}
-	}
-
 	#template {
 		width: 100%;
 		height: auto;

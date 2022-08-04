@@ -24,29 +24,39 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
 }
 
 /**
- * Returns the string of the ADR directory specified by the user in the user/workspace settings
+ * Returns the string of the ADR directory specified by the user in the user/workspace settings.
+ * Defaults to "docs/decisions" if the extension received an undefined value.
  * @returns The ADR directory specified by the user
  */
 function getAdrDirectoryString(): string {
-	return vscode.workspace.getConfiguration("adrManager").get("adrDirectory")!;
+	return vscode.workspace.getConfiguration("adrManager").get("adrDirectory") ?? "docs/decisions";
+}
+
+/**
+ * Returns if the user wants the extension to treat single-root workspaces with only subdirectories like multi-root workspaces.
+ * Defaults to true if the extension received an undefined value.
+ * @returns The ADR directory specified by the user
+ */
+export function treatAsMultiRoot(): boolean {
+	return vscode.workspace.getConfiguration("adrManager").get("treatSingleRootAsMultiRoot") ?? true;
 }
 
 /**
  * Returns the string of the preferred editor mode specified by the user in the user/workspace setting
- * when adding a new ADR
+ * when adding a new ADR. Defaults to "basic" if the extension received an undefined value.
  * @returns The preferred editor mode when adding a new ADR
  */
 export function getAddEditorMode(): string {
-	return vscode.workspace.getConfiguration("adrManager.editorMode").get("addAdrEditorMode")!;
+	return vscode.workspace.getConfiguration("adrManager.editorMode").get("addAdrEditorMode") ?? "basic";
 }
 
 /**
  * Returns the string of the preferred editor mode specified by the user in the user/workspace setting
- * when editing an existing ADR
+ * when editing an existing ADR. Defaults to "sufficient" if the extension received an undefined value.
  * @returns The preferred editor mode when editing an existing ADR
  */
 export function getViewEditorMode(): string {
-	return vscode.workspace.getConfiguration("adrManager.editorMode").get("viewAdrEditorMode")!;
+	return vscode.workspace.getConfiguration("adrManager.editorMode").get("viewAdrEditorMode") ?? "sufficient";
 }
 
 /**
@@ -147,7 +157,7 @@ export async function getAllChildRootFolders(rootFolderUri: vscode.Uri): Promise
  * @returns An array of strings of all the child root folder names within the highest-level root folder, or
  * 			an empty array if the specified folder does not only have other folders inside of it
  */
-async function getAllChildRootFoldersAsStrings(rootFolderUri: vscode.Uri): Promise<string[]> {
+export async function getAllChildRootFoldersAsStrings(rootFolderUri: vscode.Uri): Promise<string[]> {
 	const childRootFolderStrings: string[] = [];
 	if (await containsOnlyRootFolders(rootFolderUri)) {
 		const rootFolderDirectory = await vscode.workspace.fs.readDirectory(rootFolderUri);
@@ -181,6 +191,7 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 			await fillAdrDirectory(adrFolderUri);
 		}
 	}
+	vscode.window.showInformationMessage("ADR directory initialized.");
 }
 
 /**
@@ -265,7 +276,7 @@ export async function getAllMDs(): Promise<
 	if (isWorkspaceOpened()) {
 		const workspaceFolders = getWorkspaceFolders();
 		// Check if single-root folder is root folder of other root folders
-		if (isSingleRootWorkspace() && (await containsOnlyRootFolders(workspaceFolders[0].uri))) {
+		if (isSingleRootWorkspace() && treatAsMultiRoot() && (await containsOnlyRootFolders(workspaceFolders[0].uri))) {
 			const childRootFolderUris = await getAllChildRootFolders(workspaceFolders[0].uri);
 			for (let i = 0; i < childRootFolderUris.length; i++) {
 				if (await adrDirectoryExists(childRootFolderUris[i])) {
@@ -520,26 +531,6 @@ function getRenamedUri(fileUri: vscode.Uri, newName: string): vscode.Uri {
 }
 
 /**
- * Returns an array of objects that each represent one considered option with only a title.
- * @param options A string array of option titles
- * @returns An array of objects which each represent an option with only a title
- */
-function getConsideredOptionsFromStrings(
-	options: string[]
-): { title: string; description: string; pros: string[]; cons: string[] }[] {
-	const consideredOptions: { title: string; description: string; pros: string[]; cons: string[] }[] = [];
-	for (const option of options) {
-		consideredOptions.push({
-			title: option,
-			description: "",
-			pros: [],
-			cons: [],
-		});
-	}
-	return consideredOptions;
-}
-
-/**
  * Returns an array of strings that each represent the title of one considered option.
  * @param options An array of considered option objects
  * @returns An array of strings which each represent an option
@@ -570,7 +561,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 	} else {
 		if (isSingleRootWorkspace()) {
 			// Check if single-root folder is root folder of other root folders
-			if (await containsOnlyRootFolders(getWorkspaceFolders()[0].uri)) {
+			if (treatAsMultiRoot() && (await containsOnlyRootFolders(getWorkspaceFolders()[0].uri))) {
 				const childRootFolder = await vscode.window.showQuickPick(
 					getAllChildRootFoldersAsStrings(getWorkspaceFolders()[0].uri),
 					{ title: "Choose the folder to save the ADR to:" }
@@ -589,7 +580,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 					WebPanel.createOrShow(EXTENSION_URI, "main");
 					// Show success message and potentially open file in separate editor
 					const open = await vscode.window.showInformationMessage(
-						"ADR created successfully. Do you want to open the Markdown file?",
+						"ADR created. Do you want to open the Markdown file?",
 						"Yes",
 						"Cancel"
 					);
@@ -625,7 +616,7 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
 				// Show success message and potentially open file in separate editor
 				const open = await vscode.window.showInformationMessage(
-					"ADR created successfully. Do you want to open the Markdown file?",
+					"ADR created. Do you want to open the Markdown file?",
 					"Yes",
 					"Cancel"
 				);

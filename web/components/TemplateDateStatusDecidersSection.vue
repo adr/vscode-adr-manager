@@ -87,12 +87,8 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	body {
-		&.vscode-dark {
-			& #date {
-				color-scheme: dark;
-			}
-		}
+	body.vscode-dark #date {
+		color-scheme: dark;
 	}
 
 	#dateStatusDeciders {

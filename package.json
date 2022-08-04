@@ -62,6 +62,11 @@
 					"pattern": "^([^?*:\"<>|]+[\\/]?)+$",
 					"patternErrorMessage": "Invalid directory.\nNote that these characters are not allowed in directory names:\n? * : \" < > |"
 				},
+				"adrManager.treatSingleRootAsMultiRoot": {
+					"type": "boolean",
+					"default": true,
+					"description": "Specifies whether ADR Manager treats single-root workspaces with only subdirectories like multi-root workspaces"
+				},
 				"adrManager.editorMode.addAdrEditorMode": {
 					"type": "string",
 					"default": "basic",

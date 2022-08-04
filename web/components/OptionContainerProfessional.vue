@@ -154,13 +154,13 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	body.vscode-high-contrast {
-		& #optionProfessional {
-			border: 1px solid var(--vscode-contrastBorder);
-		}
-		& .selectedOption .codicon {
-			color: var(--vscode-editor-background);
-		}
+	body.vscode-high-contrast #optionProfessional {
+		border: 1px solid var(--vscode-contrastBorder);
+	}
+
+	body.vscode-high-contrast .selectedOption .codicon,
+	body.vscode-high-contrast .selectedOption h4 {
+		color: var(--vscode-editor-background);
 	}
 
 	#optionProfessional {
@@ -177,6 +177,8 @@
 
 		&:hover {
 			cursor: pointer;
+			filter: brightness(110%);
+			transform: scale(1.01);
 		}
 	}
 

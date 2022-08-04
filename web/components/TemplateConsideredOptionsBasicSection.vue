@@ -99,15 +99,8 @@
 		flex-wrap: wrap;
 	}
 
-	.selectedOption {
-		background: var(--vscode-editor-selectionBackground);
-		& h3 {
-			color: var(--vscode-editor-selectionForeground) !important;
-		}
-	}
-
-	.unselectedOption {
-		background: var(--vscode-editor-background);
+	body.vscode-high-contrast .selectedOption .codicon {
+		color: var(--vscode-editor-background);
 	}
 
 	#rearrangeMessage {

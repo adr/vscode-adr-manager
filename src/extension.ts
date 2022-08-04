@@ -10,8 +10,12 @@ import {
 	getAddEditorMode,
 	getViewEditorMode,
 	determineViewEditorMode,
+	containsOnlyRootFolders,
+	getAllChildRootFoldersAsStrings,
+	treatAsMultiRoot,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
+import { md2adr } from "./plugins/parser";
 
 /**
  * Sets up the extension to be used in VS Code.
@@ -54,7 +58,18 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showErrorMessage("Please open a workspace folder to initialize ADR directory");
 		} else {
 			if (isSingleRootWorkspace()) {
-				initializeAdrDirectory(getWorkspaceFolders()[0].uri);
+				// Check if single-root folder is root folder of other root folders
+				if (treatAsMultiRoot() && (await containsOnlyRootFolders(getWorkspaceFolders()[0].uri))) {
+					const childRootFolder = await vscode.window.showQuickPick(
+						getAllChildRootFoldersAsStrings(getWorkspaceFolders()[0].uri),
+						{ title: "Choose the folder to save the ADR to:" }
+					);
+					if (childRootFolder) {
+						initializeAdrDirectory(vscode.Uri.joinPath(getWorkspaceFolders()[0].uri, childRootFolder));
+					}
+				} else {
+					initializeAdrDirectory(getWorkspaceFolders()[0].uri);
+				}
 			} else {
 				const folder = await vscode.window.showWorkspaceFolderPick();
 				if (folder) {
@@ -72,20 +87,23 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 		if (newDirectory !== undefined) {
 			await vscode.workspace.getConfiguration("adrManager").update("adrDirectory", cleanPathString(newDirectory));
-			vscode.window.showInformationMessage("ADR directory changed successfully.");
+			vscode.window.showInformationMessage("ADR directory changed.");
 		}
 	});
 
 	// Open ADR Manager on currently open Markdown file
-	vscode.commands.registerCommand("vscode-adr-manager.viewInAdrManager", () => {
-		vscode.window.showInformationMessage("Test");
+	vscode.commands.registerCommand("vscode-adr-manager.viewInAdrManager", async () => {
+		if (vscode.window.activeTextEditor) {
+			const file = vscode.window.activeTextEditor.document;
+			const adr = md2adr(file.getText());
+			if (!adr.conforming) {
+				vscode.window.showErrorMessage(
+					"The requested Markdown file does not conform to MADR, please edit the file such that it conforms to MADR."
+				);
+			} else {
+				WebPanel.createOrShow(context.extensionUri, "main");
+				WebPanel.currentPanel?.viewAdr(file.getText());
+			}
+		}
 	});
-}
-
-/**
- * Cleans up upon deactivating the extension.
- * @param context The context of the extension (automatically provided by the extension)
- */
-export function deactivate(context: vscode.ExtensionContext) {
-	WebPanel.currentPanel?.dispose();
 }

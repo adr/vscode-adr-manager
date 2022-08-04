@@ -6,21 +6,15 @@
 		<draggable class="dragArea" :list="links" :sort="true" handle="#linksGrabber" @update="checkMove">
 			<div v-for="(link, index) in linksWithBlank" :key="index" class="multiInput">
 				<i id="linksGrabber" class="codicon codicon-grabber" v-if="links[index] !== ''"></i>
-				<input v-model="links[index]" @input="updateArray('links', $event.target.value, index)" />
+				<input v-model="links[index]" @input="updateArray($event.target.value, index)" />
 				<i
 					id="multiInputDeleteIcon"
 					class="codicon codicon-close"
 					v-if="links[index] !== ''"
-					@click="updateArray('links', '', index)"
+					@click="updateArray('', index)"
 				></i>
 			</div>
 		</draggable>
-		<!--<div id="rearrangeMessage" v-if="links.length >= 3">
-			<h4>
-				<i>Rearrange links by dragging on</i>
-			</h4>
-			<i class="codicon codicon-grabber"></i>
-		</div>-->
 	</div>
 </template>
 
@@ -125,15 +119,6 @@
 
 		&:active {
 			cursor: grabbing;
-		}
-	}
-
-	#rearrangeMessage {
-		@include centered-flex(row);
-		margin-top: 0.5rem;
-
-		& i {
-			margin-left: 0.5rem;
 		}
 	}
 </style>

@@ -89,3 +89,8 @@ input::placeholder,
 textarea::placeholder {
     color: var(--vscode-input-placeholderForeground);
 }
+
+body.vscode-high-contrast input,
+body.vscode-high-contrast textarea {
+    border: 1px solid var(--vscode-contrastBorder) !important;
+}

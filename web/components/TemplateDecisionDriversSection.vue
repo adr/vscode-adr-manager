@@ -17,12 +17,6 @@
 				></i>
 			</div>
 		</draggable>
-		<!--<div id="rearrangeMessage" v-if="decisionDrivers.length >= 3">
-			<h4>
-				<i>Rearrange decision drivers by dragging on</i>
-			</h4>
-			<i class="codicon codicon-grabber"></i>
-		</div>-->
 	</div>
 </template>
 
@@ -127,15 +121,6 @@
 
 		&:active {
 			cursor: grabbing;
-		}
-	}
-
-	#rearrangeMessage {
-		@include centered-flex(row);
-		margin-top: 0.5rem;
-
-		& i {
-			margin-left: 0.5rem;
 		}
 	}
 </style>
