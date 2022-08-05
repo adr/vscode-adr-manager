@@ -13,14 +13,20 @@
 			<div id="explanationInput">
 				<input
 					type="text"
-					:class="v$.explanation.$error ? 'invalidInput' : v$.explanation.$dirty ? 'validInput' : ''"
-					v-model="v$.explanation.$model"
+					:class="
+						v$.decisionOutcome.explanation.$error
+							? 'invalidInput'
+							: v$.decisionOutcome.explanation.$dirty
+							? 'validInput'
+							: ''
+					"
+					v-model="v$.decisionOutcome.explanation.$model"
 					@input="
 						$emit('update:explanation', $event.target.value);
 						$emit('validate');
 					"
 				/>
-				<h4 class="errorMessage" v-for="error of v$.explanation.$errors" :key="error.$uid">
+				<h4 class="errorMessage" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
 					{{ error.$message }}
 				</h4>
 			</div>
@@ -29,7 +35,7 @@
 </template>
 
 <script lang="ts">
-	import { defineComponent } from "vue";
+	import { defineComponent, PropType } from "vue";
 	import useValidate from "@vuelidate/core";
 	import { required } from "@vuelidate/validators";
 	import TemplateHeader from "./TemplateHeader.vue";
@@ -46,28 +52,44 @@
 			};
 		},
 		props: {
-			chosenOption: String,
-			explanationProp: String,
+			decisionOutcomeProp: {
+				type: Object as PropType<{
+					chosenOption: string;
+					explanation: string;
+					positiveConsequences: string[];
+					negativeConsequences: string[];
+				}>,
+				default: {
+					chosenOption: "",
+					explanation: "",
+					positiveConsequences: [] as string[],
+					negativeConsequences: [] as string[],
+				},
+			},
 		},
 		data() {
 			return {
-				explanation: this.explanationProp,
+				decisionOutcome: this.decisionOutcomeProp,
 			};
 		},
 		computed: {
 			chosenOptionText() {
-				return this.chosenOption !== "" ? createShortTitle(this.chosenOption!) : "none";
+				return this.decisionOutcome.chosenOption !== ""
+					? createShortTitle(this.decisionOutcome.chosenOption!)
+					: "none";
 			},
 		},
 		validations() {
 			return {
-				chosenOption: {
-					required,
-					$lazy: true,
-				},
-				explanation: {
-					required,
-					$lazy: true,
+				decisionOutcome: {
+					chosenOption: {
+						required,
+						$lazy: true,
+					},
+					explanation: {
+						required,
+						$lazy: true,
+					},
 				},
 			};
 		},

@@ -18,7 +18,7 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import MadrTemplateBasic from "../components/MadrTemplateBasic.vue";
-	import vscode from "../../src/plugins/vscode-api-mixin";
+	import vscode from "../mixins/vscode-api-mixin";
 
 	export default defineComponent({
 		components: {
@@ -29,19 +29,28 @@
 			return {
 				validated: false,
 				title: "",
+				date: "",
+				status: "",
+				deciders: "",
+				technicalStory: "",
 				contextAndProblemStatement: "",
+				decisionDrivers: [] as string[],
 				consideredOptions: [] as {
 					title: string;
 					description: string;
 					pros: string[];
 					cons: string[];
 				}[],
-				chosenOption: "",
-				explanation: "",
+				decisionOutcome: {
+					chosenOption: "",
+					explanation: "",
+					positiveConsequences: [] as string[],
+					negativeConsequences: [] as string[],
+				},
+				links: [] as string[],
 				fullPath: "",
 			};
 		},
-		computed: {},
 		methods: {
 			/**
 			 * Saves the values of the Short MADR template in this component's data variables.
@@ -49,22 +58,37 @@
 			 */
 			getValidInput(fields: {
 				title: string;
+				date: string;
+				status: string;
+				deciders: string;
+				technicalStory: string;
 				contextAndProblemStatement: string;
+				decisionDrivers: string[];
 				consideredOptions: {
 					title: string;
 					description: string;
 					pros: string[];
 					cons: string[];
 				}[];
-				chosenOption: string;
-				explanation: string;
+				decisionOutcome: {
+					chosenOption: string;
+					explanation: string;
+					positiveConsequences: string[];
+					negativeConsequences: string[];
+				};
+				links: string[];
 				fullPath: string;
 			}) {
 				this.title = fields.title;
+				this.date = fields.date;
+				this.status = fields.status;
+				this.deciders = fields.deciders;
+				this.technicalStory = fields.technicalStory;
 				this.contextAndProblemStatement = fields.contextAndProblemStatement;
+				this.decisionDrivers = fields.decisionDrivers;
 				this.consideredOptions = fields.consideredOptions;
-				this.chosenOption = fields.chosenOption;
-				this.explanation = fields.explanation;
+				this.decisionOutcome = fields.decisionOutcome;
+				this.links = fields.links;
 				this.fullPath = fields.fullPath;
 				this.validated = true;
 			},
@@ -85,10 +109,16 @@
 					JSON.stringify({
 						adr: {
 							title: this.title,
+							oldTitle: this.oldTitle,
+							date: this.date,
+							status: this.status,
+							deciders: this.deciders,
+							technicalStory: this.technicalStory,
 							contextAndProblemStatement: this.contextAndProblemStatement,
+							decisionDrivers: this.decisionDrivers,
 							consideredOptions: this.consideredOptions,
-							chosenOption: this.chosenOption,
-							explanation: this.explanation,
+							decisionOutcome: this.decisionOutcome,
+							links: this.links,
 							fullPath: this.fullPath,
 						},
 					})

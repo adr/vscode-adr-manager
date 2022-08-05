@@ -15,7 +15,7 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import MadrTemplateProfessional from "../components/MadrTemplateProfessional.vue";
-	import vscode from "../../src/plugins/vscode-api-mixin";
+	import vscode from "../mixins/vscode-api-mixin";
 
 	export default defineComponent({
 		components: {
@@ -50,7 +50,7 @@
 		computed: {},
 		methods: {
 			/**
-			 * Saves the values of the Short MADR template in this component's data variables.
+			 * Saves the values of the MADR template in this component's data variables.
 			 * @param fields The values of the ADR fields
 			 */
 			getValidInput(fields: {
