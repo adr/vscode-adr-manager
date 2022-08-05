@@ -161,12 +161,12 @@
 	"dependencies": {
 		"@types/vscode-webview": "^1.57.0",
 		"@vscode/codicons": "^0.0.31",
+		"@vueform/toggle": "^2.1.1",
 		"@vuelidate/core": "^2.0.0-alpha.42",
 		"@vuelidate/validators": "^2.0.0-alpha.30",
 		"antlr4": "^4.10.1",
 		"vue": "^3.2.37",
 		"vue-class-component": "^8.0.0-0",
-		"vue-draggable-next": "^2.1.1",
-		"vue-final-modal": "^3.4.4"
+		"vue-draggable-next": "^2.1.1"
 	}
 }

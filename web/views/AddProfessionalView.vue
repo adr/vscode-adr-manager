@@ -1,13 +1,13 @@
 <template>
 	<div id="add">
-		<button id="backButton" class="secondary" @click="sendMessage('main')">
-			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+		<button id="back-button" class="secondary" @click="sendMessage('main')">
+			<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
 		<div id="madr">
 			<MadrTemplateProfessional @validated="getValidInput" @invalidated="invalidate"></MadrTemplateProfessional>
 		</div>
-		<div class="buttonGroup">
-			<button id="createButton" :disabled="!validated" @click="createAdr">Create ADR</button>
+		<div class="button-group-container">
+			<button id="create-button" :disabled="!validated" @click="createAdr">Create ADR</button>
 		</div>
 	</div>
 </template>
@@ -130,7 +130,7 @@
 		margin: 0;
 	}
 
-	#backButton {
+	#back-button {
 		@include button-sizing;
 		@include button-styling;
 		margin: 1.5rem 1rem;
@@ -139,7 +139,7 @@
 		flex-shrink: 0;
 	}
 
-	#backButtonContent {
+	#back-button-content {
 		@include centered-flex(row);
 	}
 
@@ -149,12 +149,12 @@
 		flex-grow: 1;
 	}
 
-	.buttonGroup {
+	.button-group-container {
 		@include centered-flex(row);
 		flex-shrink: 0;
 		margin: 1rem;
 
-		& #createButton {
+		& #create-button {
 			@include button-sizing;
 			@include button-styling;
 			background: var(--vscode-button-background);

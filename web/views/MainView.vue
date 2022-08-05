@@ -1,7 +1,7 @@
 <template>
 	<div id="main">
 		<img src="../assets/header-dark-theme.png" alt="ADR Manager Header Image" class="logo" />
-		<div id="adrList">
+		<div id="adr-list">
 			<ADRContainer
 				v-for="(adr, index) in sortedAdrs"
 				:key="index"
@@ -12,14 +12,14 @@
 			<h1 v-if="sortedAdrs.length === 0">No ADRs detected in the workspace.</h1>
 		</div>
 
-		<button id="addAdrButton" @click="sendMessage('add')">Add ADR</button>
+		<button id="add-adr-button" @click="sendMessage('add')">Add ADR</button>
 	</div>
 </template>
 
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import ADRContainer from "../components/ADRContainer.vue";
-	import vscode from "../../src/plugins/vscode-api-mixin";
+	import vscode from "../mixins/vscode-api-mixin";
 	import { ArchitecturalDecisionRecord } from "../../src/plugins/classes";
 
 	export default defineComponent({
@@ -111,7 +111,7 @@
 		margin: 1rem 0;
 	}
 
-	#adrList {
+	#adr-list {
 		width: 90%;
 		min-height: 40%;
 		max-height: 60%;
@@ -124,7 +124,7 @@
 		}
 	}
 
-	#addAdrButton {
+	#add-adr-button {
 		@include button-sizing;
 		@include button-styling;
 		background: green;

@@ -1,16 +1,16 @@
 <template>
 	<div id="view">
-		<button id="backButton" class="secondary" @click="sendMessage('main')">
-			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+		<button id="back-button" class="secondary" @click="sendMessage('main')">
+			<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
 		<div id="madr">
 			<MadrTemplateBasic @validated="getValidInput" @invalidated="invalidate"></MadrTemplateBasic>
-			<p id="basicTemplateNote">
+			<p id="basic-template-note">
 				<em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em>
 			</p>
 		</div>
-		<div class="buttonGroup">
-			<button id="saveButton" :disabled="!validated" @click="saveAdr">Save ADR</button>
+		<div class="button-group">
+			<button id="save-button" :disabled="!validated" @click="saveAdr">Save ADR</button>
 		</div>
 	</div>
 </template>
@@ -40,7 +40,7 @@
 		margin: 0;
 	}
 
-	#backButton {
+	#back-button {
 		@include button-sizing;
 		@include button-styling;
 		margin: 1.5rem 1rem;
@@ -49,7 +49,7 @@
 		flex-shrink: 0;
 	}
 
-	#backButtonContent {
+	#back-button-content {
 		@include centered-flex(row);
 	}
 
@@ -58,17 +58,17 @@
 		overflow: auto;
 	}
 
-	#basicTemplateNote {
+	#basic-template-note {
 		width: 95%;
 		margin: auto;
 	}
 
-	.buttonGroup {
+	.button-group {
 		@include centered-flex(row);
 		flex-shrink: 0;
 		margin: 1rem;
 
-		& #saveButton {
+		& #save-button {
 			@include button-sizing;
 			@include button-styling;
 			background: var(--vscode-button-background);
