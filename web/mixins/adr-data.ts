@@ -1,3 +1,4 @@
+//@ts-nocheck
 // Vue mixin which holds all the data used by a MADR template component
 import { createShortTitle } from "../../src/plugins/utils";
 
