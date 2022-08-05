@@ -136,6 +136,7 @@
 		margin: 1.5rem 1rem;
 		padding: 0.5rem 1rem;
 		background: var(--vscode-button-secondaryBackground);
+		flex-shrink: 0;
 	}
 
 	#backButtonContent {
@@ -143,11 +144,16 @@
 	}
 
 	#madr {
-		@include centered-flex(row);
+		width: 100%;
+		overflow: auto;
+		flex-grow: 1;
 	}
 
 	.buttonGroup {
 		@include centered-flex(row);
+		flex-shrink: 0;
+		margin: 1rem;
+
 		& #createButton {
 			@include button-sizing;
 			@include button-styling;

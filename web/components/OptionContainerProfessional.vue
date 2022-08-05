@@ -284,7 +284,7 @@
 	#deleteOptionIcon {
 		position: absolute;
 		top: 0.8rem;
-		right: 5rem;
+		right: 4rem;
 		transform: scale(1.2);
 		&:hover {
 			cursor: pointer;

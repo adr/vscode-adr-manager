@@ -93,10 +93,10 @@
 
 	#dateStatusDeciders {
 		@include centered-flex(row);
-		justify-content: flex-start;
 		width: 100%;
 		margin-bottom: 2rem;
 		flex-wrap: wrap;
+		align-items: flex-start;
 	}
 
 	.input {
@@ -108,9 +108,10 @@
 	}
 
 	#date {
-		width: 45%;
+		flex: 1;
 		border: 1px solid var(--vscode-input-foreground);
 		border-radius: 5px;
+		margin: 0.25rem;
 	}
 
 	#status {
@@ -118,13 +119,15 @@
 		color: var(--vscode-input-foreground);
 		border: 1px solid var(--vscode-input-foreground);
 		border-radius: 5px;
-		width: 60%;
+		flex: 1;
 		padding: 0.5rem 0;
+		margin: 0.25rem;
 	}
 
 	#deciders {
-		max-width: 100%;
+		flex: 1;
 		border: 1px solid var(--vscode-input-foreground);
+		margin: 0.25rem;
 		border-radius: 5px;
 	}
 

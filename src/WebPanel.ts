@@ -74,8 +74,7 @@ export class WebPanel {
 					return;
 				case "view": {
 					const fileUri = vscode.Uri.parse(e.data.fullPath);
-					const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
-					await this.viewAdr(mdString);
+					await this.viewAdr(fileUri);
 				}
 				case "fetchAdrs":
 					let allAdrs: {
@@ -131,9 +130,9 @@ export class WebPanel {
 					createProfessionalAdr(JSON.parse(e.data));
 					return;
 				case "saveAdr":
-					let uri = await saveAdr(JSON.parse(e.data).adr, JSON.parse(e.data).oldTitle);
+					let uri = await saveAdr(JSON.parse(e.data).adr);
 					if (uri) {
-						this._panel.webview.postMessage({ command: "saveSuccessful" });
+						this._panel.webview.postMessage({ command: "saveSuccessful", newPath: uri.toString() });
 						const open = await vscode.window.showInformationMessage(
 							"ADR saved. Do you want to open the Markdown file?",
 							"Yes",
@@ -149,9 +148,11 @@ export class WebPanel {
 	}
 	/**
 	 * Opens the Basic MADR template and fills the fields with existing values of the specified ADR.
-	 * @param mdString The Markdown ADR as a string
+	 * @param fileUri The URI of the ADR file to be viewed
 	 */
-	async viewAdr(mdString: string) {
+	async viewAdr(fileUri: vscode.Uri) {
+		const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
+
 		const adr = md2adr(mdString);
 		await vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString);
 		this._panel.webview.postMessage({
@@ -167,6 +168,7 @@ export class WebPanel {
 				consideredOptions: adr.consideredOptions,
 				decisionOutcome: adr.decisionOutcome,
 				links: adr.links,
+				fullPath: fileUri.toString(),
 			}),
 		});
 	}

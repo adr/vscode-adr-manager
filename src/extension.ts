@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 				);
 			} else {
 				WebPanel.createOrShow(context.extensionUri, "main");
-				WebPanel.currentPanel?.viewAdr(file.getText());
+				WebPanel.currentPanel?.viewAdr(file.uri);
 			}
 		}
 	});

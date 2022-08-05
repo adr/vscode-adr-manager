@@ -1,5 +1,5 @@
 <template>
-	<div id="add">
+	<div id="view">
 		<button id="backButton" class="secondary" @click="sendMessage('main')">
 			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 		</button>
@@ -26,7 +26,6 @@
 			return {
 				validated: false,
 				title: "",
-				oldTitle: "",
 				date: "",
 				status: "",
 				deciders: "",
@@ -46,6 +45,7 @@
 					negativeConsequences: [] as string[],
 				},
 				links: [] as string[],
+				fullPath: "",
 			};
 		},
 		computed: {},
@@ -56,7 +56,6 @@
 			 */
 			getValidInput(fields: {
 				title: string;
-				oldTitle: string;
 				date: string;
 				status: string;
 				deciders: string;
@@ -76,9 +75,9 @@
 					negativeConsequences: string[];
 				};
 				links: string[];
+				fullPath: string;
 			}) {
 				this.title = fields.title;
-				this.oldTitle = fields.oldTitle;
 				this.date = fields.date;
 				this.status = fields.status;
 				this.deciders = fields.deciders;
@@ -88,6 +87,7 @@
 				this.consideredOptions = fields.consideredOptions;
 				this.decisionOutcome = fields.decisionOutcome;
 				this.links = fields.links;
+				this.fullPath = fields.fullPath;
 				this.validated = true;
 			},
 			/**
@@ -117,8 +117,8 @@
 							consideredOptions: this.consideredOptions,
 							decisionOutcome: this.decisionOutcome,
 							links: this.links,
+							fullPath: this.fullPath,
 						},
-						oldTitle: this.oldTitle,
 					})
 				);
 			},
@@ -129,7 +129,7 @@
 <style lang="scss">
 	@use "../static/mixins" as *;
 
-	#add {
+	#view {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -143,6 +143,7 @@
 		margin: 1.5rem 1rem;
 		padding: 0.5rem 1rem;
 		background: var(--vscode-button-secondaryBackground);
+		flex-shrink: 0;
 	}
 
 	#backButtonContent {
@@ -150,11 +151,15 @@
 	}
 
 	#madr {
-		@include centered-flex(row);
+		width: 100%;
+		overflow: auto;
+		flex-grow: 1;
 	}
 
 	.buttonGroup {
 		@include centered-flex(row);
+		flex-shrink: 0;
+
 		& #createButton {
 			@include button-sizing;
 			@include button-styling;

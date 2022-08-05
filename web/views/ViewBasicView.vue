@@ -5,8 +5,10 @@
 		</button>
 		<div id="madr">
 			<MadrTemplateBasic @validated="getValidInput" @invalidated="invalidate"></MadrTemplateBasic>
+			<p id="basicTemplateNote">
+				<em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em>
+			</p>
 		</div>
-		<p id="basicTemplateNote"><em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em></p>
 		<div class="buttonGroup">
 			<button id="saveButton" :disabled="!validated" @click="saveAdr">Save ADR</button>
 		</div>
@@ -26,7 +28,6 @@
 		data() {
 			return {
 				validated: false,
-				oldTitle: "",
 				title: "",
 				contextAndProblemStatement: "",
 				consideredOptions: [] as {
@@ -37,6 +38,7 @@
 				}[],
 				chosenOption: "",
 				explanation: "",
+				fullPath: "",
 			};
 		},
 		computed: {},
@@ -47,7 +49,6 @@
 			 */
 			getValidInput(fields: {
 				title: string;
-				oldTitle: string;
 				contextAndProblemStatement: string;
 				consideredOptions: {
 					title: string;
@@ -57,13 +58,14 @@
 				}[];
 				chosenOption: string;
 				explanation: string;
+				fullPath: string;
 			}) {
 				this.title = fields.title;
-				this.oldTitle = fields.oldTitle;
 				this.contextAndProblemStatement = fields.contextAndProblemStatement;
 				this.consideredOptions = fields.consideredOptions;
 				this.chosenOption = fields.chosenOption;
 				this.explanation = fields.explanation;
+				this.fullPath = fields.fullPath;
 				this.validated = true;
 			},
 			/**
@@ -87,8 +89,8 @@
 							consideredOptions: this.consideredOptions,
 							chosenOption: this.chosenOption,
 							explanation: this.explanation,
+							fullPath: this.fullPath,
 						},
-						oldTitle: this.oldTitle,
 					})
 				);
 			},
@@ -113,6 +115,7 @@
 		margin: 1.5rem 1rem;
 		padding: 0.5rem 1rem;
 		background: var(--vscode-button-secondaryBackground);
+		flex-shrink: 0;
 	}
 
 	#backButtonContent {
@@ -120,15 +123,20 @@
 	}
 
 	#madr {
-		@include centered-flex(row);
+		width: 100%;
+		overflow: auto;
 	}
 
 	#basicTemplateNote {
-		margin: -0.75rem 0 2rem 1rem;
+		width: 95%;
+		margin: auto;
 	}
 
 	.buttonGroup {
 		@include centered-flex(row);
+		flex-shrink: 0;
+		margin: 1rem;
+
 		& #saveButton {
 			@include button-sizing;
 			@include button-styling;

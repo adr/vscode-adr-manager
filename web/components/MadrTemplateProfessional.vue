@@ -97,7 +97,6 @@
 		data() {
 			return {
 				title: "",
-				oldTitle: "",
 				date: "",
 				status: "",
 				deciders: "",
@@ -117,8 +116,8 @@
 					negativeConsequences: [] as string[],
 				},
 				links: [] as string[],
+				fullPath: "",
 				selectedIndex: -1,
-				showModal: false,
 				valid: {
 					title: false,
 					contextAndProblemStatement: false,
@@ -155,9 +154,9 @@
 					negativeConsequences: string[];
 				};
 				links: string[];
+				fullPath: string;
 			}) {
 				this.title = adr.title;
-				this.oldTitle = adr.title;
 				this.date = adr.date;
 				this.status = adr.status;
 				this.deciders = adr.deciders;
@@ -167,6 +166,7 @@
 				this.consideredOptions = adr.consideredOptions;
 				this.decisionOutcome = adr.decisionOutcome;
 				this.links = adr.links;
+				this.fullPath = adr.fullPath;
 				this.selectOption(
 					this.consideredOptions.findIndex((option) => {
 						return createShortTitle(option.title) === createShortTitle(this.decisionOutcome.chosenOption);
@@ -317,7 +317,6 @@
 				if (Object.values(this.valid).every((value) => value)) {
 					this.$emit("validated", {
 						title: this.title,
-						oldTitle: this.oldTitle,
 						date: this.date,
 						status: this.status,
 						deciders: this.deciders,
@@ -327,6 +326,7 @@
 						consideredOptions: this.consideredOptions,
 						decisionOutcome: this.decisionOutcome,
 						links: this.links,
+						fullPath: this.fullPath,
 					});
 				} else {
 					this.$emit("invalidated");
@@ -348,7 +348,7 @@
 						this.fillFields(JSON.parse(message.adr));
 						break;
 					case "saveSuccessful":
-						this.oldTitle = this.title;
+						this.fullPath = message.newPath;
 						break;
 				}
 			});
@@ -360,11 +360,11 @@
 	@use "../static/mixins.scss" as *;
 
 	#template {
-		width: 100%;
+		width: 95%;
 		height: auto;
 		background: var(--vscode-textBlockQuote-background);
 		border: 1.5px solid var(--vscode-input-foreground);
-		margin: 1.5rem 1rem;
+		margin: 1.5rem auto;
 		padding: 1.5rem;
 	}
 

@@ -401,33 +401,31 @@ export function createProfessionalAdr(fields: {
  * @param fields The fields of the edited short ADR
  * @param oldTitle The old title of the ADR, used for locating the Markdown file to edit
  */
-export async function saveAdr(
-	fields: {
-		title?: string;
-		date?: string;
-		status?: string;
-		deciders?: string;
-		technicalStory?: string;
-		contextAndProblemStatement?: string;
-		decisionDrivers?: string[];
-		consideredOptions?: {
-			title: string;
-			description: string;
-			pros: string[];
-			cons: string[];
-		}[];
-		decisionOutcome?: {
-			chosenOption: string;
-			explanation: string;
-			positiveConsequences: string[];
-			negativeConsequences: string[];
-		};
-		links?: string[];
-	},
-	oldTitle: string
-): Promise<vscode.Uri | undefined> {
+export async function saveAdr(fields: {
+	title?: string;
+	date?: string;
+	status?: string;
+	deciders?: string;
+	technicalStory?: string;
+	contextAndProblemStatement?: string;
+	decisionDrivers?: string[];
+	consideredOptions?: {
+		title: string;
+		description: string;
+		pros: string[];
+		cons: string[];
+	}[];
+	decisionOutcome?: {
+		chosenOption: string;
+		explanation: string;
+		positiveConsequences: string[];
+		negativeConsequences: string[];
+	};
+	links?: string[];
+	fullPath: string;
+}): Promise<vscode.Uri | undefined> {
 	// Update, convert ADR object to Markdown and save
-	const fileUri = await getExistingAdrUri(oldTitle);
+	const fileUri = vscode.Uri.parse(fields.fullPath);
 	if (fileUri) {
 		const adr = md2adr(new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri)));
 		adr.update({
@@ -500,21 +498,6 @@ function getAdrObjectFromFields(fields: {
 	newAdr.cleanUp();
 
 	return newAdr;
-}
-
-/**
- * Returns a URI of the Markdown file iff there exists an ADR that has the same title as the specified string.
- * @param title The title of an existing ADR
- * @returns The URI of the existing ADR corresponding to the specified ADR title
- */
-async function getExistingAdrUri(title: string): Promise<vscode.Uri | undefined> {
-	const allMDs = await getAllMDs();
-	for (const md of allMDs) {
-		const adr = md2adr(md.adr);
-		if (naturalCase2titleCase(adr.title) === naturalCase2titleCase(title)) {
-			return vscode.Uri.parse(md.fullPath);
-		}
-	}
 }
 
 /**
