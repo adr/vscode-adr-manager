@@ -1,6 +1,6 @@
 <template>
-	<div id="consideredOptions">
-		<div id="optionsHeader">
+	<div id="considered-options-container">
+		<div id="options-header">
 			<TemplateHeader
 				:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.'"
 			>
@@ -10,10 +10,10 @@
 		</div>
 		<div id="options">
 			<draggable
-				class="dragArea"
+				class="drag-area"
 				:list="consideredOptions"
 				:sort="true"
-				handle="#grabber"
+				handle=".option-grabber"
 				@update="$emit('checkSelection', $event)"
 			>
 				<OptionContainerProfessional
@@ -26,14 +26,16 @@
 					v-model:pros="option.pros"
 					v-model:cons="option.cons"
 					:class="
-						option.title === chosenOption && index === selectedIndex ? 'selectedOption' : 'unselectedOption'
+						option.title === chosenOption && index === selectedIndex
+							? 'selected-option'
+							: 'unselected-option'
 					"
 					@selectOption="$emit('selectOption', index)"
 					@deleteOption="$emit('deleteOption', index)"
 					@update:title="if (selectedIndex === index) $emit('selectOption', index);"
 				></OptionContainerProfessional>
 			</draggable>
-			<div id="rearrangeMessage" v-if="consideredOptions.length >= 2">
+			<div id="rearrange-message-container" v-if="consideredOptions.length >= 2">
 				<h4>
 					<i>Click to choose option; rearrange options by dragging on</i>
 				</h4>
@@ -91,7 +93,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	#optionsHeader {
+	#options-header {
 		display: flex;
 	}
 
@@ -101,24 +103,24 @@
 		flex-wrap: wrap;
 	}
 
-	.dragArea {
+	.drag-area {
 		display: flex;
 		flex-wrap: wrap;
 		width: 100%;
 	}
 
-	.selectedOption {
+	.selected-option {
 		background: var(--vscode-editor-selectionBackground);
 		& h3 {
 			color: var(--vscode-editor-selectionForeground) !important;
 		}
 	}
 
-	.unselectedOption {
+	.unselected-option {
 		background: var(--vscode-editor-background);
 	}
 
-	#rearrangeMessage {
+	#rearrange-message-container {
 		@include centered-flex(row);
 		margin-top: 0.5rem;
 		width: 100%;

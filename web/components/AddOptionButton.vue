@@ -1,6 +1,6 @@
 <template>
 	<div id="container">
-		<i id="addOptionIcon" class="codicon codicon-add" @click="addOption"></i>
+		<i id="add-option-icon" class="codicon codicon-add" @click="addOption"></i>
 		<h4>Add Option</h4>
 	</div>
 </template>
@@ -32,7 +32,7 @@
 		margin: 0 1rem 1rem 2rem;
 	}
 
-	#addOptionIcon {
+	#add-option-icon {
 		background: green;
 		border-radius: 5px;
 		padding: 3px;

@@ -1,21 +1,21 @@
 <template>
-	<div id="decisionOutcome">
+	<div id="decision-outcome-container">
 		<TemplateHeader :infoText="'Add an explanation for the chosen option.'">
 			<h2>Decision Outcome</h2>
 		</TemplateHeader>
-		<h3 id="chosenOptionText">
+		<h3 id="chosen-option-text">
 			Chosen Option: <b>{{ chosenOptionText }}</b>
 		</h3>
 		<div id="explanation">
 			<h3>because</h3>
-			<div id="explanationInput" class="inputGroup">
+			<div id="explanation-input-container">
 				<input
 					type="text"
 					:class="
 						v$.decisionOutcome.explanation.$error
-							? 'invalidInput'
+							? 'invalid-input'
 							: v$.decisionOutcome.explanation.$dirty
-							? 'validInput'
+							? 'valid-input'
 							: ''
 					"
 					v-model="v$.decisionOutcome.explanation.$model"
@@ -24,34 +24,33 @@
 						$emit('validate');
 					"
 				/>
-				<h4 class="errorMessage" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
+				<h4 class="error-message" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
 					{{ error.$message }}
 				</h4>
 			</div>
 		</div>
-		<div id="consequences">
-			<div id="positiveConsequences">
+		<div id="consequences-container">
+			<div id="positive-consequences-container">
 				<TemplateHeader
 					:infoText="'Give positive consequences, e.g., improvement of a quality attribute, follow-up decisions required, ...'"
 				>
 					<h3>Positive Consequences</h3>
 				</TemplateHeader>
 				<draggable
-					class="dragArea"
+					class="drag-area"
 					:list="decisionOutcome.positiveConsequences"
 					:sort="true"
-					handle="#positiveConsequencesGrabber"
+					handle=".positive-consequences-grabber"
 					@update="checkMove('positiveConsequences', $event)"
 				>
 					<div
 						v-for="(positive, index) in positiveConsequencesWithBlank"
 						:key="index"
-						class="multiInput"
+						class="multi-input"
 						id="positives"
 					>
 						<i
-							id="positiveConsequencesGrabber"
-							class="codicon codicon-grabber"
+							class="codicon codicon-grabber positive-consequences-grabber"
 							v-if="decisionOutcome.positiveConsequences[index] !== ''"
 						></i>
 						<input
@@ -59,36 +58,34 @@
 							@input="updateArray('positiveConsequences', $event.target.value, index)"
 						/>
 						<i
-							id="multiInputDeleteIcon"
-							class="codicon codicon-close"
+							class="codicon codicon-close multi-input-delete-icon"
 							v-if="decisionOutcome.positiveConsequences[index] !== ''"
 							@click="updateArray('positiveConsequences', '', index)"
 						></i>
 					</div>
 				</draggable>
 			</div>
-			<div id="negativeConsequences">
+			<div id="negative-consequences-container">
 				<TemplateHeader
 					:infoText="'Give negative consequences, e.g., afflicted quality attributes, follow-up decisions required, ...'"
 				>
 					<h3>Negative Consequences:</h3>
 				</TemplateHeader>
 				<draggable
-					class="dragArea"
+					class="drag-area"
 					:list="decisionOutcome.negativeConsequences"
 					:sort="true"
-					handle="#negativeConsequencesGrabber"
+					handle=".negative-consequences-grabber"
 					@update="checkMove('negativeConsequences', $event)"
 				>
 					<div
 						v-for="(negative, index) in negativeConsequencesWithBlank"
 						:key="index"
-						class="multiInput"
+						class="multi-input"
 						id="negatives"
 					>
 						<i
-							id="negativeConsequencesGrabber"
-							class="codicon codicon-grabber"
+							class="codicon codicon-grabber negative-consequences-grabber"
 							v-if="decisionOutcome.negativeConsequences[index] !== ''"
 						></i>
 						<input
@@ -96,8 +93,7 @@
 							@input="updateArray('negativeConsequences', $event.target.value, index)"
 						/>
 						<i
-							id="multiInputDeleteIcon"
-							class="codicon codicon-close"
+							class="codicon codicon-close multi-input-delete-icon"
 							v-if="decisionOutcome.negativeConsequences[index] !== ''"
 							@click="updateArray('negativeConsequences', '', index)"
 						></i>
@@ -242,7 +238,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	#chosenOptionText {
+	#chosen-option-text {
 		margin-top: 2rem;
 	}
 
@@ -256,19 +252,19 @@
 		}
 	}
 
-	#explanationInput {
+	#explanation-input-container {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
 	}
 
-	#consequences {
+	#consequences-container {
 		display: flex;
 		margin: 1rem 0;
 	}
 
-	#positiveConsequences,
-	#negativeConsequences {
+	#positive-consequences-container,
+	#negative-consequences-container {
 		flex: 1;
 	}
 
@@ -277,15 +273,15 @@
 		width: 95%;
 	}
 
-	.dragArea {
+	.drag-area {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
 		width: 100%;
 	}
 
-	#positiveConsequencesGrabber,
-	#negativeConsequencesGrabber {
+	.positive-consequences-grabber,
+	.negative-consequences-grabber {
 		position: initial;
 		margin-right: 0.5rem;
 		transform: scale(1.2);
@@ -299,13 +295,13 @@
 		}
 	}
 
-	.multiInput {
+	.multi-input {
 		@include centered-flex(row);
 		justify-content: left;
 		margin: 0.5rem 0;
 	}
 
-	#multiInputDeleteIcon {
+	.multi-input-delete-icon {
 		transform: scale(1.5);
 		margin-left: 0.5rem;
 
@@ -314,19 +310,19 @@
 		}
 	}
 
-	.validInput,
-	.validInput:focus {
+	.valid-input,
+	.valid-input:focus {
 		border: 1.5px solid green !important;
 		outline-color: green !important;
 	}
 
-	.invalidInput,
-	.invalidInput:focus {
+	.invalid-input,
+	.invalid-input:focus {
 		border: 1.5px solid var(--vscode-editorError-foreground) !important;
 		outline-color: var(--vscode-editorError-foreground) !important;
 	}
 
-	.errorMessage {
+	.error-message {
 		color: var(--vscode-editorError-foreground);
 	}
 </style>

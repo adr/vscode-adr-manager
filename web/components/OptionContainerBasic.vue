@@ -1,14 +1,14 @@
 <template>
 	<div
-		id="optionBox"
+		id="option-box"
 		@click.self="$emit('selectOption')"
 		@mouseenter="isHovered = true"
 		@mouseleave="isHovered = false"
 	>
-		<div id="editIconDiv" @click="$emit('editOption')">
+		<div id="edit-icon-container" @click="$emit('editOption')">
 			<i class="codicon codicon-edit"></i>
 		</div>
-		<div id="deleteIconDiv" @click="$emit('deleteOption')">
+		<div id="delete-icon-container" @click="$emit('deleteOption')">
 			<i class="codicon codicon-trash"></i>
 		</div>
 		<div id="text" @click="$emit('selectOption')">
@@ -48,16 +48,16 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	body.vscode-high-contrast #optionBox {
+	body.vscode-high-contrast #option-box {
 		border: 1px solid var(--vscode-contrastBorder);
 	}
 
-	body.vscode-high-contrast .selectedOption,
+	body.vscode-high-contrast .selected-option,
 	body.vscode-high-contrast .codicon {
 		color: var(--vscode-editor-foreground);
 	}
 
-	#optionBox {
+	#option-box {
 		position: relative;
 		@include centered-flex(row);
 		width: 12rem;
@@ -84,7 +84,7 @@
 		}
 	}
 
-	#editIconDiv {
+	#edit-icon-container {
 		position: absolute;
 		transform: translate(-250%, -250%);
 		& i {
@@ -97,7 +97,7 @@
 		}
 	}
 
-	#deleteIconDiv {
+	#delete-icon-container {
 		position: absolute;
 		transform: translate(250%, -250%);
 		& i {
@@ -110,18 +110,18 @@
 		}
 	}
 
-	.selectedOption {
+	.selected-option {
 		background: var(--vscode-editor-selectionBackground);
 		& h3 {
 			color: var(--vscode-editor-selectionForeground) !important;
 		}
 	}
 
-	body.vscode-high-contrast .selectedOption .codicon {
+	body.vscode-high-contrast .selected-option .codicon {
 		color: var(--vscode-editor-background);
 	}
 
-	.unselectedOption {
+	.unselected-option {
 		background: var(--vscode-editor-background);
 	}
 

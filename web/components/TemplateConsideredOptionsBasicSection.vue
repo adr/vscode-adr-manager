@@ -1,6 +1,6 @@
 <template>
-	<div id="consideredOptions">
-		<div id="optionsHeader">
+	<div id="considered-options-container">
+		<div id="options-header">
 			<TemplateHeader
 				:infoText="'List of all considered options.\nClick to select an option, rearrange options by drag and drop.\nOnly write a concise description; you can add a more detailed description when using the Professional MADR template.'"
 			>
@@ -10,7 +10,7 @@
 		</div>
 		<div id="options">
 			<draggable
-				class="dragArea"
+				class="drag-area"
 				:list="consideredOptions"
 				:sort="true"
 				handle="#grabber"
@@ -21,14 +21,16 @@
 					:key="index"
 					:title="option.title"
 					:class="
-						option.title === chosenOption && index === selectedIndex ? 'selectedOption' : 'unselectedOption'
+						option.title === chosenOption && index === selectedIndex
+							? 'selected-option'
+							: 'unselected-option'
 					"
 					@selectOption="$emit('selectOption', index)"
 					@editOption="$emit('editOption', { title: option.title, index: index })"
 					@deleteOption="$emit('deleteOption', index)"
 				></OptionContainerBasic>
 			</draggable>
-			<div id="rearrangeMessage" v-if="consideredOptions.length >= 2">
+			<div id="rearrange-message-container" v-if="consideredOptions.length >= 2">
 				<h4>
 					<i>Click to choose option; rearrange options by dragging on</i>
 				</h4>
@@ -84,7 +86,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	#optionsHeader {
+	#options-header {
 		display: flex;
 	}
 
@@ -94,16 +96,16 @@
 		flex-wrap: wrap;
 	}
 
-	.dragArea {
+	.drag-area {
 		display: flex;
 		flex-wrap: wrap;
 	}
 
-	body.vscode-high-contrast .selectedOption .codicon {
+	body.vscode-high-contrast .selected-option .codicon {
 		color: var(--vscode-editor-background);
 	}
 
-	#rearrangeMessage {
+	#rearrange-message-container {
 		@include centered-flex(row);
 		margin-top: 0.5rem;
 		width: 100%;

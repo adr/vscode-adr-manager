@@ -1,5 +1,5 @@
 <template>
-	<div id="title" class="inputGroup">
+	<div id="title-container" class="input-group">
 		<TemplateHeader
 			:infoText="'Describe the solved problem and the solution concisely.\n\nThe title is also used as the file name, so keep it short and avoid using special characters.'"
 		>
@@ -7,14 +7,14 @@
 		</TemplateHeader>
 		<input
 			type="text"
-			:class="v$.title.$error ? 'invalidInput' : v$.title.$dirty ? 'validInput' : ''"
+			:class="v$.title.$error ? 'invalid-input' : v$.title.$dirty ? 'valid-input' : ''"
 			v-model="v$.title.$model"
 			@input="
 				$emit('update:title', $event.target.value);
 				$emit('validate');
 			"
 		/>
-		<h4 class="errorMessage" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
+		<h4 class="error-message" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
 	</div>
 </template>
 
@@ -56,7 +56,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	.inputGroup {
+	.input-group {
 		margin-bottom: 1.5rem;
 
 		& input {
@@ -64,19 +64,19 @@
 		}
 	}
 
-	.validInput,
-	.validInput:focus {
+	.valid-input,
+	.valid-input:focus {
 		border: 1.5px solid green !important;
 		outline-color: green !important;
 	}
 
-	.invalidInput,
-	.invalidInput:focus {
+	.invalid-input,
+	.invalid-input:focus {
 		border: 1.5px solid var(--vscode-editorError-foreground) !important;
 		outline-color: var(--vscode-editorError-foreground) !important;
 	}
 
-	.errorMessage {
+	.error-message {
 		color: var(--vscode-editorError-foreground);
 	}
 </style>

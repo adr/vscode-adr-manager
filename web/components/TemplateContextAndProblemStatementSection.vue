@@ -1,17 +1,17 @@
 <template>
-	<div id="contextAndProblemStatement" class="inputGroup">
+	<div id="context-and-problem-statement-container" class="input-group">
 		<TemplateHeader
 			:infoText="'Describe the context and problem statement, e.g., in free form using two to three sentences or in the form of an illustrative story.\nYou may want to articulate the problem in form of a question.'"
 		>
 			<h2>Context and Problem Statement</h2>
 		</TemplateHeader>
 		<textarea
-			id="autoGrow"
+			id="auto-grow"
 			:class="
 				v$.contextAndProblemStatement.$error
-					? 'invalidInput'
+					? 'invalid-input'
 					: v$.contextAndProblemStatement.$dirty
-					? 'validInput'
+					? 'valid-input'
 					: ''
 			"
 			v-model="v$.contextAndProblemStatement.$model"
@@ -20,7 +20,7 @@
 				$emit('validate');
 			"
 		/>
-		<h4 class="errorMessage" v-for="error of v$.contextAndProblemStatement.$errors" :key="error.$uid">
+		<h4 class="error-message" v-for="error of v$.contextAndProblemStatement.$errors" :key="error.$uid">
 			{{ error.$message }}
 		</h4>
 	</div>
@@ -52,7 +52,7 @@
 		},
 		mounted() {
 			// Auto-grow textarea of Context and Problem Statement
-			const textarea = document.getElementById("autoGrow")!;
+			const textarea = document.getElementById("auto-grow")!;
 			textarea.addEventListener("input", () => {
 				textarea.style.height = "auto";
 				textarea.style.height = `${textarea.scrollHeight}px`;
@@ -72,33 +72,33 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	.inputGroup {
+	.input-group {
 		margin-bottom: 1.5rem;
 
 		& input {
 			height: 3rem;
 		}
 
-		&#contextAndProblemStatement textarea {
+		&#context-and-problem-statement-container textarea {
 			min-height: 6rem;
 			resize: none;
 			overflow-y: hidden;
 		}
 	}
 
-	.validInput,
-	.validInput:focus {
+	.valid-input,
+	.valid-input:focus {
 		border: 1.5px solid green !important;
 		outline-color: green !important;
 	}
 
-	.invalidInput,
-	.invalidInput:focus {
+	.invalid-input,
+	.invalid-input:focus {
 		border: 1.5px solid var(--vscode-editorError-foreground) !important;
 		outline-color: var(--vscode-editorError-foreground) !important;
 	}
 
-	.errorMessage {
+	.error-message {
 		color: var(--vscode-editorError-foreground);
 	}
 </style>

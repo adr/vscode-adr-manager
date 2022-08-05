@@ -1,17 +1,16 @@
 <template>
-	<div id="decisionDrivers" class="inputGroup">
+	<div id="decision-drivers-container" class="input-group">
 		<TemplateHeader
 			:infoText="'Decision Drivers are competing forces or facing concerns that influence the decision.'"
 		>
 			<h2>Decision Drivers</h2>
 		</TemplateHeader>
-		<draggable class="dragArea" :list="decisionDrivers" :sort="true" handle="#driversGrabber" @update="checkMove">
-			<div v-for="(driver, index) in decisionDriversWithBlank" :key="index" class="multiInput">
-				<i id="driversGrabber" class="codicon codicon-grabber" v-if="decisionDrivers[index] !== ''"></i>
+		<draggable class="drag-area" :list="decisionDrivers" :sort="true" handle=".drivers-grabber" @update="checkMove">
+			<div v-for="(driver, index) in decisionDriversWithBlank" :key="index" class="multi-input">
+				<i class="codicon codicon-grabber drivers-grabber" v-if="decisionDrivers[index] !== ''"></i>
 				<input v-model="decisionDrivers[index]" @input="updateArray($event.target.value, index)" />
 				<i
-					id="multiInputDeleteIcon"
-					class="codicon codicon-close"
+					class="codicon codicon-close multi-input-delete-icon"
 					v-if="decisionDrivers[index] !== ''"
 					@click="updateArray('', index)"
 				></i>
@@ -80,7 +79,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	.inputGroup {
+	.input-group {
 		margin-bottom: 1.5rem;
 
 		& input {
@@ -88,20 +87,20 @@
 		}
 	}
 
-	.multiInput {
+	.multi-input {
 		@include centered-flex(row);
 		justify-content: left;
 		margin: 0.5rem 0;
 	}
 
-	.dragArea {
+	.drag-area {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
 		width: 100%;
 	}
 
-	#multiInputDeleteIcon {
+	.multi-input-delete-icon {
 		transform: scale(1.5);
 		margin-left: 0.5rem;
 
@@ -110,7 +109,7 @@
 		}
 	}
 
-	#driversGrabber {
+	.drivers-grabber {
 		position: initial;
 		margin-right: 0.5rem;
 		transform: scale(1.2);

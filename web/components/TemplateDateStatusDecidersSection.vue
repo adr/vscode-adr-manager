@@ -1,5 +1,5 @@
 <template>
-	<div id="dateStatusDeciders">
+	<div id="date-status-deciders-container">
 		<div class="input">
 			<p>Last Updated:</p>
 			<input
@@ -70,7 +70,7 @@
 	import { defineComponent } from "vue";
 
 	export default defineComponent({
-		name: "TemplateDateStatusDecidersSection",
+		name: "Templatedate-status-deciders-containerSection",
 		props: {
 			date: String,
 			status: String,
@@ -91,7 +91,7 @@
 		color-scheme: dark;
 	}
 
-	#dateStatusDeciders {
+	#date-status-deciders-container {
 		@include centered-flex(row);
 		width: 100%;
 		margin-bottom: 2rem;
@@ -104,7 +104,7 @@
 		& p {
 			margin-right: 0.5rem;
 		}
-		margin-right: 4rem;
+		margin-right: 2.5rem;
 	}
 
 	#date {

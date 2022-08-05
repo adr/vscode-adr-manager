@@ -1,6 +1,6 @@
 <template>
 	<div
-		id="optionProfessional"
+		id="professional-option-container"
 		:class="isExpanded ? 'expanded' : 'collapsed'"
 		@click.self="$emit('selectOption')"
 		@mouseenter="isHovered = true"
@@ -8,47 +8,45 @@
 	>
 		<h4 @click="$emit('selectOption')"><strong>Title</strong></h4>
 		<input :value="title" @input="$emit('update:title', $event.target.value)" />
-		<div id="optionDescription">
+		<div id="option-description-container">
 			<h4><strong>Description</strong></h4>
 			<input :value="description" @input="$emit('update:description', $event.target.value)" />
 		</div>
-		<div id="prosAndCons" @click.self="$emit('selectOption')">
-			<div id="prosContainer" @click.self="$emit('selectOption')">
+		<div id="pros-and-cons" @click.self="$emit('selectOption')">
+			<div id="pros-container" @click.self="$emit('selectOption')">
 				<h4 @click="$emit('selectOption')"><strong>Good, because...</strong></h4>
 				<draggable
-					class="dragArea"
+					class="drag-area"
 					:list="pros"
 					:sort="true"
-					handle="#prosGrabber"
+					handle=".pros-grabber"
 					@update="checkMove('pros', $event)"
 				>
 					<div v-for="(pro, index) in prosWithBlank" :key="index" id="pros">
-						<i id="prosGrabber" class="codicon codicon-grabber" v-if="pros[index] !== ''"></i>
+						<i class="codicon codicon-grabber pros-grabber" v-if="pros[index] !== ''"></i>
 						<input v-model="pros[index]" @input="updateArray('pros', $event.target.value, index)" />
 						<i
-							id="multiInputDeleteIcon"
-							class="codicon codicon-close"
+							class="codicon codicon-close multi-input-delete-icon"
 							v-if="pros[index] !== ''"
 							@click="updateArray('pros', '', index)"
 						></i>
 					</div>
 				</draggable>
 			</div>
-			<div id="consContainer" @click.self="$emit('selectOption')">
+			<div id="cons-container" @click.self="$emit('selectOption')">
 				<h4 @click="$emit('selectOption')"><strong>Bad, because...</strong></h4>
 				<draggable
-					class="dragArea"
+					class="drag-area"
 					:list="cons"
 					:sort="true"
-					handle="#consGrabber"
+					handle=".cons-grabber"
 					@update="checkMove('cons', $event)"
 				>
 					<div v-for="(con, index) in consWithBlank" :key="index" id="cons">
-						<i id="consGrabber" class="codicon codicon-grabber" v-if="cons[index] !== ''"></i>
+						<i class="codicon codicon-grabber cons-grabber" v-if="cons[index] !== ''"></i>
 						<input v-model="cons[index]" @input="updateArray('cons', $event.target.value, index)" />
 						<i
-							id="multiInputDeleteIcon"
-							class="codicon codicon-close"
+							class="codicon codicon-close multi-input-delete-icon"
 							v-if="cons[index] !== ''"
 							@click="updateArray('cons', '', index)"
 						></i>
@@ -57,18 +55,12 @@
 			</div>
 		</div>
 		<i
-			id="expandArrow"
-			class="codicon"
+			class="codicon expand-arrow"
 			:class="isExpanded ? 'codicon-chevron-up' : 'codicon-chevron-down'"
 			@click="isExpanded = !isExpanded"
 		></i>
-		<i id="grabber" class="codicon codicon-grabber" :class="isHovered ? 'visible' : 'invisible'"></i>
-		<i
-			id="deleteOptionIcon"
-			class="codicon codicon-trash"
-			:class="isHovered ? 'visible' : 'invisible'"
-			@click="$emit('deleteOption')"
-		></i>
+		<i class="codicon codicon-grabber option-grabber"></i>
+		<i class="codicon codicon-trash delete-option-icon" @click="$emit('deleteOption')"></i>
 	</div>
 </template>
 
@@ -154,16 +146,16 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	body.vscode-high-contrast #optionProfessional {
+	body.vscode-high-contrast #professional-option-container {
 		border: 1px solid var(--vscode-contrastBorder);
 	}
 
-	body.vscode-high-contrast .selectedOption .codicon,
-	body.vscode-high-contrast .selectedOption h4 {
+	body.vscode-high-contrast .selected-option .codicon,
+	body.vscode-high-contrast .selected-option h4 {
 		color: var(--vscode-editor-background);
 	}
 
-	#optionProfessional {
+	#professional-option-container {
 		position: relative;
 		margin: 1rem;
 		padding: 1rem;
@@ -182,24 +174,24 @@
 		}
 	}
 
-	#optionProfessional.collapsed {
+	#professional-option-container.collapsed {
 		height: 6.9rem;
 		flex-wrap: nowrap;
 		overflow: hidden;
 	}
 
-	#optionProfessional.expanded {
+	#professional-option-container.expanded {
 		height: auto;
 	}
 
-	#prosAndCons {
+	#pros-and-cons {
 		display: flex;
 		margin: 1rem 0;
 		width: 100%;
 	}
 
-	#prosContainer,
-	#consContainer {
+	#pros-container,
+	#cons-container {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -224,14 +216,14 @@
 		align-items: center;
 	}
 
-	.dragArea {
+	.drag-area {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
 		width: 100%;
 	}
 
-	#expandArrow {
+	.expand-arrow {
 		position: absolute;
 		top: 0.8rem;
 		right: 0.8rem;
@@ -242,7 +234,7 @@
 		}
 	}
 
-	#grabber {
+	.option-grabber {
 		position: absolute;
 		top: 0.8rem;
 		right: 50%;
@@ -257,8 +249,8 @@
 		}
 	}
 
-	#prosGrabber,
-	#consGrabber {
+	.pros-grabber,
+	.cons-grabber {
 		position: initial;
 		margin-right: 0.5rem;
 		transform: scale(1.2);
@@ -272,7 +264,7 @@
 		}
 	}
 
-	#multiInputDeleteIcon {
+	.multi-input-delete-icon {
 		transform: scale(1.5);
 		margin-left: 0.5rem;
 
@@ -281,10 +273,10 @@
 		}
 	}
 
-	#deleteOptionIcon {
+	.delete-option-icon {
 		position: absolute;
 		top: 0.8rem;
-		right: 4rem;
+		right: 5rem;
 		transform: scale(1.2);
 		&:hover {
 			cursor: pointer;

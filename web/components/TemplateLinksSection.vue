@@ -1,15 +1,14 @@
 <template>
-	<div id="links" class="inputGroup">
+	<div id="links" class="input-group">
 		<TemplateHeader :infoText="'Add references, e.g., to related ADRs.'">
 			<h2>Links</h2>
 		</TemplateHeader>
-		<draggable class="dragArea" :list="links" :sort="true" handle="#linksGrabber" @update="checkMove">
+		<draggable class="drag-area" :list="links" :sort="true" handle=".links-grabber" @update="checkMove">
 			<div v-for="(link, index) in linksWithBlank" :key="index" class="multiInput">
-				<i id="linksGrabber" class="codicon codicon-grabber" v-if="links[index] !== ''"></i>
+				<i class="codicon codicon-grabber links-grabber" v-if="links[index] !== ''"></i>
 				<input v-model="links[index]" @input="updateArray($event.target.value, index)" />
 				<i
-					id="multiInputDeleteIcon"
-					class="codicon codicon-close"
+					class="codicon codicon-close multi-input-delete-icon"
 					v-if="links[index] !== ''"
 					@click="updateArray('', index)"
 				></i>
@@ -78,7 +77,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	.inputGroup {
+	.input-group {
 		margin-bottom: 1.5rem;
 
 		& input {
@@ -92,7 +91,7 @@
 		margin: 0.5rem 0;
 	}
 
-	#multiInputDeleteIcon {
+	.multi-input-delete-icon {
 		transform: scale(1.5);
 		margin-left: 0.5rem;
 
@@ -101,14 +100,14 @@
 		}
 	}
 
-	.dragArea {
+	.drag-area {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
 		width: 100%;
 	}
 
-	#linksGrabber {
+	.links-grabber {
 		position: initial;
 		margin-right: 0.5rem;
 		transform: scale(1.2);

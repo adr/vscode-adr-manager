@@ -1,23 +1,23 @@
 <template>
-	<div id="decisionOutcome">
+	<div id="decision-outcome-container">
 		<TemplateHeader
 			:infoText="'Add an explanation for the chosen option.\nYou can add consequences when using the Professional MADR template.'"
 		>
 			<h2>Decision Outcome</h2>
 		</TemplateHeader>
-		<h3 id="chosenOptionText">
+		<h3 id="chosen-option-text">
 			Chosen Option: <b>{{ chosenOptionText }}</b>
 		</h3>
 		<div id="explanation">
 			<h3>because</h3>
-			<div id="explanationInput">
+			<div id="explanation-input-container">
 				<input
 					type="text"
 					:class="
 						v$.decisionOutcome.explanation.$error
-							? 'invalidInput'
+							? 'invalid-input'
 							: v$.decisionOutcome.explanation.$dirty
-							? 'validInput'
+							? 'valid-input'
 							: ''
 					"
 					v-model="v$.decisionOutcome.explanation.$model"
@@ -26,7 +26,7 @@
 						$emit('validate');
 					"
 				/>
-				<h4 class="errorMessage" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
+				<h4 class="error-message" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
 					{{ error.$message }}
 				</h4>
 			</div>
@@ -99,7 +99,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	#chosenOptionText {
+	#chosen-option-text {
 		margin-top: 2rem;
 	}
 
@@ -113,25 +113,25 @@
 		}
 	}
 
-	#explanationInput {
+	#explanation-input-container {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
 	}
 
-	.validInput,
-	.validInput:focus {
+	.valid-input,
+	.valid-input:focus {
 		border: 1.5px solid green !important;
 		outline-color: green !important;
 	}
 
-	.invalidInput,
-	.invalidInput:focus {
+	.invalid-input,
+	.invalid-input:focus {
 		border: 1.5px solid var(--vscode-editorError-foreground) !important;
 		outline-color: var(--vscode-editorError-foreground) !important;
 	}
 
-	.errorMessage {
+	.error-message {
 		color: var(--vscode-editorError-foreground);
 	}
 </style>

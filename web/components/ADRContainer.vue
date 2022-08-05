@@ -1,13 +1,13 @@
 <template>
 	<div id="container">
-		<div id="adrBox" :class="adr.adr.conforming ? 'conforming' : 'not-conforming'">
-			<div class="adrInfo">
+		<div id="adr-box" :class="adr.adr.conforming ? 'conforming' : 'not-conforming'">
+			<div class="adr-info">
 				<h3>{{ adr.adr.title ? adr.adr.title : "(No title)" }}</h3>
 				<h5>
 					<TT>{{ adr.relativePath }}</TT>
 				</h5>
 			</div>
-			<div class="buttonGroup">
+			<div class="button-group">
 				<button id="view" :disabled="!adr.adr.conforming" @click="$emit('requestView')">View</button>
 				<button id="delete" @click="$emit('requestDelete')">Delete</button>
 			</div>
@@ -35,7 +35,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	#adrBox {
+	#adr-box {
 		@include centered-flex(row);
 		width: 100%;
 		justify-content: space-between;
@@ -44,7 +44,7 @@
 		background: var(--vscode-textBlockQuote-background);
 	}
 
-	.adrInfo {
+	.adr-info {
 		& h3 {
 			margin-top: 10px;
 		}
@@ -66,7 +66,7 @@
 		margin: -1rem 0 1rem 0;
 	}
 
-	.buttonGroup {
+	.button-group {
 		@include centered-flex(row);
 	}
 

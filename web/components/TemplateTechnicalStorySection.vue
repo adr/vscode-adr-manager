@@ -1,5 +1,5 @@
 <template>
-	<div id="technicalStory" class="inputGroup">
+	<div id="technical-story-container" class="input-group">
 		<TemplateHeader :infoText="'Technical context of the ADR, e.g., a ticket or issue URL'">
 			<h2>Technical Story</h2>
 		</TemplateHeader>
@@ -32,7 +32,7 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	.inputGroup {
+	.input-group {
 		margin-bottom: 1.5rem;
 
 		& input {
