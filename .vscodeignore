@@ -1,9 +1,7 @@
 .vscode/**
 src/**
 docs/**
-web/**
 webpack.config.js
-rollup.config.js
 .gitignore
 .yarnrc
 vsc-extension-quickstart.md
