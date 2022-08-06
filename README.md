@@ -4,6 +4,16 @@ Visual Studio Code (VS Code) extension based on the [ADR Manager](https://github
 
 This VS Code extension is part of a Bachelor Thesis written at the University of Stuttgart by Steven Chen.
 
+# Index
+1. [Workspace Concept](#workspace-concept)
+    1. [Single-root Workspace](#single-root-workspace)
+    2. [Multi-root Workspace](#multi-root-workspace)
+    3. [Special Case: Single-root Workspace with only Subfolders](#special-case-single-root-workspace-with-only-subfolders)
+2. [Features](#features)
+    1. [Commands](#commands)
+    2. [Settings](#settings)
+3. [Known Issues](#known-issues)
+
 ## Workspace Concept
 
 The VS Code ADR Manager provides its features on a workspace level. To be able to use its features, the user has to open at least one folder as a root folder in the workspace of a VS Code instance.
