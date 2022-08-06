@@ -13,6 +13,7 @@ import {
 	containsOnlyRootFolders,
 	getAllChildRootFoldersAsStrings,
 	treatAsMultiRoot,
+	getAllMDs,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 import { md2adr } from "./plugins/parser";
@@ -63,10 +64,10 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	);
 
-	// Initialize ADR directory based on configuration
+	// Initialize ADR Directory based on configuration
 	vscode.commands.registerCommand("vscode-adr-manager.initializeAdrDirectory", async () => {
 		if (!isWorkspaceOpened()) {
-			vscode.window.showErrorMessage("Please open a workspace folder to initialize ADR directory");
+			vscode.window.showErrorMessage("Please open a workspace folder to initialize ADR Directory");
 		} else {
 			if (isSingleRootWorkspace()) {
 				// Check if single-root folder is root folder of other root folders
@@ -90,15 +91,15 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	// Change the ADR directory
+	// Change the ADR Directory
 	vscode.commands.registerCommand("vscode-adr-manager.changeAdrDirectory", async () => {
 		const newDirectory = await vscode.window.showInputBox({
-			prompt: "Specify the path of the ADR directory, relative to a root workspace folder.",
+			prompt: "Specify the path of the ADR Directory, relative to a root workspace folder.",
 			placeHolder: "docs/decisions",
 		});
 		if (newDirectory !== undefined) {
 			await vscode.workspace.getConfiguration("adrManager").update("adrDirectory", cleanPathString(newDirectory));
-			vscode.window.showInformationMessage("ADR directory changed.");
+			vscode.window.showInformationMessage("ADR Directory changed.");
 		}
 	});
 
@@ -114,6 +115,13 @@ export function activate(context: vscode.ExtensionContext) {
 			} else {
 				WebPanel.createOrShow(context.extensionUri, "main");
 				WebPanel.currentPanel?.viewAdr(file.uri);
+				if (
+					!(await getAllMDs()).some((md) => {
+						return md.adr === file.getText();
+					})
+				) {
+					vscode.window.showWarningMessage("This ADR is not inside of the ADR Directory.");
+				}
 			}
 		}
 	});

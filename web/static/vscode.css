@@ -102,3 +102,8 @@ body.vscode-high-contrast textarea {
     --toggle-border-on: var(--vscode-input-foreground);
     --toggle-duration: 0ms;
 }
+
+body.vscode-high-contrast .toggle {
+    --toggle-handle-enabled: var(--vscode-editor-background);
+    --toggle-handle-disabled: var(--vscode-editor-background);
+}

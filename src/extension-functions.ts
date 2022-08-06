@@ -24,9 +24,9 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
 }
 
 /**
- * Returns the string of the ADR directory specified by the user in the user/workspace settings.
+ * Returns the string of the ADR Directory specified by the user in the user/workspace settings.
  * Defaults to "docs/decisions" if the extension received an undefined value.
- * @returns The ADR directory specified by the user
+ * @returns The ADR Directory specified by the user
  */
 function getAdrDirectoryString(): string {
 	return vscode.workspace.getConfiguration("adrManager").get("adrDirectory") ?? "docs/decisions";
@@ -35,7 +35,7 @@ function getAdrDirectoryString(): string {
 /**
  * Returns if the user wants the extension to treat single-root workspaces with only subdirectories like multi-root workspaces.
  * Defaults to true if the extension received an undefined value.
- * @returns The ADR directory specified by the user
+ * @returns The ADR Directory specified by the user
  */
 export function treatAsMultiRoot(): boolean {
 	return vscode.workspace.getConfiguration("adrManager").get("treatSingleRootAsMultiRoot") ?? true;
@@ -171,9 +171,9 @@ export async function getAllChildRootFoldersAsStrings(rootFolderUri: vscode.Uri)
 }
 
 /**
- * Initializes the ADR directory in the specified root folder.
- * Initialization includes the creation of the ADR directory, along with filling the directory with boilerplate Markdown files.
- * @param rootFolderUri The URI of the root folder where the ADR directory should be initialized
+ * Initializes the ADR Directory in the specified root folder.
+ * Initialization includes the creation of the ADR Directory, along with filling the directory with boilerplate Markdown files.
+ * @param rootFolderUri The URI of the root folder where the ADR Directory should be initialized
  */
 export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 	if (!(await adrDirectoryExists(rootFolderUri))) {
@@ -182,7 +182,7 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 		await fillAdrDirectory(adrFolderUri);
 	} else {
 		const selection = await vscode.window.showInformationMessage(
-			"The ADR directory already exists. Do you want to fill the directory with boilerplate Markdown files?",
+			"The ADR Directory already exists. Do you want to fill the directory with boilerplate Markdown files?",
 			"Yes",
 			"Cancel"
 		);
@@ -191,13 +191,13 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 			await fillAdrDirectory(adrFolderUri);
 		}
 	}
-	vscode.window.showInformationMessage("ADR directory initialized.");
+	vscode.window.showInformationMessage("ADR Directory initialized.");
 }
 
 /**
- * Returns true iff there exists the ADR directory in the given workspace folder in the current VS Code instance (default: docs/decisions).
+ * Returns true iff there exists the ADR Directory in the given workspace folder in the current VS Code instance (default: docs/decisions).
  * @param folderUri The URI to the directory in the current workspace
- * @returns True iff there exists the ADR directory in the given workspace folder in the current VS Code instance
+ * @returns True iff there exists the ADR Directory in the given workspace folder in the current VS Code instance
  *
  */
 export async function adrDirectoryExists(folderUri: vscode.Uri) {
@@ -330,7 +330,7 @@ export async function getMDsFromFolder(
 
 /**
  * Creates a new ArchitecturalDecision object with the minimum required fields (basic ADR) and
- * saves the ADR as a Markdown file in the ADR directory.
+ * saves the ADR as a Markdown file in the ADR Directory.
  * @param fields The fields of the new short ADR
  */
 export function createBasicAdr(fields: {
@@ -358,14 +358,14 @@ export function createBasicAdr(fields: {
 	};
 	const newAdr = getAdrObjectFromFields(adrFields);
 
-	// Convert ADR object to Markdown and save it in the ADR directory
+	// Convert ADR object to Markdown and save it in the ADR Directory
 	const newMD = adr2md(newAdr);
 	saveMarkdownToAdrDirectory(newMD, newAdr.title);
 }
 
 /**
  * Creates a new ArchitecturalDecision object with all fields the user has filled out using the professional template and
- * saves the ADR as a Markdown file in the ADR directory.
+ * saves the ADR as a Markdown file in the ADR Directory.
  * @param fields The fields of the new short ADR
  */
 export function createProfessionalAdr(fields: {
@@ -391,7 +391,7 @@ export function createProfessionalAdr(fields: {
 }) {
 	const newAdr = getAdrObjectFromFields(fields);
 
-	// Convert ADR object to Markdown and save it in the ADR directory
+	// Convert ADR object to Markdown and save it in the ADR Directory
 	const newMD = adr2md(newAdr);
 	saveMarkdownToAdrDirectory(newMD, newAdr.title);
 }
@@ -534,13 +534,13 @@ export function getOptionStringsFromConsideredOptions(
 }
 
 /**
- * Saves the specified Markdown string in the ADR directory specified by the user
+ * Saves the specified Markdown string in the ADR Directory specified by the user
  * @param md The content of the Markdown file as a string
  * @param title The title of the ADR
  */
 async function saveMarkdownToAdrDirectory(md: string, title: string) {
 	if (!isWorkspaceOpened()) {
-		vscode.window.showErrorMessage("Please open a workspace folder to initialize ADR directory");
+		vscode.window.showErrorMessage("Please open a workspace folder to initialize ADR Directory");
 	} else {
 		if (isSingleRootWorkspace()) {
 			// Check if single-root folder is root folder of other root folders

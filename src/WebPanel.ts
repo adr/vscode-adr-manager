@@ -11,7 +11,6 @@ import {
 } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { adr2md, md2adr } from "./plugins/parser";
-import { parsed } from "yargs";
 
 export class WebPanel {
 	/**
