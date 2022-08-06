@@ -76,11 +76,6 @@
 			status: String,
 			deciders: String,
 		},
-		mounted() {
-			const date = document.getElementById("date") as HTMLInputElement;
-			date.valueAsDate = new Date();
-			this.$emit("update:date", date.value);
-		},
 	});
 </script>
 

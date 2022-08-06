@@ -71,10 +71,22 @@ export default {
 			this.deciders = adr.deciders;
 			this.technicalStory = adr.technicalStory;
 			this.contextAndProblemStatement = adr.contextAndProblemStatement;
-			this.decisionDrivers = adr.decisionDrivers;
-			this.consideredOptions = adr.consideredOptions;
-			this.decisionOutcome = adr.decisionOutcome;
-			this.links = adr.links;
+			this.decisionDrivers = adr.decisionDrivers.filter((driver) => driver !== "");
+			this.consideredOptions = adr.consideredOptions.map((option) => {
+				return {
+					title: option.title,
+					description: option.description,
+					pros: option.pros.filter((pro) => pro !== ""),
+					cons: option.cons.filter((con) => con !== ""),
+				};
+			});
+			this.decisionOutcome = {
+				chosenOption: adr.decisionOutcome.chosenOption,
+				explanation: adr.decisionOutcome.explanation,
+				positiveConsequences: adr.decisionOutcome.positiveConsequences.filter((positive) => positive !== ""),
+				negativeConsequences: adr.decisionOutcome.negativeConsequences.filter((negative) => negative !== ""),
+			};
+			this.links = adr.links.filter((link) => link !== "");
 			this.fullPath = adr.fullPath;
 			this.selectOption(
 				this.consideredOptions.findIndex((option) => {
@@ -170,7 +182,7 @@ export default {
 			switch (field) {
 				case "title":
 					//@ts-ignore
-					if (!this.$refs.title.v$.title.$error) {
+					if (!this.$refs.title.v$.title.$error && this.title !== "") {
 						this.valid.title = true;
 					} else {
 						this.valid.title = false;
@@ -223,27 +235,29 @@ export default {
 					}
 					break;
 			}
-			this.activateAddButton();
+			this.sendInput();
 		},
 		/**
-		 * Enables the "Create ADR" button iff all fields are valid, i.e. every property of
-		 * this.valid has a value of true.
+		 * Sends the ADR data from the template component to the view component.
+		 * If all required fields of the template have been filled out, the "Create/Edit ADR" button
+		 * will be enabled.
 		 */
-		activateAddButton() {
+		sendInput() {
+			this.$emit("sendInput", {
+				title: this.title,
+				date: this.date,
+				status: this.status,
+				deciders: this.deciders,
+				technicalStory: this.technicalStory,
+				contextAndProblemStatement: this.contextAndProblemStatement,
+				decisionDrivers: this.decisionDrivers,
+				consideredOptions: this.consideredOptions,
+				decisionOutcome: this.decisionOutcome,
+				links: this.links,
+				fullPath: this.fullPath,
+			});
 			if (Object.values(this.valid).every((value) => value)) {
-				this.$emit("validated", {
-					title: this.title,
-					date: this.date,
-					status: this.status,
-					deciders: this.deciders,
-					technicalStory: this.technicalStory,
-					contextAndProblemStatement: this.contextAndProblemStatement,
-					decisionDrivers: this.decisionDrivers,
-					consideredOptions: this.consideredOptions,
-					decisionOutcome: this.decisionOutcome,
-					links: this.links,
-					fullPath: this.fullPath,
-				});
+				this.$emit("validated");
 			} else {
 				this.$emit("invalidated");
 			}

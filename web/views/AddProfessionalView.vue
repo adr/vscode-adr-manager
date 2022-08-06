@@ -1,13 +1,27 @@
 <template>
 	<div id="add">
-		<button id="back-button" class="secondary" @click="sendMessage('main')">
-			<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
-		</button>
+		<div id="professional-add-header">
+			<button id="back-button" class="secondary" @click="sendMessage('main')">
+				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+			</button>
+			<div id="toggle-container">
+				<h4><strong>Template: </strong></h4>
+				<h4>Basic</h4>
+				<Toggle v-model="toggle" @change="switchToBasicTemplate"></Toggle>
+				<h4>Professional</h4>
+			</div>
+		</div>
 		<div id="madr">
-			<MadrTemplateProfessional @validated="getValidInput" @invalidated="invalidate"></MadrTemplateProfessional>
+			<MadrTemplateProfessional
+				@sendInput="getInput"
+				@validated="enableButton"
+				@invalidated="disableButton"
+			></MadrTemplateProfessional>
 		</div>
 		<div class="button-group-container">
-			<button id="create-button" :disabled="!validated" @click="createAdr">Create ADR</button>
+			<button id="create-button" :disabled="!validated" @click="createAdr('createProfessionalAdr')">
+				Create ADR
+			</button>
 		</div>
 	</div>
 </template>
@@ -15,92 +29,29 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import MadrTemplateProfessional from "../components/MadrTemplateProfessional.vue";
+	import Toggle from "@vueform/toggle";
 	import vscode from "../mixins/vscode-api-mixin";
+	import saveAdr from "../mixins/save-adr";
 
 	export default defineComponent({
 		components: {
 			MadrTemplateProfessional,
+			Toggle,
 		},
-		mixins: [vscode],
+		mixins: [vscode, saveAdr],
 		data() {
 			return {
-				validated: false,
-				title: "",
-				date: "",
-				status: "",
-				deciders: "",
-				technicalStory: "",
-				contextAndProblemStatement: "",
-				decisionDrivers: [] as string[],
-				consideredOptions: [] as {
-					title: string;
-					description: string;
-					pros: string[];
-					cons: string[];
-				}[],
-				decisionOutcome: {
-					chosenOption: "",
-					explanation: "",
-					positiveConsequences: [] as string[],
-					negativeConsequences: [] as string[],
-				},
-				links: [] as string[],
+				toggle: true,
 			};
 		},
-		computed: {},
 		methods: {
 			/**
-			 * Saves the values of the MADR template in this component's data variables.
-			 * @param fields The values of the ADR fields
+			 * Switches to the basic MADR template, revealing more fields while keeping the current
+			 * user inputs.
 			 */
-			getValidInput(fields: {
-				title: string;
-				date: string;
-				status: string;
-				deciders: string;
-				technicalStory: string;
-				contextAndProblemStatement: string;
-				decisionDrivers: string[];
-				consideredOptions: {
-					title: string;
-					description: string;
-					pros: string[];
-					cons: string[];
-				}[];
-				decisionOutcome: {
-					chosenOption: string;
-					explanation: string;
-					positiveConsequences: string[];
-					negativeConsequences: string[];
-				};
-				links: string[];
-			}) {
-				this.title = fields.title;
-				this.date = fields.date;
-				this.status = fields.status;
-				this.deciders = fields.deciders;
-				this.technicalStory = fields.technicalStory;
-				this.contextAndProblemStatement = fields.contextAndProblemStatement;
-				this.decisionDrivers = fields.decisionDrivers;
-				this.consideredOptions = fields.consideredOptions;
-				this.decisionOutcome = fields.decisionOutcome;
-				this.links = fields.links;
-				this.validated = true;
-			},
-			/**
-			 * Sets the validated flag to false if the template has not been filled out properly, thus disabling the
-			 * "Create ADR" button.
-			 */
-			invalidate() {
-				this.validated = false;
-			},
-			/**
-			 * Sends a message to the extension to create and save the ADR as a Markdown file
-			 * in the ADR directory.
-			 */
-			createAdr() {
+			switchToBasicTemplate() {
 				this.sendMessage(
-					"createProfessionalAdr",
+					"switchAddViewProfessionalToBasic",
 					JSON.stringify({
 						title: this.title,
 						date: this.date,
@@ -111,7 +62,8 @@
 						decisionDrivers: this.decisionDrivers,
 						consideredOptions: this.consideredOptions,
 						decisionOutcome: this.decisionOutcome,
-						links: this.links.filter((link) => link),
+						links: this.links,
+						fullPath: this.fullPath,
 					})
 				);
 			},
@@ -119,7 +71,9 @@
 	});
 </script>
 
-<style lang="scss">
+<style src="@vueform/toggle/themes/default.css"></style>
+
+<style lang="scss" scoped>
 	@use "../static/mixins" as *;
 
 	#add {
@@ -128,6 +82,12 @@
 		width: 100%;
 		height: 100%;
 		margin: 0;
+	}
+
+	#professional-add-header {
+		display: flex;
+		justify-content: space-between;
+		flex-shrink: 0;
 	}
 
 	#back-button {
@@ -141,6 +101,14 @@
 
 	#back-button-content {
 		@include centered-flex(row);
+	}
+
+	#toggle-container {
+		@include centered-flex(row);
+		margin-right: 2rem;
+		& h4 {
+			margin: 0 0.5rem;
+		}
 	}
 
 	#madr {

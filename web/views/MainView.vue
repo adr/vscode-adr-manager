@@ -90,7 +90,7 @@
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins" as *;
 
 	body {

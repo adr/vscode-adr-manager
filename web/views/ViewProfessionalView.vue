@@ -1,10 +1,22 @@
 <template>
 	<div id="view">
-		<button id="backButton" class="secondary" @click="sendMessage('main')">
-			<div id="backButtonContent"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
-		</button>
+		<div id="professional-view-header">
+			<button id="back-button" class="secondary" @click="sendMessage('main')">
+				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+			</button>
+			<div id="toggle-container">
+				<h4><strong>Template: </strong></h4>
+				<h4>Basic</h4>
+				<Toggle v-model="toggle" @change="switchToBasicTemplate"></Toggle>
+				<h4>Professional</h4>
+			</div>
+		</div>
 		<div id="madr">
-			<MadrTemplateProfessional @validated="getValidInput" @invalidated="invalidate"></MadrTemplateProfessional>
+			<MadrTemplateProfessional
+				@sendInput="getInput"
+				@validated="enableButton"
+				@invalidated="disableButton"
+			></MadrTemplateProfessional>
 		</div>
 		<div class="buttonGroup">
 			<button id="createButton" :disabled="!validated" @click="saveAdr">Save ADR</button>
@@ -12,21 +24,54 @@
 	</div>
 </template>
 
+<style src="@vueform/toggle/themes/default.css"></style>
+
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import MadrTemplateProfessional from "../components/MadrTemplateProfessional.vue";
+	import Toggle from "@vueform/toggle";
 	import vscode from "../mixins/vscode-api-mixin";
 	import saveAdr from "../mixins/save-adr";
 
 	export default defineComponent({
 		components: {
 			MadrTemplateProfessional,
+			Toggle,
 		},
 		mixins: [vscode, saveAdr],
+		data() {
+			return {
+				toggle: true,
+			};
+		},
+		methods: {
+			/**
+			 * Switches to the basic MADR template, revealing more fields while keeping the current
+			 * user inputs.
+			 */
+			switchToBasicTemplate() {
+				this.sendMessage(
+					"switchViewingViewProfessionalToBasic",
+					JSON.stringify({
+						title: this.title,
+						date: this.date,
+						status: this.status,
+						deciders: this.deciders,
+						technicalStory: this.technicalStory,
+						contextAndProblemStatement: this.contextAndProblemStatement,
+						decisionDrivers: this.decisionDrivers,
+						consideredOptions: this.consideredOptions,
+						decisionOutcome: this.decisionOutcome,
+						links: this.links,
+						fullPath: this.fullPath,
+					})
+				);
+			},
+		},
 	});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	@use "../static/mixins" as *;
 
 	#view {
@@ -37,7 +82,13 @@
 		margin: 0;
 	}
 
-	#backButton {
+	#professional-view-header {
+		display: flex;
+		justify-content: space-between;
+		flex-shrink: 0;
+	}
+
+	#back-button {
 		@include button-sizing;
 		@include button-styling;
 		margin: 1.5rem 1rem;
@@ -46,8 +97,16 @@
 		flex-shrink: 0;
 	}
 
-	#backButtonContent {
+	#back-button-content {
 		@include centered-flex(row);
+	}
+
+	#toggle-container {
+		@include centered-flex(row);
+		margin-right: 2rem;
+		& h4 {
+			margin: 0 0.5rem;
+		}
 	}
 
 	#madr {

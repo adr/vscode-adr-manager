@@ -454,7 +454,7 @@ export async function saveAdr(fields: {
  * @param fields The required fields of the basic ADR object
  * @returns A new ADR object with the specified required fields
  */
-function getAdrObjectFromFields(fields: {
+export function getAdrObjectFromFields(fields: {
 	title: string;
 	date?: string;
 	status?: string;

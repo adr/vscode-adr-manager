@@ -29,28 +29,39 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// Open ADR Manager Add ADR Webview
-	vscode.commands.registerCommand("vscode-adr-manager.openAddAdrWebView", () => {
-		if (getAddEditorMode() === "basic") {
-			WebPanel.createOrShow(context.extensionUri, "add-basic");
+	vscode.commands.registerCommand("vscode-adr-manager.openAddAdrWebView", (page?: string) => {
+		if (!page) {
+			if (getAddEditorMode() === "basic") {
+				WebPanel.createOrShow(context.extensionUri, "add-basic");
+			} else {
+				WebPanel.createOrShow(context.extensionUri, "add-professional");
+			}
 		} else {
-			WebPanel.createOrShow(context.extensionUri, "add-professional");
+			WebPanel.createOrShow(context.extensionUri, page);
 		}
 	});
 
-	// Open ADR Manager View Basic ADR Webview
-	vscode.commands.registerCommand("vscode-adr-manager.openViewAdrWebView", async (mdString) => {
-		if (getViewEditorMode() === "sufficient") {
-			if ((await determineViewEditorMode(mdString)) === "basic") {
-				WebPanel.createOrShow(context.extensionUri, "view-basic");
+	// Open ADR Manager View ADR Webview
+	vscode.commands.registerCommand(
+		"vscode-adr-manager.openViewAdrWebView",
+		async (mdString: string, page?: string) => {
+			if (!page) {
+				if (getViewEditorMode() === "sufficient") {
+					if ((await determineViewEditorMode(mdString)) === "basic") {
+						WebPanel.createOrShow(context.extensionUri, "view-basic");
+					} else {
+						WebPanel.createOrShow(context.extensionUri, "view-professional");
+					}
+				} else if (getViewEditorMode() === "basic") {
+					WebPanel.createOrShow(context.extensionUri, "view-basic");
+				} else {
+					WebPanel.createOrShow(context.extensionUri, "view-professional");
+				}
 			} else {
-				WebPanel.createOrShow(context.extensionUri, "view-professional");
+				WebPanel.createOrShow(context.extensionUri, page);
 			}
-		} else if (getViewEditorMode() === "basic") {
-			WebPanel.createOrShow(context.extensionUri, "view-basic");
-		} else {
-			WebPanel.createOrShow(context.extensionUri, "view-professional");
 		}
-	});
+	);
 
 	// Initialize ADR directory based on configuration
 	vscode.commands.registerCommand("vscode-adr-manager.initializeAdrDirectory", async () => {

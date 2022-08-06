@@ -94,3 +94,11 @@ body.vscode-high-contrast input,
 body.vscode-high-contrast textarea {
     border: 1px solid var(--vscode-contrastBorder) !important;
 }
+
+.toggle {
+    --toggle-bg-off: var(--vscode-textBlockQuote-background);
+    --toggle-bg-on: var(--vscode-editor-selectionBackground);
+    --toggle-border-off: var(--vscode-input-foreground);
+    --toggle-border-on: var(--vscode-input-foreground);
+    --toggle-duration: 0ms;
+}

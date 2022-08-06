@@ -1,9 +1,17 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
 import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
-import { createBasicAdr, createProfessionalAdr, getAllMDs, saveAdr, watchMarkdownChanges } from "./extension-functions";
+import {
+	createBasicAdr,
+	createProfessionalAdr,
+	getAdrObjectFromFields,
+	getAllMDs,
+	saveAdr,
+	watchMarkdownChanges,
+} from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
-import { md2adr } from "./plugins/parser";
+import { adr2md, md2adr } from "./plugins/parser";
+import { parsed } from "yargs";
 
 export class WebPanel {
 	/**
@@ -11,7 +19,7 @@ export class WebPanel {
 	 */
 	public static currentPanel: WebPanel | undefined;
 
-	public static readonly viewType = "ADR-Manager";
+	public static readonly viewType = "ADR Manager";
 
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;
@@ -43,12 +51,6 @@ export class WebPanel {
 			}
 		);
 
-		// listen for changes on Markdown files to dynamically update ADR list in webview
-		watchForWorkspaceChanges(panel);
-		panel.iconPath = vscode.Uri.joinPath(extensionUri, "assets/logo.png");
-
-		watchForConfigurationChanges(panel);
-
 		WebPanel.currentPanel = new WebPanel(panel, extensionUri, page);
 	}
 
@@ -59,6 +61,15 @@ export class WebPanel {
 		// Set the webview's initial html content
 		this._update(page);
 
+		// Set the panel icon
+		this._panel.iconPath = vscode.Uri.joinPath(extensionUri, "assets/logo.png");
+
+		// listen for changes on Markdown files to dynamically update ADR list in webview
+		watchForWorkspaceChanges(this._panel);
+
+		// listen for configuration changes of the extension
+		watchForConfigurationChanges(this._panel);
+
 		// Listen for when the panel is disposed
 		// This happens when the user closes the panel or when the panel is closed programmatically
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -66,17 +77,19 @@ export class WebPanel {
 		// Handle messages from the webview to the VS Code API, mainly used for page navigation
 		this._panel.webview.onDidReceiveMessage(async (e) => {
 			switch (e.command) {
-				case "main":
+				case "main": {
 					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
 					return;
-				case "add":
+				}
+				case "add": {
 					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView");
 					return;
+				}
 				case "view": {
 					const fileUri = vscode.Uri.parse(e.data.fullPath);
 					await this.viewAdr(fileUri);
 				}
-				case "fetchAdrs":
+				case "fetchAdrs": {
 					let allAdrs: {
 						adr: ArchitecturalDecisionRecord;
 						fullPath: string;
@@ -93,7 +106,8 @@ export class WebPanel {
 					});
 					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 					return;
-				case "requestDelete":
+				}
+				case "requestDelete": {
 					const selection = await vscode.window.showWarningMessage(
 						`Are you sure you want to delete the ADR "${e.data.title}"?`,
 						"Yes",
@@ -104,13 +118,15 @@ export class WebPanel {
 						vscode.window.showInformationMessage("ADR deleted.");
 					}
 					return;
-				case "addOption":
+				}
+				case "addOption": {
 					const option = await vscode.window.showInputBox({ prompt: "Enter a concise name for the option:" });
 					if (option) {
 						this._panel.webview.postMessage({ command: "addOption", option: option });
 					}
 					return;
-				case "requestBasicOptionEdit":
+				}
+				case "requestBasicOptionEdit": {
 					const newTitle = await vscode.window.showInputBox({
 						prompt: "Enter a concise name for the option:",
 						value: e.data.currentTitle,
@@ -123,13 +139,16 @@ export class WebPanel {
 						});
 					}
 					return;
-				case "createBasicAdr":
+				}
+				case "createBasicAdr": {
 					createBasicAdr(JSON.parse(e.data));
 					return;
-				case "createProfessionalAdr":
+				}
+				case "createProfessionalAdr": {
 					createProfessionalAdr(JSON.parse(e.data));
 					return;
-				case "saveAdr":
+				}
+				case "saveAdr": {
 					let uri = await saveAdr(JSON.parse(e.data).adr);
 					if (uri) {
 						this._panel.webview.postMessage({ command: "saveSuccessful", newPath: uri.toString() });
@@ -143,6 +162,35 @@ export class WebPanel {
 						}
 					}
 					return;
+				}
+				case "switchAddViewBasicToProfessional": {
+					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-professional");
+					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+					return;
+				}
+				case "switchAddViewProfessionalToBasic": {
+					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-basic");
+					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+					return;
+				}
+				case "switchViewingViewBasicToProfessional": {
+					let adr = getAdrObjectFromFields(JSON.parse(e.data));
+					let mdString = adr2md(adr);
+					vscode.commands.executeCommand(
+						"vscode-adr-manager.openViewAdrWebView",
+						mdString,
+						"view-professional"
+					);
+					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+					return;
+				}
+				case "switchViewingViewProfessionalToBasic": {
+					let adr = getAdrObjectFromFields(JSON.parse(e.data));
+					let mdString = adr2md(adr);
+					vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString, "view-basic");
+					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+					return;
+				}
 			}
 		});
 	}

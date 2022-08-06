@@ -1,16 +1,31 @@
 <template>
 	<div id="add">
-		<button id="back-button" class="secondary" @click="sendMessage('main')">
-			<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
-		</button>
+		<div id="basic-add-header">
+			<button id="back-button" class="secondary" @click="sendMessage('main')">
+				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+			</button>
+			<div id="toggle-container">
+				<div id="professional-fields-note" v-if="hasProfessionalFields">
+					<h4><strong>Some fields of this ADR are not displayed in the current mode!</strong></h4>
+				</div>
+				<h4><strong>Template: </strong></h4>
+				<h4>Basic</h4>
+				<Toggle v-model="toggle" @change="switchToProfessionalTemplate"></Toggle>
+				<h4>Professional</h4>
+			</div>
+		</div>
 		<div id="madr">
-			<MadrTemplateBasic @validated="getValidInput" @invalidated="invalidate"></MadrTemplateBasic>
+			<MadrTemplateBasic
+				@sendInput="getInput"
+				@validated="enableButton"
+				@invalidated="disableButton"
+			></MadrTemplateBasic>
 			<p id="basic-template-note">
 				<em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em>
 			</p>
 		</div>
 		<div class="button-group-container">
-			<button id="create-button" :disabled="!validated" @click="createAdr">Create ADR</button>
+			<button id="create-button" :disabled="!validated" @click="createAdr('createBasicAdr')">Create ADR</button>
 		</div>
 	</div>
 </template>
@@ -18,98 +33,61 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import MadrTemplateBasic from "../components/MadrTemplateBasic.vue";
+	import Toggle from "@vueform/toggle";
 	import vscode from "../mixins/vscode-api-mixin";
+	import saveAdr from "../mixins/save-adr";
 
 	export default defineComponent({
 		components: {
 			MadrTemplateBasic,
+			Toggle,
 		},
-		mixins: [vscode],
+		mixins: [vscode, saveAdr],
 		data() {
 			return {
-				validated: false,
-				title: "",
-				date: "",
-				status: "",
-				deciders: "",
-				technicalStory: "",
-				contextAndProblemStatement: "",
-				decisionDrivers: [] as string[],
-				consideredOptions: [] as {
-					title: string;
-					description: string;
-					pros: string[];
-					cons: string[];
-				}[],
-				decisionOutcome: {
-					chosenOption: "",
-					explanation: "",
-					positiveConsequences: [] as string[],
-					negativeConsequences: [] as string[],
-				},
-				links: [] as string[],
+				toggle: false,
 			};
 		},
-		computed: {},
+		computed: {
+			/**
+			 * Returns true iff the current data has at least one non-required field which is not empty.
+			 */
+			hasProfessionalFields() {
+				return (
+					this.status ||
+					this.deciders ||
+					this.date ||
+					this.technicalStory ||
+					this.decisionDrivers.length ||
+					this.consideredOptions.some((option) => {
+						return option.pros.length || option.cons.length;
+					}) ||
+					this.decisionOutcome.positiveConsequences.length ||
+					this.decisionOutcome.negativeConsequences.length ||
+					this.links.length
+				);
+			},
+		},
 		methods: {
 			/**
-			 * Saves the values of the Short MADR template in this component's data variables.
-			 * @param fields The values of the ADR fields
+			 * Switches to the professional MADR template, revealing more fields while keeping the current
+			 * user inputs.
 			 */
-			getValidInput(fields: {
-				title: string;
-				date: string;
-				status: string;
-				deciders: string;
-				technicalStory: string;
-				contextAndProblemStatement: string;
-				decisionDrivers: string[];
-				consideredOptions: {
-					title: string;
-					description: string;
-					pros: string[];
-					cons: string[];
-				}[];
-				decisionOutcome: {
-					chosenOption: string;
-					explanation: string;
-					positiveConsequences: string[];
-					negativeConsequences: string[];
-				};
-				links: string[];
-			}) {
-				this.title = fields.title;
-				this.date = fields.date;
-				this.status = fields.status;
-				this.deciders = fields.deciders;
-				this.technicalStory = fields.technicalStory;
-				this.contextAndProblemStatement = fields.contextAndProblemStatement;
-				this.decisionDrivers = fields.decisionDrivers;
-				this.consideredOptions = fields.consideredOptions;
-				this.decisionOutcome = fields.decisionOutcome;
-				this.links = fields.links;
-				this.validated = true;
-			},
-			/**
-			 * Sets the validated flag to false if the template has not been filled out properly, thus disabling the
-			 * "Create ADR" button.
-			 */
-			invalidate() {
-				this.validated = false;
-			},
-			/**
-			 * Sends a message to the extension to create and save the ADR as a Markdown file
-			 * in the ADR directory.
-			 */
-			createAdr() {
+			switchToProfessionalTemplate() {
 				this.sendMessage(
-					"createBasicAdr",
+					"switchAddViewBasicToProfessional",
 					JSON.stringify({
 						title: this.title,
+						date: this.date,
+						status: this.status,
+						deciders: this.deciders,
+						technicalStory: this.technicalStory,
 						contextAndProblemStatement: this.contextAndProblemStatement,
+						decisionDrivers: this.decisionDrivers,
 						consideredOptions: this.consideredOptions,
-						chosenOption: this.decisionOutcome.chosenOption,
-						explanation: this.decisionOutcome.explanation,
+						decisionOutcome: this.decisionOutcome,
+						links: this.links,
+						fullPath: this.fullPath,
 					})
 				);
 			},
@@ -117,7 +95,9 @@
 	});
 </script>
 
-<style lang="scss">
+<style src="@vueform/toggle/themes/default.css"></style>
+
+<style lang="scss" scoped>
 	@use "../static/mixins" as *;
 
 	#add {
@@ -128,17 +108,35 @@
 		margin: 0;
 	}
 
+	#basic-add-header {
+		display: flex;
+		justify-content: space-between;
+		flex-shrink: 0;
+	}
+
 	#back-button {
 		@include button-sizing;
 		@include button-styling;
 		margin: 1.5rem 1rem;
 		padding: 0.5rem 1rem;
 		background: var(--vscode-button-secondaryBackground);
-		flex-shrink: 0;
 	}
 
 	#back-button-content {
 		@include centered-flex(row);
+	}
+
+	#professional-fields-note {
+		margin: auto 2rem;
+		color: var(--vscode-editorWarning-foreground);
+	}
+
+	#toggle-container {
+		@include centered-flex(row);
+		margin-right: 2rem;
+		& h4 {
+			margin: 0 0.5rem;
+		}
 	}
 
 	#madr {

@@ -1,10 +1,25 @@
 <template>
 	<div id="view">
-		<button id="back-button" class="secondary" @click="sendMessage('main')">
-			<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
-		</button>
+		<div id="basic-view-header">
+			<button id="back-button" class="secondary" @click="sendMessage('main')">
+				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
+			</button>
+			<div id="toggle-container">
+				<div id="professional-fields-note" v-if="hasProfessionalFields">
+					<h4><strong>Some fields of this ADR are not displayed in the current mode!</strong></h4>
+				</div>
+				<h4><strong>Template: </strong></h4>
+				<h4>Basic</h4>
+				<Toggle v-model="toggle" @change="switchToProfessionalTemplate"></Toggle>
+				<h4>Professional</h4>
+			</div>
+		</div>
 		<div id="madr">
-			<MadrTemplateBasic @validated="getValidInput" @invalidated="invalidate"></MadrTemplateBasic>
+			<MadrTemplateBasic
+				@sendInput="getInput"
+				@validated="enableButton"
+				@invalidated="disableButton"
+			></MadrTemplateBasic>
 			<p id="basic-template-note">
 				<em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em>
 			</p>
@@ -18,18 +33,71 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import MadrTemplateBasic from "../components/MadrTemplateBasic.vue";
+	import Toggle from "@vueform/toggle";
 	import vscode from "../mixins/vscode-api-mixin";
 	import saveAdr from "../mixins/save-adr";
 
 	export default defineComponent({
 		components: {
 			MadrTemplateBasic,
+			Toggle,
 		},
 		mixins: [vscode, saveAdr],
+		data() {
+			return {
+				toggle: false,
+			};
+		},
+		computed: {
+			/**
+			 * Returns true iff the current data has at least one non-required field which is not empty.
+			 */
+			hasProfessionalFields() {
+				return (
+					this.status ||
+					this.deciders ||
+					this.date ||
+					this.technicalStory ||
+					this.decisionDrivers.length ||
+					this.consideredOptions.some((option) => {
+						return option.pros.length || option.cons.length;
+					}) ||
+					this.decisionOutcome.positiveConsequences.length ||
+					this.decisionOutcome.negativeConsequences.length ||
+					this.links.length
+				);
+			},
+		},
+		methods: {
+			/**
+			 * Switches to the professional MADR template, revealing more fields while keeping the current
+			 * user inputs.
+			 */
+			switchToProfessionalTemplate() {
+				this.sendMessage(
+					"switchViewingViewBasicToProfessional",
+					JSON.stringify({
+						title: this.title,
+						date: this.date,
+						status: this.status,
+						deciders: this.deciders,
+						technicalStory: this.technicalStory,
+						contextAndProblemStatement: this.contextAndProblemStatement,
+						decisionDrivers: this.decisionDrivers,
+						consideredOptions: this.consideredOptions,
+						decisionOutcome: this.decisionOutcome,
+						links: this.links,
+						fullPath: this.fullPath,
+					})
+				);
+			},
+		},
 	});
 </script>
 
-<style lang="scss">
+<style src="@vueform/toggle/themes/default.css"></style>
+
+<style lang="scss" scoped>
 	@use "../static/mixins" as *;
 
 	#view {
@@ -38,6 +106,12 @@
 		width: 100%;
 		height: 100%;
 		margin: 0;
+	}
+
+	#basic-view-header {
+		display: flex;
+		justify-content: space-between;
+		flex-shrink: 0;
 	}
 
 	#back-button {
@@ -51,6 +125,19 @@
 
 	#back-button-content {
 		@include centered-flex(row);
+	}
+
+	#professional-fields-note {
+		margin: auto 2rem;
+		color: var(--vscode-editorWarning-foreground);
+	}
+
+	#toggle-container {
+		@include centered-flex(row);
+		margin-right: 2rem;
+		& h4 {
+			margin: 0 0.5rem;
+		}
 	}
 
 	#madr {
