@@ -8,7 +8,7 @@ import {
 	readmeMarkdownContent,
 } from "./plugins/constants";
 import { adr2md, md2adr } from "./plugins/parser";
-import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase, naturalCase2titleCase } from "./plugins/utils";
+import { cleanPathString, matchesMadrTitleFormat, naturalCase2snakeCase } from "./plugins/utils";
 import { WebPanel } from "./WebPanel";
 var _ = require("lodash");
 
@@ -28,7 +28,7 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
  * Defaults to "docs/decisions" if the extension received an undefined value.
  * @returns The ADR Directory specified by the user
  */
-function getAdrDirectoryString(): string {
+export function getAdrDirectoryString(): string {
 	return vscode.workspace.getConfiguration("adrManager").get("adrDirectory") ?? "docs/decisions";
 }
 
@@ -399,7 +399,6 @@ export function createProfessionalAdr(fields: {
 /**
  * Saves any changes made to an ADR in the corresponding file, overwriting existing data.
  * @param fields The fields of the edited short ADR
- * @param oldTitle The old title of the ADR, used for locating the Markdown file to edit
  */
 export async function saveAdr(fields: {
 	title?: string;

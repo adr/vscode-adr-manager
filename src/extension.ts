@@ -14,6 +14,7 @@ import {
 	getAllChildRootFoldersAsStrings,
 	treatAsMultiRoot,
 	getAllMDs,
+	getAdrDirectoryString,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 import { md2adr } from "./plugins/parser";
@@ -97,7 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
 			prompt: "Specify the path of the ADR Directory, relative to a root workspace folder.",
 			placeHolder: "docs/decisions",
 		});
-		if (newDirectory !== undefined) {
+		if (newDirectory) {
 			await vscode.workspace.getConfiguration("adrManager").update("adrDirectory", cleanPathString(newDirectory));
 			vscode.window.showInformationMessage("ADR Directory changed.");
 		}
@@ -113,8 +114,10 @@ export function activate(context: vscode.ExtensionContext) {
 					"The requested Markdown file does not conform to MADR, please edit the file such that it conforms to MADR."
 				);
 			} else {
-				WebPanel.createOrShow(context.extensionUri, "main");
-				WebPanel.currentPanel?.viewAdr(file.uri);
+				if (!WebPanel.currentPanel) {
+					WebPanel.createOrShow(context.extensionUri, "main");
+				}
+				WebPanel.currentPanel!.viewAdr(file.uri);
 				if (
 					!(await getAllMDs()).some((md) => {
 						return md.adr === file.getText();
@@ -125,4 +128,23 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 	});
+
+	// Open ADR Manager on Markdown file from context menu
+	vscode.commands.registerCommand("vscode-adr-manager.viewAdrFromContextMenu", async (uri: vscode.Uri) => {
+		const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
+		if (!WebPanel.currentPanel) {
+			WebPanel.createOrShow(context.extensionUri, "main");
+		}
+		WebPanel.currentPanel!.viewAdr(uri);
+		if (
+			!(await getAllMDs()).some((md) => {
+				return md.adr === mdString;
+			})
+		) {
+			vscode.window.showWarningMessage("This ADR is not inside of the ADR Directory.");
+		}
+	});
+
+	// Add custom when clause context to show/hide commands in the command palette
+	vscode.commands.executeCommand("setContext", "vscode-adr-manager.hideCommand", false);
 }

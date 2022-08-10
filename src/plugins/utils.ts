@@ -208,7 +208,7 @@ export function matchesMadrTitleFormat(name: string) {
 }
 
 /**
- * Replaces every instance of "\" with "/" and multiple occurences of "/" in a row with a single "/"
+ * Replaces every instance of "\\" with "/" and multiple occurences of "/" in a row with a single "/"
  * in the specified string.
  * @param path The string to be cleaned
  */
