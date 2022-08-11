@@ -2,7 +2,7 @@
 import { md2adr, adr2md } from "../plugins/parser.js";
 
 // Needed for testing
-import { randomStrings, MD_ParsedMADR_Pairs, validMarkdownADRs } from "./constants";
+import { randomStrings, MD_ParsedMADR_Pairs, validMarkdownADRs, yamlMADRs } from "./constants";
 
 /**
  * Convergence of the parser:
@@ -19,6 +19,15 @@ for (let i = 0; i < randomStrings.length; i++) {
 for (let i = 0; i < MD_ParsedMADR_Pairs.length; i++) {
 	test("Test parser convergence of possibly incorrect ADRs.", () => {
 		let result1 = adr2md(md2adr(MD_ParsedMADR_Pairs[i].md));
+		let result2 = adr2md(md2adr(result1));
+		expect(result2).toBe(result1);
+	});
+}
+
+// MADRs with YAML Front Matter:
+for (let i = 0; i < yamlMADRs.length; i++) {
+	test("Test parser convergence of ADRs with YAML Front Matter.", () => {
+		let result1 = adr2md(md2adr(yamlMADRs[i]));
 		let result2 = adr2md(md2adr(result1));
 		expect(result2).toBe(result1);
 	});

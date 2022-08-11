@@ -1,4 +1,4 @@
-// Generated from /Users/stevenchen/Desktop/Studium/Uni Stuttgart/Übungen/Uni Stuttgart/SS22/Bachelorarbeit/Repo/webpack-test/src/plugins/parser/MADR.g4 by ANTLR 4.9.2
+// Generated from /Users/stevenchen/Desktop/Studium/Uni Stuttgart/Übungen/Uni Stuttgart/SS22/Bachelorarbeit/Repo/vscode-adr-manager/src/plugins/parser/MADR.g4 by ANTLR 4.9.2
 // jshint ignore: start
 import antlr4 from 'antlr4';
 
@@ -11,6 +11,15 @@ export default class MADRListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by MADRParser#start.
 	exitStart(ctx) {
+	}
+
+
+	// Enter a parse tree produced by MADRParser#yaml.
+	enterYaml(ctx) {
+	}
+
+	// Exit a parse tree produced by MADRParser#yaml.
+	exitYaml(ctx) {
 	}
 
 

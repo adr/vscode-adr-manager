@@ -334,6 +334,7 @@ export async function getMDsFromFolder(
  * @param fields The fields of the new short ADR
  */
 export function createBasicAdr(fields: {
+	yaml: string;
 	title: string;
 	contextAndProblemStatement: string;
 	consideredOptions: {
@@ -346,6 +347,7 @@ export function createBasicAdr(fields: {
 	explanation: string;
 }) {
 	const adrFields = {
+		yaml: fields.yaml,
 		title: fields.title,
 		contextAndProblemStatement: fields.contextAndProblemStatement,
 		consideredOptions: fields.consideredOptions,
@@ -369,6 +371,7 @@ export function createBasicAdr(fields: {
  * @param fields The fields of the new short ADR
  */
 export function createProfessionalAdr(fields: {
+	yaml: string;
 	title: string;
 	date: string;
 	status: string;
@@ -401,6 +404,7 @@ export function createProfessionalAdr(fields: {
  * @param fields The fields of the edited short ADR
  */
 export async function saveAdr(fields: {
+	yaml?: string;
 	title?: string;
 	date?: string;
 	status?: string;
@@ -428,6 +432,7 @@ export async function saveAdr(fields: {
 	if (fileUri) {
 		const adr = md2adr(new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri)));
 		adr.update({
+			yaml: fields.yaml,
 			title: fields.title,
 			date: fields.date,
 			status: fields.status,
@@ -454,6 +459,7 @@ export async function saveAdr(fields: {
  * @returns A new ADR object with the specified required fields
  */
 export function getAdrObjectFromFields(fields: {
+	yaml?: string;
 	title: string;
 	date?: string;
 	status?: string;
@@ -477,6 +483,7 @@ export function getAdrObjectFromFields(fields: {
 }): ArchitecturalDecisionRecord {
 	// Create ADR object
 	const newAdr = new ArchitecturalDecisionRecord({
+		yaml: fields.yaml ?? "",
 		title: fields.title,
 		date: fields.date ?? "",
 		status: fields.status ?? "",

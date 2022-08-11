@@ -1,7 +1,7 @@
 grammar MADR;
 
 start:
-	HEADING_PREFIX title NEWLINE wslbs (
+	(yaml wslbs)? HEADING_PREFIX title NEWLINE wslbs (
 		STATUS_MARKER status (WS OPTIONAL_MAKER)? wslbs
 	)? (DECIDERS_MARKER deciders (WS OPTIONAL_MAKER)? wslbs)? (
 		DATE_MARKER date (WS OPTIONAL_MAKER)? NEWLINE wslbs
@@ -17,6 +17,8 @@ start:
 	)? (
 		PROS_AND_CONS_OF_THE_OPTIONS_HEADING (WS OPTIONAL_MAKER)? wslbs prosAndConsOfOptions wslbs
 	)? (LINKS_HEADING (WS OPTIONAL_MAKER)? wslbs links wslbs)? EOF;
+
+yaml: YAML_MARKER multilineText YAML_MARKER;
 
 title: textLine;
 
@@ -71,6 +73,7 @@ any: (
 		| LIST_MARKER
 		| HEADING_PREFIX
 		| SUBSUBSUBHEADING_PREFIX
+		| YAML_MARKER
 	);
 
 wslb: ( WS | NEWLINE);
@@ -90,6 +93,7 @@ DATE_MARKER: LIST_MARKER 'Date: ';
 DECIDERS_MARKER: LIST_MARKER 'Deciders: ';
 OPTIONAL_MAKER: '<!-- optional -->';
 TECHNICAL_STORY_MARKER: NEWLINE 'Technical Story: ';
+YAML_MARKER: '---' NEWLINE;
 
 HEADING_PREFIX: '# '; // Start of a Heading
 SUBSUBHEADING_PREFIX:

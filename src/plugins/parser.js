@@ -1,4 +1,4 @@
-import { cloneDeep, replace } from "lodash";
+import { cloneDeep, concat, replace } from "lodash";
 
 import antlr4 from "antlr4";
 import MADRLexer from "./parser/MADRLexer.js";
@@ -6,6 +6,7 @@ import MADRParser from "./parser/MADRParser.js";
 import MADRListener from "./parser/MADRListener.js";
 import { ArchitecturalDecisionRecord } from "./classes";
 import { createShortTitle, naturalCase2titleCase } from "./utils.ts";
+import { stringify } from "querystring";
 
 /**
  * Creates an ADR from a ParseTree by listening to a ParseTreeWalker.
@@ -21,7 +22,10 @@ class MADRGenerator extends MADRListener {
 	constructor() {
 		super();
 		this.adr = new ArchitecturalDecisionRecord();
-		this.adr.conforming = true;
+	}
+
+	enterYaml(ctx) {
+		this.adr.yaml = ctx.getText();
 	}
 
 	enterTitle(ctx) {
@@ -218,7 +222,7 @@ export function md2adr(md) {
 	// console.log('Created Parse Tree! ', tree)
 	const printer = new MADRGenerator();
 	antlr4.tree.ParseTreeWalker.DEFAULT.walk(printer, tree);
-	// console.log("Result ADR ", printer.adr);
+	//console.log("Result ADR ", printer.adr);
 	printer.adr.cleanUp();
 	if (errorListener.syntaxErrors.length > 0) {
 		printer.adr.conforming = false;
@@ -229,7 +233,13 @@ export function md2adr(md) {
 export function adr2md(adrToParse) {
 	let adr = cloneDeep(adrToParse);
 	adr.cleanUp();
-	var md = "# " + naturalCase2titleCase(adr.title) + "\n";
+	var md;
+	if (adr.yaml) {
+		md = adr.yaml;
+		md = md.concat("\n" + "# " + naturalCase2titleCase(adr.title) + "\n");
+	} else {
+		md = "# " + naturalCase2titleCase(adr.title) + "\n";
+	}
 
 	if ((adr.status !== "" && adr.status !== "null") || adr.deciders.length > 0 || adr.date !== "") {
 		if (adr.status !== "" && adr.status !== "null") {

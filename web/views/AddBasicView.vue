@@ -77,6 +77,7 @@
 				this.sendMessage(
 					"switchAddViewBasicToProfessional",
 					JSON.stringify({
+						yaml: this.yaml,
 						title: this.title,
 						date: this.date,
 						status: this.status,

@@ -8,6 +8,7 @@ import { cleanUpString } from "./utils";
  */
 export class ArchitecturalDecisionRecord {
 	[key: string]: any;
+	yaml: string;
 	title: string;
 	status: string;
 	conforming: boolean;
@@ -27,6 +28,7 @@ export class ArchitecturalDecisionRecord {
 	links: string[];
 
 	constructor({
+		yaml = "",
 		title = "",
 		status = "",
 		conforming = true,
@@ -44,6 +46,7 @@ export class ArchitecturalDecisionRecord {
 		},
 		links = [] as string[],
 	} = {}) {
+		this.yaml = yaml;
 		this.title = title;
 		this.status = status;
 		this.conforming = conforming;
@@ -110,6 +113,7 @@ export class ArchitecturalDecisionRecord {
 	 */
 	cleanUp() {
 		const stringFieldNames = [
+			"yaml",
 			"title",
 			"status",
 			"date",
@@ -164,6 +168,7 @@ export class ArchitecturalDecisionRecord {
 	 * @param fields The fields that may be updated when editing an ADR
 	 */
 	update(fields: {
+		yaml?: string;
 		title?: string;
 		status?: string;
 		deciders?: string;
@@ -180,6 +185,7 @@ export class ArchitecturalDecisionRecord {
 		};
 		links?: string[];
 	}) {
+		this.yaml = fields.yaml ?? this.yaml;
 		this.title = fields.title ?? this.title;
 		this.status = fields.status ?? this.status;
 		this.deciders = fields.deciders ?? this.deciders;

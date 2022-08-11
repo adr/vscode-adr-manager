@@ -345,6 +345,7 @@ Chosen option: "MADR 2.1.2", because
 * Version 2.1.2 is the latest one available when starting to document ADRs.
 `,
 		adr: new ArchitecturalDecisionRecord({
+			yaml: "",
 			title: "Use Markdown Architectural Decision Records",
 			status: "",
 			conforming: true,
@@ -419,6 +420,7 @@ We want to have MADR used without any hassle and that users can just go ahead an
 Chosen option: "CC0", because this license donates the content to "public domain" and does so as legally as possible.
 `,
 		adr: new ArchitecturalDecisionRecord({
+			yaml: "",
 			title: "Use CC0 as License",
 			conforming: true,
 			contextAndProblemStatement: `Everything needs to be licensed, otherwise the default copyright laws apply.
@@ -478,6 +480,7 @@ Chosen option: Use the title only, because
 * Allows copy'n'paste of ADRs from other repositories without having to worry about the numbers.
 `,
 		adr: new ArchitecturalDecisionRecord({
+			yaml: "",
 			title: "Do Not Use Numbers in Headings",
 			conforming: true,
 			contextAndProblemStatement: `How to render the first line in an ADR?
@@ -532,6 +535,7 @@ Chosen option: \`NNNN-title-with-dashes.md\`, because
 * This is exactly the format offered by [adr-tools](https://github.com/npryce/adr-tools)
 `,
 		adr: new ArchitecturalDecisionRecord({
+			yaml: "",
 			title: "Use Dashes in Filenames",
 			conforming: true,
 			contextAndProblemStatement: `What is the pattern of the filename where an ADR is stored?`,
@@ -671,6 +675,7 @@ One level of subfolder, not nested
 `,
 
 		adr: new ArchitecturalDecisionRecord({
+			yaml: "",
 			title: "Support Categories",
 			conforming: true,
 			contextAndProblemStatement: `ADRs are recorded. The number of ADRs grows and the context/topic/scope of ADRs might be different (e.g., frontend, backend)`,
@@ -820,6 +825,7 @@ D description
 
 `,
 		adr: new ArchitecturalDecisionRecord({
+			yaml: "",
 			title: "Heading",
 			conforming: true,
 			contextAndProblemStatement: `Context`,
@@ -15149,4 +15155,209 @@ export const searchTermRepoPairs = [
 			},
 		],
 	},
+];
+
+export const yamlMADRs = [
+	`---
+parent: Decision Records
+nav_order: 1
+---
+# Use Crowdin for translations
+
+## Context and Problem Statement
+
+The JabRef UI is offered in multiple languages. It should be easy for translators to translate the strings.
+
+## Considered Options
+
+* Use [Crowdin](http://crowdin.com/)
+* Use [popeye](https://github.com/JabRef/popeye)
+* Use [Lingohub](https://lingohub.com/)
+* Keep current GitHub flow. See the [Step-by-step guide](https://docs.jabref.org/faq/how-to-translate-the-ui).
+
+## Decision Outcome
+
+Chosen option: "Use Crowdin", because Crowdin is easy to use, integrates in our GitHub workflow, and is free for OSS projects.
+`,
+	`---
+parent: Decision Records
+nav_order: 4
+---
+# Use MariaDB Connector
+
+## Context and Problem Statement
+
+JabRef needs to connect to a MySQL database. See [Shared SQL Database](https://docs.jabref.org/collaborative-work/sqldatabase) for more information.
+
+## Considered Options
+
+* Use MariaDB Connector
+* Use MySQL Connector
+
+Other alternatives are listed at [https://stackoverflow.com/a/31312280/873282](https://stackoverflow.com/a/31312280/873282).
+
+## Decision Outcome
+
+Chosen option: "Use MariaDB Connector", because comes out best \(see below\).
+
+## Pros and Cons of the Options
+
+### Use MariaDB Connector
+
+The [MariaDB Connector](https://mariadb.com/kb/en/library/about-mariadb-connector-j/) is a LGPL-licensed JDBC driver to connect to MySQL and MariaDB.
+
+* Good, because can be used as drop-in replacement for MySQL connector
+
+### Use MySQL Connector
+
+The [MySQL Connector](https://www.mysql.com/de/products/connector/) is distributed by Oracle and licensed under GPL-2. Source: [https://downloads.mysql.com/docs/licenses/connector-j-8.0-gpl-en.pdf](https://downloads.mysql.com/docs/licenses/connector-j-8.0-gpl-en.pdf). Oracle added the [Universal FOSS Exception, Version 1.0](https://oss.oracle.com/licenses/universal-foss-exception/) to it, which seems to limit the effects of GPL. More information on the FOSS Exception are available at [https://www.mysql.com/de/about/legal/licensing/foss-exception/](https://www.mysql.com/de/about/legal/licensing/foss-exception/).
+
+* Good, because it stems from the same development team than MySQL
+* Bad, because the "Universal FOSS Exception" makes licensing more complicated.
+`,
+	`---
+parent: Decision Records
+nav_order: 9
+---
+# Use Plain JUnit5 for advanced test assertions
+
+## Context and Problem Statement
+
+How to write readable test assertions?
+How to write readable test assertions for advanced tests?
+
+## Considered Options
+
+* Plain JUnit5
+* Hamcrest
+* AssertJ
+
+## Decision Outcome
+
+Chosen option: "Plain JUnit5", because comes out best \(see below\).
+
+### Positive Consequences
+
+* Tests are more readable
+* More easy to write tests
+* More readable assertions
+
+### Negative Consequences
+
+* More complicated testing leads to more complicated assertions
+
+## Pros and Cons of the Options
+
+### Plain JUnit5
+
+Homepage: <https://junit.org/junit5/docs/current/user-guide/>
+JabRef testing guidelines: <https://devdocs.jabref.org/getting-into-the-code/code-howtos#test-cases>
+
+Example:
+
+\`\`\`java
+String actual = markdownFormatter.format(source);
+assertTrue(actual.contains("Markup<br />"));
+assertTrue(actual.contains("<li>list item one</li>"));
+assertTrue(actual.contains("<li>list item 2</li>"));
+assertTrue(actual.contains("> rest"));
+assertFalse(actual.contains("\n"));
+\`\`\`
+
+* Good, because Junit5 is "common Java knowledge"
+* Bad, because complex assertions tend to get hard to read
+* Bad, because no fluent API
+
+### Hamcrest
+
+Homepage: <https://github.com/hamcrest/JavaHamcrest>
+
+* Good, because offers advanced matchers (such as \`contains\`)
+* Bad, because not full fluent API
+* Bad, because entry barrier is increased
+
+### AssertJ
+
+Homepage: <https://joel-costigliola.github.io/assertj/>
+
+Example:
+
+\`\`\`java
+assertThat(markdownFormatter.format(source))
+        .contains("Markup<br />")
+        .contains("<li>list item one</li>")
+        .contains("<li>list item 2</li>")
+        .contains("> rest")
+        .doesNotContain("\n");
+\`\`\`
+
+* Good, because offers fluent assertions
+* Good, because allows partial string testing to focus on important parts
+* Good, because assertions are more readable
+* Bad, because not commonly used
+* Bad, because newcomers have to learn an additional language to express test cases
+* Bad, because entry barrier is increased
+* Bad, because expressions of test cases vary from unit test to unit test
+
+## Links
+
+* German comparison between Hamcrest and AssertJ: <https://www.sigs-datacom.de/uploads/tx_dmjournals/philipp_JS_06_15_gRfN.pdf>`,
+	`---
+parent: Decision Records
+nav_order: 0
+---
+# Use Markdown Any Decision Records
+
+## Context and Problem Statement
+
+We want to record any decisions made in this project independent whether decisions concern the architecture ("architectural decision record"), the code, or other fields.
+Which format and structure should these records follow?
+
+## Considered Options
+
+* [Michael Nygard's template](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions) – The first incarnation of the term "ADR"
+* [Sustainable Architectural Decisions](https://www.infoq.com/articles/sustainable-architectural-design-decisions) – The Y-Statements
+* Other templates listed at <https://github.com/joelparkerhenderson/architecture_decision_record>
+* Formless – No conventions for file format and structure
+
+## Decision Outcome
+
+Chosen option: "MADR", because
+
+* Implicit assumptions should be made explicit.
+  Design documentation is important to enable people understanding the decisions later on.
+  See also [A rational design process: How and why to fake it](https://doi.org/10.1109/TSE.1986.6312940).
+* MADR allows for structured capturing of any decision.
+* The MADR format is lean and fits our development style.
+* The MADR structure is comprehensible and facilitates usage & maintenance.
+* The MADR project is vivid.`,
+	`---
+parent: Decision Records
+nav_order: 18
+---
+# Use regular expression to split multiple-sentence titles
+
+## Context and Problem Statement
+
+Some entry titles are composed of multiple sentences, for example: "Whose Music? A Sociology of Musical Language", therefore, it is necessary to first split the title into sentences and process them individually to ensure proper formatting using '[Sentence Case](https://en.wiktionary.org/wiki/sentence_case)' or '[Title Case](https://en.wiktionary.org/wiki/title_case#English)'
+
+## Considered Options
+
+* [Regular expression](https://docs.oracle.com/javase/tutorial/essential/regex/)
+* [OpenNLP](https://opennlp.apache.org/)
+* [ICU4J](https://web.archive.org/web/20210413013221/http://site.icu-project.org/home)
+
+## Decision Outcome
+
+Chosen option: "Regular expression", because we can use Java internal classes (Pattern, Matcher) instead of adding additional dependencies
+
+### Positive Consequences
+
+* Less dependencies on third party libraries
+* Smaller project size (ICU4J is very large)
+* No need for model data (OpenNLP is a machine learning based toolkit and needs a trained model to work properly)
+
+### Negative Consequences
+
+* Regular expressions can never cover every case, therefore, splitting may not be accurate for every title`,
 ];

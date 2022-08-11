@@ -204,6 +204,7 @@ export class WebPanel {
 		this._panel.webview.postMessage({
 			command: "fetchAdrValues",
 			adr: JSON.stringify({
+				yaml: adr.yaml,
 				title: adr.title,
 				date: adr.date,
 				status: adr.status,

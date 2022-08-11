@@ -5,6 +5,7 @@ export default {
 	data() {
 		return {
 			validated: false,
+			yaml: "",
 			title: "",
 			date: "",
 			status: "",
@@ -34,6 +35,7 @@ export default {
 		 * @param fields The values of the ADR fields
 		 */
 		getInput(fields: {
+			yaml: string;
 			title: string;
 			date: string;
 			status: string;
@@ -56,6 +58,7 @@ export default {
 			links: string[];
 			fullPath: string;
 		}) {
+			this.yaml = fields.yaml;
 			this.title = fields.title;
 			this.date = fields.date;
 			this.status = fields.status;
@@ -91,6 +94,7 @@ export default {
 				this.sendMessage(
 					type,
 					JSON.stringify({
+						yaml: this.yaml,
 						title: this.title,
 						contextAndProblemStatement: this.contextAndProblemStatement,
 						consideredOptions: this.consideredOptions,
@@ -102,6 +106,7 @@ export default {
 				this.sendMessage(
 					type,
 					JSON.stringify({
+						yaml: this.yaml,
 						title: this.title,
 						date: this.date,
 						status: this.status,
@@ -125,6 +130,7 @@ export default {
 				"saveAdr",
 				JSON.stringify({
 					adr: {
+						yaml: this.yaml,
 						title: this.title,
 						oldTitle: this.oldTitle,
 						date: this.date,

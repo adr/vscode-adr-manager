@@ -5,6 +5,7 @@ import { createShortTitle } from "../../src/plugins/utils";
 export default {
 	data() {
 		return {
+			yaml: "",
 			title: "",
 			date: "",
 			status: "",
@@ -43,6 +44,7 @@ export default {
 		 * Fills the fields with the existing values of the ADR.
 		 */
 		fillFields(adr: {
+			yaml: string;
 			title: string;
 			date: string;
 			status: string;
@@ -65,6 +67,7 @@ export default {
 			links: string[];
 			fullPath: string;
 		}) {
+			this.yaml = adr.yaml;
 			this.title = adr.title;
 			this.date = adr.date;
 			this.status = adr.status;
@@ -244,6 +247,7 @@ export default {
 		 */
 		sendInput() {
 			this.$emit("sendInput", {
+				yaml: this.yaml,
 				title: this.title,
 				date: this.date,
 				status: this.status,
