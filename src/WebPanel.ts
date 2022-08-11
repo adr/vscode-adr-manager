@@ -88,7 +88,7 @@ export class WebPanel {
 					await this.viewAdr(fileUri);
 				}
 				case "fetchAdrs": {
-					let allAdrs: {
+					const allAdrs: {
 						adr: ArchitecturalDecisionRecord;
 						fullPath: string;
 						relativePath: string;
@@ -103,6 +103,11 @@ export class WebPanel {
 						});
 					});
 					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+					return;
+				}
+				case "requestEdit": {
+					const fileUri = vscode.Uri.parse(e.data.fullPath);
+					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
 					return;
 				}
 				case "requestDelete": {
@@ -147,7 +152,7 @@ export class WebPanel {
 					return;
 				}
 				case "saveAdr": {
-					let uri = await saveAdr(JSON.parse(e.data).adr);
+					const uri = await saveAdr(JSON.parse(e.data).adr);
 					if (uri) {
 						this._panel.webview.postMessage({ command: "saveSuccessful", newPath: uri.toString() });
 						const open = await vscode.window.showInformationMessage(
@@ -172,8 +177,8 @@ export class WebPanel {
 					return;
 				}
 				case "switchViewingViewBasicToProfessional": {
-					let adr = getAdrObjectFromFields(JSON.parse(e.data));
-					let mdString = adr2md(adr);
+					const adr = getAdrObjectFromFields(JSON.parse(e.data));
+					const mdString = adr2md(adr);
 					vscode.commands.executeCommand(
 						"vscode-adr-manager.openViewAdrWebView",
 						mdString,
@@ -183,8 +188,8 @@ export class WebPanel {
 					return;
 				}
 				case "switchViewingViewProfessionalToBasic": {
-					let adr = getAdrObjectFromFields(JSON.parse(e.data));
-					let mdString = adr2md(adr);
+					const adr = getAdrObjectFromFields(JSON.parse(e.data));
+					const mdString = adr2md(adr);
 					vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString, "view-basic");
 					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 					return;

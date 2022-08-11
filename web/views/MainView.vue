@@ -8,6 +8,7 @@
 				:adr="adr"
 				@requestDelete="requestDelete(adr)"
 				@requestView="requestView(adr)"
+				@requestEdit="requestEdit(adr)"
 			></ADRContainer>
 			<h1 v-if="sortedAdrs.length === 0">No ADRs detected in the workspace.</h1>
 		</div>
@@ -54,6 +55,14 @@
 			 */
 			async fetchAdrs() {
 				this.sendMessage("fetchAdrs");
+			},
+			requestEdit(adr: {
+				adr: ArchitecturalDecisionRecord;
+				fullPath: string;
+				relativePath: string;
+				fileName: string;
+			}) {
+				this.sendMessage("requestEdit", { fullPath: adr.fullPath });
 			},
 			requestDelete(adr: {
 				adr: ArchitecturalDecisionRecord;
