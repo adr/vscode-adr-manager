@@ -12,6 +12,7 @@ This VS Code extension is part of a Bachelor Thesis written at the University of
 2. [Features](#features)
     1. [Commands](#commands)
     2. [Settings](#settings)
+    3. [Menus](#menus)
 3. [Known Issues](#known-issues)
 
 ## Workspace Concept
@@ -65,6 +66,13 @@ If the user is working in a multi-root workspace (or  a multi-root-like workspac
 
 * `Change ADR Directory`: Upon executing this command, the extension will ask the user to enter a new path to the ADR Directory. This path must be a path relative to the root folder(s).<br/>
 Alternatively, this can be configured in the user/workspace settings.
+
+### Menus
+
+As of now, this extension contributes the following menus:
+
+* `Explorer Context Menu`: When right-clicking on an ADR Directory (or any directory along the way to the ADR Directory), the extension will display the option `Open ADR Manager` which executes the command with the same name.<br/>
+When right-clicking on a Markdown file that follows the naming convention of MADR, the extension will display the option `View in ADR Manager`, opening the webview to view (and edit) the ADR using the template(s) provided by the extension.
 
 
 ### Settings
