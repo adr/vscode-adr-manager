@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { getNonce } from "./plugins/utils";
-import { VSCODE_RESET_URI, VSCODE_STYLE_URI } from "./plugins/constants";
 import {
 	createBasicAdr,
 	createProfessionalAdr,
@@ -275,10 +274,6 @@ export class WebPanel {
 	 * 			ID "app" depending on the specified web view page.
 	 */
 	private _getHtmlForWebview(webview: vscode.Webview, page: string) {
-		// Get URIs to VS Code styling
-		const VSCODE_STYLE_WEB_URI = webview.asWebviewUri(VSCODE_STYLE_URI);
-		const VSCODE_RESET_WEB_URI = webview.asWebviewUri(VSCODE_RESET_URI);
-
 		// Local path to main script run in the webview
 		const SCRIPT_URI = vscode.Uri.joinPath(this._extensionUri, "dist/web", `${page}.js`);
 		// URI to load the script in the webview
@@ -302,8 +297,6 @@ export class WebPanel {
 			<head>
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<link href="${VSCODE_RESET_WEB_URI}" rel="stylesheet">
-				<link href="${VSCODE_STYLE_WEB_URI}" rel="stylesheet">
 				<link href="${STYLE_WEB_URI}" rel="stylesheet">
 				<link href="${CODICONS_WEB_URI}" rel="stylesheet">
 

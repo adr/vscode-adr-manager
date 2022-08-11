@@ -1,51 +1,51 @@
 @mixin centered-flex($direction) {
-    display: flex;
-    flex-direction: $direction;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	flex-direction: $direction;
+	justify-content: center;
+	align-items: center;
 }
 
 @mixin button-sizing() {
-    width: 20%;
-    min-width: fit-content;
-    min-height: 3rem;
+	width: 20%;
+	min-width: fit-content;
+	min-height: 3rem;
 }
 
 @mixin button-styling() {
 	border: 1px solid var(--vscode-contrastBorder);
-    &:hover {
-        filter: brightness(106%);
-    }
-    
-    &:active {
-        filter: brightness(94%);
-    }
+	&:hover {
+		filter: brightness(106%);
+	}
 
-    &:focus {
-        outline: none;
-        box-shadow: none;
-    }
+	&:active {
+		filter: brightness(94%);
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: none;
+	}
 }
 
 @mixin icon-sizing($size) {
-    width: $size;
-    height: $size;
+	width: $size;
+	height: $size;
 }
 
 @mixin dynamic-logo() {
-    &.vscode-light .logo {
-            content: url("../assets/header-light-theme.png");
-        }
-    
-        &.vscode-dark.vscode-high-contrast .logo {
-            content: url("../assets/header-dark-theme.png");
-        }
-    
-        &.vscode-high-contrast .logo {
-            content: url("../assets/header-dark-theme.png");
-        }
-    
-        &.vscode-high-contrast-light .logo {
-            content: url("../assets/header-light-theme.png");
-        }
+	&.vscode-light .logo {
+		content: url("../assets/header-light-theme.png");
+	}
+
+	&.vscode-dark.vscode-high-contrast .logo {
+		content: url("../assets/header-dark-theme.png");
+	}
+
+	&.vscode-high-contrast .logo {
+		content: url("../assets/header-dark-theme.png");
+	}
+
+	&.vscode-high-contrast-light .logo {
+		content: url("../assets/header-light-theme.png");
+	}
 }

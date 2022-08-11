@@ -72,6 +72,8 @@
 </script>
 
 <style lang="scss" scoped>
+	@use "../static/reset";
+	@use "../static/vscode";
 	@use "../static/mixins" as *;
 
 	#view {

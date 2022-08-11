@@ -319,7 +319,7 @@ export async function getMDsFromFolder(
 			const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folderUri, name));
 			adrs.push({
 				adr: new TextDecoder().decode(content),
-				fullPath: vscode.Uri.joinPath(folderUri, name).fsPath,
+				fullPath: vscode.Uri.joinPath(folderUri, name).path,
 				relativePath: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
 				fileName: name,
 			});
@@ -682,10 +682,10 @@ export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
  * @returns The path of the file relative to the root folder as a string
  */
 function getAdrPathRelativeFromRootFolder(adrUri: vscode.Uri): string {
-	let filePath = adrUri.fsPath;
+	let filePath = adrUri.path;
 	for (const folder of getWorkspaceFolders()) {
-		if (filePath.match(folder.uri.fsPath)) {
-			return filePath.replace(folder.uri.fsPath.substring(0, folder.uri.fsPath.lastIndexOf("/") + 1), "");
+		if (filePath.match(folder.uri.path)) {
+			return filePath.replace(folder.uri.path.substring(0, folder.uri.path.lastIndexOf("/") + 1), "");
 		}
 	}
 

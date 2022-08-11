@@ -14,7 +14,6 @@ import {
 	getAllChildRootFoldersAsStrings,
 	treatAsMultiRoot,
 	getAllMDs,
-	getAdrDirectoryString,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 import { md2adr } from "./plugins/parser";
