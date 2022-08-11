@@ -14,6 +14,8 @@ import {
 	getAllChildRootFoldersAsStrings,
 	treatAsMultiRoot,
 	getAllMDs,
+	getAdrDirectoryString,
+	updateAdrDirectoryWhenClauseContext,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 import { md2adr } from "./plugins/parser";
@@ -24,6 +26,12 @@ import { md2adr } from "./plugins/parser";
  * @param context The context of the extension (automatically provided by the extension)
  */
 export function activate(context: vscode.ExtensionContext) {
+	// Add custom when clause context to show/hide commands in the command palette
+	vscode.commands.executeCommand("setContext", "vscode-adr-manager.hideCommand", false);
+
+	// Add custom when clause context for ADR Directory
+	updateAdrDirectoryWhenClauseContext();
+
 	// Open ADR Manager Main Webview
 	vscode.commands.registerCommand("vscode-adr-manager.openMainWebView", () => {
 		WebPanel.createOrShow(context.extensionUri, "main");
@@ -95,11 +103,20 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand("vscode-adr-manager.changeAdrDirectory", async () => {
 		const newDirectory = await vscode.window.showInputBox({
 			prompt: "Specify the path of the ADR Directory, relative to a root workspace folder.",
+			value: cleanPathString(getAdrDirectoryString()),
 			placeHolder: "docs/decisions",
 		});
 		if (newDirectory) {
-			await vscode.workspace.getConfiguration("adrManager").update("adrDirectory", cleanPathString(newDirectory));
-			vscode.window.showInformationMessage("ADR Directory changed.");
+			if (cleanPathString(newDirectory).match(/^([^?*:\"<>|]+[\\/]?)+$/)) {
+				await vscode.workspace
+					.getConfiguration("adrManager")
+					.update("adrDirectory", cleanPathString(newDirectory));
+				vscode.window.showInformationMessage("ADR Directory changed.");
+			} else {
+				vscode.window.showErrorMessage(
+					'Invalid directory. Avoid using the following characters: ? * : " < > |'
+				);
+			}
 		}
 	});
 
@@ -144,6 +161,10 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	// Add custom when clause context to show/hide commands in the command palette
-	vscode.commands.executeCommand("setContext", "vscode-adr-manager.hideCommand", false);
+	// Update ADR Directory when clause context when user changes ADR
+	vscode.workspace.onDidChangeConfiguration((e) => {
+		if (e.affectsConfiguration("adrManager.adrDirectory")) {
+			updateAdrDirectoryWhenClauseContext();
+		}
+	});
 }

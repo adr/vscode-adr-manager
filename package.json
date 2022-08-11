@@ -19,13 +19,7 @@
 		"ADR, MADR, Manager"
 	],
 	"activationEvents": [
-		"onCommand:vscode-adr-manager.openMainWebView",
-		"onCommand:vscode-adr-manager.initializeAdrDirectory",
-		"onCommand:vscode-adr-manager.openAddAdrWebView",
-		"onCommand:vscode-adr-manager.openViewAdrWebView",
-		"onCommand:vscode-adr-manager.changeAdrDirectory",
-		"onCommand:vscode-adr-manager.viewInAdrManager",
-		"onCommand:vscode-adr-manager.viewAdrFromContextMenu"
+		"onStartupFinished"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -57,7 +51,7 @@
 			},
 			{
 				"command": "vscode-adr-manager.viewAdrFromContextMenu",
-				"title": "View ADR",
+				"title": "View in ADR Manager",
 				"category": "ADR Manager"
 			}
 		],
@@ -69,7 +63,7 @@
 					"default": "docs/decisions",
 					"description": "Specifies the path of the ADR directory, relative to a root workspace folder",
 					"pattern": "^([^?*:\"<>|]+[\\/]?)+$",
-					"patternErrorMessage": "Invalid directory.\nNote that these characters are not allowed in directory names:\n? * : \" < > |"
+					"patternErrorMessage": "Invalid directory. Avoid using the following characters:\n? * : \" < > |"
 				},
 				"adrManager.treatSingleRootAsMultiRoot": {
 					"type": "boolean",
@@ -119,24 +113,17 @@
 			],
 			"explorer/context": [
 				{
-					"submenu": "vscode-adr-manager.adrManager",
+					"command": "vscode-adr-manager.openMainWebView",
+					"when": "explorerResourceIsFolder && resourceFilename in vscode-adr-manager.adrDirectory",
+					"group": "vscode-adr-manager"
+				},
+				{
+					"command": "vscode-adr-manager.viewAdrFromContextMenu",
 					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}(-[^A-Z-]+)+\\.md$/",
 					"group": "vscode-adr-manager"
 				}
-			],
-			"vscode-adr-manager.adrManager": [
-				{
-					"command": "vscode-adr-manager.viewAdrFromContextMenu",
-					"group": "vscode-adr-manager@1"
-				}
 			]
-		},
-		"submenus": [
-			{
-				"id": "vscode-adr-manager.adrManager",
-				"label": "ADR Manager"
-			}
-		]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",

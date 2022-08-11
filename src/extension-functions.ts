@@ -691,3 +691,11 @@ function getAdrPathRelativeFromRootFolder(adrUri: vscode.Uri): string {
 
 	return filePath;
 }
+
+/**
+ * Sets the custom when clause context for the current ADR Directory
+ */
+export function updateAdrDirectoryWhenClauseContext() {
+	const contextKeys = [...cleanPathString(getAdrDirectoryString()).split("/")];
+	vscode.commands.executeCommand("setContext", "vscode-adr-manager.adrDirectory", contextKeys);
+}

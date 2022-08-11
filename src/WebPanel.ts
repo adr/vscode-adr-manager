@@ -339,7 +339,7 @@ function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
  */
 function watchForConfigurationChanges(panel: vscode.WebviewPanel) {
 	vscode.workspace.onDidChangeConfiguration(async (e) => {
-		if (e.affectsConfiguration("adrManager")) {
+		if (e.affectsConfiguration("adrManager.adrDirectory")) {
 			let allAdrs: {
 				adr: ArchitecturalDecisionRecord;
 				fullPath: string;
