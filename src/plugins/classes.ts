@@ -12,6 +12,7 @@ export class ArchitecturalDecisionRecord {
 	title: string;
 	status: string;
 	conforming: boolean;
+	parseErrors: { message: string; line: number; charPosition: number }[];
 	deciders: string;
 	date: string;
 	technicalStory: string;
@@ -32,6 +33,7 @@ export class ArchitecturalDecisionRecord {
 		title = "",
 		status = "",
 		conforming = true,
+		parseErrors = [],
 		deciders = "",
 		date = "",
 		technicalStory = "",
@@ -50,6 +52,7 @@ export class ArchitecturalDecisionRecord {
 		this.title = title;
 		this.status = status;
 		this.conforming = conforming;
+		this.parseErrors = parseErrors;
 		this.deciders = deciders;
 		this.date = date;
 		this.technicalStory = technicalStory;

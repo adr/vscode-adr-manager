@@ -200,7 +200,11 @@ class MADRErrorListener extends antlr4.error.ErrorListener {
 	}
 
 	syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception) {
-		this.syntaxErrors.push(new SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception));
+		this.syntaxErrors.push({
+			message: msg,
+			line: line,
+			charPosition: charPositionInLine,
+		});
 	}
 }
 
@@ -227,6 +231,7 @@ export function md2adr(md) {
 	if (errorListener.syntaxErrors.length > 0) {
 		printer.adr.conforming = false;
 	}
+	printer.adr.parseErrors = errorListener.syntaxErrors;
 	return printer.adr;
 }
 

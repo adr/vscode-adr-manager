@@ -14,7 +14,7 @@
 			</div>
 		</div>
 		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">
-			Does not conform to MADR; please edit the Markdown file such that it conforms to MADR.
+			{{ "Line " + adr.adr.parseErrors[1].line + ": " + adr.adr.parseErrors[1].message }}
 		</h4>
 	</div>
 </template>
@@ -64,7 +64,7 @@
 
 	.not-conforming-message {
 		color: var(--vscode-editorError-foreground);
-		margin: -1rem 0 1rem 0;
+		margin: -1rem 0 1.5rem 0;
 	}
 
 	.button-group {

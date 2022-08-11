@@ -349,6 +349,7 @@ Chosen option: "MADR 2.1.2", because
 			title: "Use Markdown Architectural Decision Records",
 			status: "",
 			conforming: true,
+			parseErrors: [],
 			contextAndProblemStatement: `We want to record architectural decisions made in this project.
 Which format and structure should these records follow?`,
 			decisionDrivers: [],
@@ -423,6 +424,7 @@ Chosen option: "CC0", because this license donates the content to "public domain
 			yaml: "",
 			title: "Use CC0 as License",
 			conforming: true,
+			parseErrors: [],
 			contextAndProblemStatement: `Everything needs to be licensed, otherwise the default copyright laws apply.
 For instance, in Germany that means users may not alter anything without explicitly asking for permission.
 For more information see <https://help.github.com/articles/licensing-a-repository/>.
@@ -483,6 +485,7 @@ Chosen option: Use the title only, because
 			yaml: "",
 			title: "Do Not Use Numbers in Headings",
 			conforming: true,
+			parseErrors: [],
 			contextAndProblemStatement: `How to render the first line in an ADR?
 ADRs have to take a unique identifier.`,
 			consideredOptions: [
@@ -538,6 +541,7 @@ Chosen option: \`NNNN-title-with-dashes.md\`, because
 			yaml: "",
 			title: "Use Dashes in Filenames",
 			conforming: true,
+			parseErrors: [],
 			contextAndProblemStatement: `What is the pattern of the filename where an ADR is stored?`,
 			consideredOptions: [
 				{
@@ -678,6 +682,7 @@ One level of subfolder, not nested
 			yaml: "",
 			title: "Support Categories",
 			conforming: true,
+			parseErrors: [],
 			contextAndProblemStatement: `ADRs are recorded. The number of ADRs grows and the context/topic/scope of ADRs might be different (e.g., frontend, backend)`,
 			decisionDrivers: [
 				"Easy to find groups ADRs in hundreds of ADRs",
@@ -828,6 +833,7 @@ D description
 			yaml: "",
 			title: "Heading",
 			conforming: true,
+			parseErrors: [],
 			contextAndProblemStatement: `Context`,
 			consideredOptions: [
 				{
