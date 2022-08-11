@@ -8,7 +8,11 @@
 		<draggable class="drag-area" :list="decisionDrivers" :sort="true" handle=".drivers-grabber" @update="checkMove">
 			<div v-for="(driver, index) in decisionDriversWithBlank" :key="index" class="multi-input">
 				<i class="codicon codicon-grabber drivers-grabber" v-if="decisionDrivers[index] !== ''"></i>
-				<input v-model="decisionDrivers[index]" @input="updateArray($event.target.value, index)" />
+				<input
+					spellcheck="true"
+					v-model="decisionDrivers[index]"
+					@input="updateArray($event.target.value, index)"
+				/>
 				<i
 					class="codicon codicon-close multi-input-delete-icon"
 					v-if="decisionDrivers[index] !== ''"

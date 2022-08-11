@@ -11,6 +11,7 @@
 			<div id="explanation-input-container">
 				<input
 					type="text"
+					spellcheck="true"
 					:class="
 						v$.decisionOutcome.explanation.$error
 							? 'invalid-input'
@@ -54,6 +55,7 @@
 							v-if="decisionOutcome.positiveConsequences[index] !== ''"
 						></i>
 						<input
+							spellcheck="true"
 							v-model="decisionOutcome.positiveConsequences[index]"
 							@input="updateArray('positiveConsequences', $event.target.value, index)"
 						/>
@@ -89,6 +91,7 @@
 							v-if="decisionOutcome.negativeConsequences[index] !== ''"
 						></i>
 						<input
+							spellcheck="true"
 							v-model="decisionOutcome.negativeConsequences[index]"
 							@input="updateArray('negativeConsequences', $event.target.value, index)"
 						/>

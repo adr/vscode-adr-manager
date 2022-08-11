@@ -7,6 +7,7 @@
 		</TemplateHeader>
 		<textarea
 			id="auto-grow"
+			spellcheck="true"
 			:class="
 				v$.contextAndProblemStatement.$error
 					? 'invalid-input'

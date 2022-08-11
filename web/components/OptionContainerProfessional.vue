@@ -7,10 +7,10 @@
 		@mouseleave="isHovered = false"
 	>
 		<h4 @click="$emit('selectOption')"><strong>Title</strong></h4>
-		<input :value="title" @input="$emit('update:title', $event.target.value)" />
+		<input spellcheck="true" :value="title" @input="$emit('update:title', $event.target.value)" />
 		<div id="option-description-container">
 			<h4><strong>Description</strong></h4>
-			<input :value="description" @input="$emit('update:description', $event.target.value)" />
+			<input spellcheck="true" :value="description" @input="$emit('update:description', $event.target.value)" />
 		</div>
 		<div id="pros-and-cons" @click.self="$emit('selectOption')">
 			<div id="pros-container" @click.self="$emit('selectOption')">
@@ -24,7 +24,11 @@
 				>
 					<div v-for="(pro, index) in prosWithBlank" :key="index" id="pros">
 						<i class="codicon codicon-grabber pros-grabber" v-if="pros[index] !== ''"></i>
-						<input v-model="pros[index]" @input="updateArray('pros', $event.target.value, index)" />
+						<input
+							spellcheck="true"
+							v-model="pros[index]"
+							@input="updateArray('pros', $event.target.value, index)"
+						/>
 						<i
 							class="codicon codicon-close multi-input-delete-icon"
 							v-if="pros[index] !== ''"
@@ -44,7 +48,11 @@
 				>
 					<div v-for="(con, index) in consWithBlank" :key="index" id="cons">
 						<i class="codicon codicon-grabber cons-grabber" v-if="cons[index] !== ''"></i>
-						<input v-model="cons[index]" @input="updateArray('cons', $event.target.value, index)" />
+						<input
+							spellcheck="true"
+							v-model="cons[index]"
+							@input="updateArray('cons', $event.target.value, index)"
+						/>
 						<i
 							class="codicon codicon-close multi-input-delete-icon"
 							v-if="cons[index] !== ''"

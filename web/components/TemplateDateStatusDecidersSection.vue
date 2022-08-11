@@ -49,6 +49,7 @@
 			<input
 				type="text"
 				id="deciders"
+				spellcheck="true"
 				:value="deciders"
 				@input="
 					$emit('update:deciders', $event.target.value);

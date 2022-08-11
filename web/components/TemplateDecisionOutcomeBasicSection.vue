@@ -13,6 +13,7 @@
 			<div id="explanation-input-container">
 				<input
 					type="text"
+					spellcheck="true"
 					:class="
 						v$.decisionOutcome.explanation.$error
 							? 'invalid-input'

@@ -5,6 +5,7 @@
 		</TemplateHeader>
 		<input
 			type="text"
+			spellcheck="true"
 			:value="technicalStory"
 			@input="
 				$emit('update:technicalStory', $event.target.value);

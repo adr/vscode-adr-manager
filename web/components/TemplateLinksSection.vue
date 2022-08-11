@@ -6,7 +6,7 @@
 		<draggable class="drag-area" :list="links" :sort="true" handle=".links-grabber" @update="checkMove">
 			<div v-for="(link, index) in linksWithBlank" :key="index" class="multiInput">
 				<i class="codicon codicon-grabber links-grabber" v-if="links[index] !== ''"></i>
-				<input v-model="links[index]" @input="updateArray($event.target.value, index)" />
+				<input spellcheck="true" v-model="links[index]" @input="updateArray($event.target.value, index)" />
 				<i
 					class="codicon codicon-close multi-input-delete-icon"
 					v-if="links[index] !== ''"

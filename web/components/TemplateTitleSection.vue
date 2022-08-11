@@ -7,6 +7,7 @@
 		</TemplateHeader>
 		<input
 			type="text"
+			spellcheck="true"
 			:class="v$.title.$error ? 'invalid-input' : v$.title.$dirty ? 'valid-input' : ''"
 			v-model="v$.title.$model"
 			@input="
