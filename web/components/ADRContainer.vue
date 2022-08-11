@@ -14,7 +14,14 @@
 			</div>
 		</div>
 		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">
-			{{ "Line " + adr.adr.parseErrors[1].line + ": " + adr.adr.parseErrors[1].message }}
+			{{
+				"Line " +
+				adr.adr.parseErrors[1].line +
+				", Position " +
+				adr.adr.parseErrors[1].charPosition +
+				": " +
+				adr.adr.parseErrors[1].message
+			}}
 		</h4>
 	</div>
 </template>
