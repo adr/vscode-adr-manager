@@ -147,5 +147,20 @@ export default {
 				})
 			);
 		},
+		/**
+		 * Update the height of 'Context and Problem Statement' and 'Explanation' textareas when the input gets large.
+		 */
+		updateTextAreaHeight() {
+			const cps = document.getElementById("auto-grow-context-problem-statement")!;
+			cps.addEventListener("input", () => {
+				cps.style.height = "auto";
+				cps.style.height = `${cps.scrollHeight}px`;
+			});
+			const explanation = document.getElementById("auto-grow-explanation")!;
+			explanation.addEventListener("input", () => {
+				explanation.style.height = "auto";
+				explanation.style.height = `${explanation.scrollHeight}px`;
+			});
+		},
 	},
 };

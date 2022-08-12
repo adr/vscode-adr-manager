@@ -1,5 +1,5 @@
 <template>
-	<div id="container">
+	<div id="add-option-container">
 		<i id="add-option-icon" class="codicon codicon-add" @click="addOption"></i>
 		<h4>Add Option</h4>
 	</div>
@@ -25,9 +25,9 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
-	#container {
+	#add-option-container {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		justify-content: baseline;
 		margin: 0 1rem 1rem 2rem;
 	}
@@ -35,7 +35,7 @@
 	#add-option-icon {
 		background: green;
 		border-radius: 5px;
-		padding: 3px;
+		padding: 2px;
 		margin-right: 0.5rem;
 		color: white;
 	}

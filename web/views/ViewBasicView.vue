@@ -4,11 +4,13 @@
 			<button id="back-button" class="secondary" @click="sendMessage('main')">
 				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 			</button>
+			<div id="professional-fields-note" v-if="hasProfessionalFields">
+				<h4>
+					<strong>{{ missingFieldsNote }}</strong>
+				</h4>
+			</div>
 			<div id="toggle-container">
-				<div id="professional-fields-note" v-if="hasProfessionalFields">
-					<h4><strong>Some fields of this ADR are not displayed in the current mode!</strong></h4>
-				</div>
-				<h4><strong>Template: </strong></h4>
+				<h4><strong>Editor Mode: </strong></h4>
 				<h4>Basic</h4>
 				<Toggle v-model="toggle" @change="switchToProfessionalTemplate"></Toggle>
 				<h4>Professional</h4>
@@ -21,7 +23,11 @@
 				@invalidated="disableButton"
 			></MadrTemplateBasic>
 			<p id="basic-template-note">
-				<em>Note: Some fields of the ADR are not shown in the Basic MADR template.</em>
+				<em
+					>Note: The fields 'Status', 'Deciders', 'Date', 'Technical Story', 'Decision Drivers', 'Option
+					Descriptions', 'Pros and Cons of the Options', 'Positive and Negative Consequences' and 'Links' are
+					not shonw in the basic editor mode.</em
+				>
 			</p>
 		</div>
 		<div class="button-group">
@@ -60,12 +66,61 @@
 					this.technicalStory ||
 					this.decisionDrivers.length ||
 					this.consideredOptions.some((option) => {
-						return option.pros.length || option.cons.length;
+						return option.description || option.pros.length || option.cons.length;
 					}) ||
 					this.decisionOutcome.positiveConsequences.length ||
 					this.decisionOutcome.negativeConsequences.length ||
 					this.links.length
 				);
+			},
+			/**
+			 * Returns a string listing all non-empty fields that are not shown in the Basic editor
+			 */
+			missingFieldsNote() {
+				let string = "The fields ";
+				let fields = "";
+				if (this.status) {
+					fields = fields.concat("'Status', ");
+				}
+				if (this.deciders) {
+					fields = fields.concat("'Deciders', ");
+				}
+				if (this.date) {
+					fields = fields.concat("'Date', ");
+				}
+				if (this.technicalStory) {
+					fields = fields.concat("'Technical Story', ");
+				}
+				if (this.decisionDrivers.length) {
+					fields = fields.concat("'Decision Drivers', ");
+				}
+				if (
+					this.consideredOptions.some((option) => {
+						return option.description;
+					})
+				) {
+					fields = fields.concat("'Option Descriptions', ");
+				}
+				if (
+					this.consideredOptions.some((option) => {
+						return option.pros.length || option.cons.length;
+					})
+				) {
+					fields = fields.concat("'Pros and Cons of the Options', ");
+				}
+				if (
+					this.decisionOutcome.positiveConsequences.length ||
+					this.decisionOutcome.negativeConsequences.length
+				) {
+					fields = fields.concat("'Positive and Negative Consequences', ");
+				}
+				if (this.links.length) {
+					fields = fields.concat("'Links', ");
+				}
+
+				string = string.concat(fields.substring(0, fields.length - 2));
+				string = string.concat(" of this ADR have values, but are not shown in the basic editor mode.");
+				return string;
 			},
 		},
 		methods: {
@@ -132,6 +187,7 @@
 
 	#professional-fields-note {
 		margin: auto 2rem;
+		max-width: 40%;
 		color: var(--vscode-editorWarning-foreground);
 	}
 

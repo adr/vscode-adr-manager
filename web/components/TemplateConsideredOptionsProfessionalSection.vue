@@ -37,7 +37,7 @@
 			</draggable>
 			<div id="rearrange-message-container" v-if="consideredOptions.length >= 2">
 				<h4>
-					<i>Click to choose option; rearrange options by dragging on</i>
+					<i>Click to choose option; rearrange options by dragging</i>
 				</h4>
 				<i class="codicon codicon-grabber"></i>
 			</div>

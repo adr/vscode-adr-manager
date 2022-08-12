@@ -6,17 +6,13 @@
 			<h2>Context and Problem Statement</h2>
 		</TemplateHeader>
 		<textarea
-			id="auto-grow"
+			id="auto-grow-context-problem-statement"
 			spellcheck="true"
-			:class="
-				v$.contextAndProblemStatement.$error
-					? 'invalid-input'
-					: v$.contextAndProblemStatement.$dirty
-					? 'valid-input'
-					: ''
-			"
+			:class="v$.contextAndProblemStatement.$error ? 'invalid-input' : ''"
 			v-model="v$.contextAndProblemStatement.$model"
+			@mouseover.once="updateHeight"
 			@input="
+				updateHeight();
 				$emit('update:contextAndProblemStatement', $event.target.value);
 				$emit('validate');
 			"
@@ -51,13 +47,15 @@
 				contextAndProblemStatement: this.contextAndProblemStatementProp,
 			};
 		},
-		mounted() {
-			// Auto-grow textarea of Context and Problem Statement
-			const textarea = document.getElementById("auto-grow")!;
-			textarea.addEventListener("input", () => {
-				textarea.style.height = "auto";
-				textarea.style.height = `${textarea.scrollHeight}px`;
-			});
+		methods: {
+			/**
+			 * Updated the height of the textarea based on the input.
+			 */
+			updateHeight() {
+				const cps = document.getElementById("auto-grow-context-problem-statement")!;
+				cps.style.height = "auto";
+				cps.style.height = `${cps.scrollHeight}px`;
+			},
 		},
 		validations() {
 			return {
@@ -85,12 +83,6 @@
 			resize: none;
 			overflow-y: hidden;
 		}
-	}
-
-	.valid-input,
-	.valid-input:focus {
-		border: 1.5px solid green !important;
-		outline-color: green !important;
 	}
 
 	.invalid-input,

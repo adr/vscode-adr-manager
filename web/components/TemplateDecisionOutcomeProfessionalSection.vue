@@ -9,18 +9,14 @@
 		<div id="explanation">
 			<h3>because</h3>
 			<div id="explanation-input-container">
-				<input
-					type="text"
+				<textarea
+					id="auto-grow-explanation"
 					spellcheck="true"
-					:class="
-						v$.decisionOutcome.explanation.$error
-							? 'invalid-input'
-							: v$.decisionOutcome.explanation.$dirty
-							? 'valid-input'
-							: ''
-					"
+					:class="v$.decisionOutcome.explanation.$error ? 'invalid-input' : ''"
 					v-model="v$.decisionOutcome.explanation.$model"
+					@mouseover.once="updateHeight"
 					@input="
+						updateHeight();
 						$emit('update:explanation', $event.target.value);
 						$emit('validate');
 					"
@@ -220,6 +216,14 @@
 				}
 				this.$emit("updateArray");
 			},
+			/**
+			 * Updated the height of the textarea based on the input.
+			 */
+			updateHeight() {
+				const explanation = document.getElementById("auto-grow-explanation")!;
+				explanation.style.height = "auto";
+				explanation.style.height = `${explanation.scrollHeight}px`;
+			},
 		},
 		validations() {
 			return {
@@ -259,6 +263,11 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
+		& textarea {
+			height: 39px;
+			resize: none;
+			overflow-y: hidden;
+		}
 	}
 
 	#consequences-container {
@@ -311,12 +320,6 @@
 		&:hover {
 			cursor: pointer;
 		}
-	}
-
-	.valid-input,
-	.valid-input:focus {
-		border: 1.5px solid green !important;
-		outline-color: green !important;
 	}
 
 	.invalid-input,

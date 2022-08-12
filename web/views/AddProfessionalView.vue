@@ -5,7 +5,7 @@
 				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
 			</button>
 			<div id="toggle-container">
-				<h4><strong>Template: </strong></h4>
+				<h4><strong>Editor Mode: </strong></h4>
 				<h4>Basic</h4>
 				<Toggle v-model="toggle" @change="switchToBasicTemplate"></Toggle>
 				<h4>Professional</h4>

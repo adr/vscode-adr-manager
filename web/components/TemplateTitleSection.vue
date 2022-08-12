@@ -8,7 +8,7 @@
 		<input
 			type="text"
 			spellcheck="true"
-			:class="v$.title.$error ? 'invalid-input' : v$.title.$dirty ? 'valid-input' : ''"
+			:class="v$.title.$error ? 'invalid-input' : ''"
 			v-model="v$.title.$model"
 			@input="
 				$emit('update:title', $event.target.value);
@@ -63,12 +63,6 @@
 		& input {
 			height: 3rem;
 		}
-	}
-
-	.valid-input,
-	.valid-input:focus {
-		border: 1.5px solid green !important;
-		outline-color: green !important;
 	}
 
 	.invalid-input,
