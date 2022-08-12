@@ -64,7 +64,7 @@
 		</div>
 		<i
 			class="codicon expand-arrow"
-			:class="isExpanded ? 'codicon-chevron-up' : 'codicon-chevron-down'"
+			:class="isExpanded ? 'codicon-chevron-down' : 'codicon-chevron-up'"
 			@click="isExpanded = !isExpanded"
 		></i>
 		<i class="codicon codicon-grabber option-grabber"></i>
@@ -75,6 +75,7 @@
 <script lang="ts">
 	import { defineComponent, PropType } from "vue";
 	import { VueDraggableNext } from "vue-draggable-next";
+	import { createShortTitle } from "../../src/plugins/utils";
 
 	export default defineComponent({
 		name: "OptionContainerProfessional",
@@ -102,6 +103,9 @@
 			};
 		},
 		computed: {
+			shortString(s: string) {
+				return createShortTitle(s);
+			},
 			prosWithBlank() {
 				const prosWithBlank = this.pros;
 				prosWithBlank.push("");
