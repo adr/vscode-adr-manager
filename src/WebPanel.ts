@@ -1,15 +1,15 @@
 import * as vscode from "vscode";
-import { getNonce } from "./plugins/utils";
+import { cleanPathString, getNonce } from "./plugins/utils";
 import {
 	createBasicAdr,
 	createProfessionalAdr,
-	getAdrObjectFromFields,
+	getAdrDirectoryString,
+	getAdrNumberFromUri,
 	getAllMDs,
 	saveAdr,
-	watchMarkdownChanges,
 } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
-import { adr2md, md2adr } from "./plugins/parser";
+import { md2adr } from "./plugins/parser";
 
 export class WebPanel {
 	/**
@@ -63,139 +63,144 @@ export class WebPanel {
 		this._panel.iconPath = vscode.Uri.joinPath(extensionUri, "assets/logo.png");
 
 		// listen for changes on Markdown files to dynamically update ADR list in webview
-		watchForWorkspaceChanges(this._panel);
+		this.watchForWorkspaceChanges();
 
 		// listen for configuration changes of the extension
-		watchForConfigurationChanges(this._panel);
+		this.watchForConfigurationChanges();
 
 		// Listen for when the panel is disposed
 		// This happens when the user closes the panel or when the panel is closed programmatically
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
 		// Handle messages from the webview to the VS Code API, mainly used for page navigation
-		this._panel.webview.onDidReceiveMessage(async (e) => {
-			switch (e.command) {
-				case "main": {
-					vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
-					return;
-				}
-				case "add": {
-					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView");
-					return;
-				}
-				case "view": {
-					const fileUri = vscode.Uri.parse(e.data.fullPath);
-					await this.viewAdr(fileUri);
-				}
-				case "fetchAdrs": {
-					const allAdrs: {
-						adr: ArchitecturalDecisionRecord;
-						fullPath: string;
-						relativePath: string;
-						fileName: string;
-					}[] = [];
-					(await getAllMDs()).forEach((md) => {
-						allAdrs.push({
-							adr: md2adr(md.adr),
-							fullPath: md.fullPath,
-							relativePath: md.relativePath,
-							fileName: md.fileName,
+		this._panel.webview.onDidReceiveMessage(
+			async (e) => {
+				switch (e.command) {
+					case "main": {
+						vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
+						return;
+					}
+					case "add": {
+						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView");
+						return;
+					}
+					case "view": {
+						const fileUri = vscode.Uri.parse(e.data.fullPath);
+						await this.viewAdr(fileUri);
+					}
+					case "fetchAdrs": {
+						const allAdrs: {
+							adr: ArchitecturalDecisionRecord;
+							fullPath: string;
+							relativePath: string;
+							fileName: string;
+						}[] = [];
+						(await getAllMDs()).forEach((md) => {
+							allAdrs.push({
+								adr: md2adr(md.adr),
+								fullPath: md.fullPath,
+								relativePath: md.relativePath,
+								fileName: md.fileName,
+							});
 						});
-					});
-					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
-					return;
-				}
-				case "requestEdit": {
-					const fileUri = vscode.Uri.parse(e.data.fullPath);
-					vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
-					return;
-				}
-				case "requestDelete": {
-					const selection = await vscode.window.showWarningMessage(
-						`Are you sure you want to delete the ADR "${e.data.title}"?`,
-						"Yes",
-						"Cancel"
-					);
-					if (selection === "Yes") {
-						await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
-						vscode.window.showInformationMessage("ADR deleted.");
+						this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+						return;
 					}
-					return;
-				}
-				case "addOption": {
-					const option = await vscode.window.showInputBox({ prompt: "Enter a concise name for the option:" });
-					if (option) {
-						this._panel.webview.postMessage({ command: "addOption", option: option });
+					case "requestEdit": {
+						const fileUri = vscode.Uri.parse(e.data.fullPath);
+						vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
+						return;
 					}
-					return;
-				}
-				case "requestBasicOptionEdit": {
-					const newTitle = await vscode.window.showInputBox({
-						prompt: "Enter a concise name for the option:",
-						value: e.data.currentTitle,
-					});
-					if (newTitle) {
-						this._panel.webview.postMessage({
-							command: "requestBasicOptionEdit",
-							newTitle: newTitle,
-							index: e.data.index,
-						});
-					}
-					return;
-				}
-				case "createBasicAdr": {
-					createBasicAdr(JSON.parse(e.data));
-					return;
-				}
-				case "createProfessionalAdr": {
-					createProfessionalAdr(JSON.parse(e.data));
-					return;
-				}
-				case "saveAdr": {
-					const uri = await saveAdr(JSON.parse(e.data).adr);
-					if (uri) {
-						this._panel.webview.postMessage({ command: "saveSuccessful", newPath: uri.toString() });
-						const open = await vscode.window.showInformationMessage(
-							"ADR saved. Do you want to open the Markdown file?",
+					case "requestDelete": {
+						const selection = await vscode.window.showWarningMessage(
+							`Are you sure you want to delete the ADR "${e.data.title}"?`,
 							"Yes",
-							"No"
+							"Cancel"
 						);
-						if (open === "Yes") {
-							vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
+						if (selection === "Yes") {
+							await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
+							vscode.window.showInformationMessage("ADR deleted.");
 						}
+						return;
 					}
-					return;
+					case "addOption": {
+						const option = await vscode.window.showInputBox({
+							prompt: "Enter a concise name for the option:",
+						});
+						if (option) {
+							this._panel.webview.postMessage({ command: "addOption", option: option });
+						}
+						return;
+					}
+					case "requestBasicOptionEdit": {
+						const newTitle = await vscode.window.showInputBox({
+							prompt: "Enter a concise name for the option:",
+							value: e.data.currentTitle,
+						});
+						if (newTitle) {
+							this._panel.webview.postMessage({
+								command: "requestBasicOptionEdit",
+								newTitle: newTitle,
+								index: e.data.index,
+							});
+						}
+						return;
+					}
+					case "createBasicAdr": {
+						createBasicAdr(JSON.parse(e.data));
+						return;
+					}
+					case "createProfessionalAdr": {
+						createProfessionalAdr(JSON.parse(e.data));
+						return;
+					}
+					case "saveAdr": {
+						const uri = await saveAdr(JSON.parse(e.data).adr);
+						if (uri) {
+							this._panel.webview.postMessage({ command: "saveSuccessful", newPath: uri.toString() });
+							const open = await vscode.window.showInformationMessage(
+								"ADR saved. Do you want to open the Markdown file?",
+								"Yes",
+								"No"
+							);
+							if (open === "Yes") {
+								vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
+							}
+						}
+						return;
+					}
+					case "switchAddViewBasicToProfessional": {
+						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-professional");
+						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+						return;
+					}
+					case "switchAddViewProfessionalToBasic": {
+						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-basic");
+						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+						return;
+					}
+					case "switchViewingViewBasicToProfessional": {
+						// mdString argument not needed since the editor mode is specified
+						vscode.commands.executeCommand(
+							"vscode-adr-manager.openViewAdrWebView",
+							"",
+							"view-professional"
+						);
+						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+
+						return;
+					}
+					case "switchViewingViewProfessionalToBasic": {
+						// mdString argument not needed since the editor mode is specified
+						vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", "", "view-basic");
+						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
+						return;
+					}
 				}
-				case "switchAddViewBasicToProfessional": {
-					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-professional");
-					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
-					return;
-				}
-				case "switchAddViewProfessionalToBasic": {
-					vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-basic");
-					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
-					return;
-				}
-				case "switchViewingViewBasicToProfessional": {
-					const adr = getAdrObjectFromFields(JSON.parse(e.data));
-					const mdString = adr2md(adr);
-					vscode.commands.executeCommand(
-						"vscode-adr-manager.openViewAdrWebView",
-						mdString,
-						"view-professional"
-					);
-					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
-					return;
-				}
-				case "switchViewingViewProfessionalToBasic": {
-					const adr = getAdrObjectFromFields(JSON.parse(e.data));
-					const mdString = adr2md(adr);
-					vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString, "view-basic");
-					this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
-					return;
-				}
-			}
-		});
+			},
+			null,
+			this._disposables
+		);
 	}
 	/**
 	 * Opens the Basic MADR template and fills the fields with existing values of the specified ADR.
@@ -206,6 +211,11 @@ export class WebPanel {
 
 		const adr = md2adr(mdString);
 		await vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString);
+
+		const adrNumber = await getAdrNumberFromUri(fileUri);
+		// "view-basic" or "view-professional" as page argument doesn't matter here
+		this._updatePanelTitle("view-basic", adrNumber);
+
 		this._panel.webview.postMessage({
 			command: "fetchAdrValues",
 			adr: JSON.stringify({
@@ -253,22 +263,35 @@ export class WebPanel {
 	}
 
 	/**
-	 * Updates the title of the webview panel to match the specified view by using a string key
+	 * Updates the title of the webview panel to match the specified view by using a string key.
 	 * @param page A string key for a specific web view page
 	 */
-	private _updatePanelTitle(page: string) {
+	private _updatePanelTitle(page: string, adrNumber?: string) {
 		switch (page) {
-			case "main":
-				this._panel.title = "ADR Manager";
+			case "main": {
+				if (this._panel.title !== "ADR Manager") {
+					this._panel.title = "ADR Manager";
+				}
 				return;
+			}
 			case "add-basic":
-			case "add-professional":
-				this._panel.title = "ADR Manager - Add ADR";
+			case "add-professional": {
+				if (this._panel.title !== "ADR Manager - Add ADR") {
+					this._panel.title = "ADR Manager - Add ADR";
+				}
 				return;
+			}
 			case "view-basic":
-			case "view-professional":
-				this._panel.title = "ADR Manager - View ADR";
+			case "view-professional": {
+				if (adrNumber) {
+					if (!this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
+						this._panel.title = `ADR Manager - View ADR ${"#" + adrNumber}`;
+					} else {
+						this._panel.title = "ADR Manager - View ADR";
+					}
+				}
 				return;
+			}
 		}
 	}
 
@@ -316,51 +339,133 @@ export class WebPanel {
 			</body>
 			</html>`;
 	}
-}
 
-/**
- * Sets up watchers to notify the webview to re-fetch ADRs upon changing a Markdown file in the workspace.
- * @param panel The webview panel to send the fetched ADRs to
- */
-function watchForWorkspaceChanges(panel: vscode.WebviewPanel) {
-	watchMarkdownChanges(panel);
-	vscode.workspace.onDidChangeWorkspaceFolders(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
-			[];
-		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({
-				adr: md2adr(md.adr),
-				fullPath: md.fullPath,
-				relativePath: md.relativePath,
-				fileName: md.fileName,
-			});
-		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
-	});
-}
-
-/**
- * Sets up watchers to notify the webview to re-fetch ADRs upon changing configuration settings.
- * @param panel The webview panel to send the fetched ADRs to
- */
-function watchForConfigurationChanges(panel: vscode.WebviewPanel) {
-	vscode.workspace.onDidChangeConfiguration(async (e) => {
-		if (e.affectsConfiguration("adrManager.adrDirectory")) {
-			let allAdrs: {
-				adr: ArchitecturalDecisionRecord;
-				fullPath: string;
-				relativePath: string;
-				fileName: string;
-			}[] = [];
-			(await getAllMDs()).forEach((md) => {
-				allAdrs.push({
-					adr: md2adr(md.adr),
-					fullPath: md.fullPath,
-					relativePath: md.relativePath,
-					fileName: md.fileName,
+	/**
+	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing a Markdown file in the workspace.
+	 */
+	private watchForWorkspaceChanges() {
+		this.watchMarkdownChanges();
+		vscode.workspace.onDidChangeWorkspaceFolders(
+			async (e) => {
+				let allAdrs: {
+					adr: ArchitecturalDecisionRecord;
+					fullPath: string;
+					relativePath: string;
+					fileName: string;
+				}[] = [];
+				(await getAllMDs()).forEach((md) => {
+					allAdrs.push({
+						adr: md2adr(md.adr),
+						fullPath: md.fullPath,
+						relativePath: md.relativePath,
+						fileName: md.fileName,
+					});
 				});
-			});
-			panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
-		}
-	});
+				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+			},
+			null,
+			this._disposables
+		);
+	}
+
+	/**
+	 * Sets up a watcher that notifies the specified webview panel to update the ADR list
+	 * every time a change occurs in the workspace regarding Markdown files.
+	 */
+	private watchMarkdownChanges() {
+		// Listen for file changes
+		const watcher = vscode.workspace.createFileSystemWatcher(`**/${cleanPathString(getAdrDirectoryString())}/*.md`);
+		watcher.onDidCreate(
+			async (e) => {
+				let allAdrs: {
+					adr: ArchitecturalDecisionRecord;
+					fullPath: string;
+					relativePath: string;
+					fileName: string;
+				}[] = [];
+				(await getAllMDs()).forEach((md) => {
+					allAdrs.push({
+						adr: md2adr(md.adr),
+						fullPath: md.fullPath,
+						relativePath: md.relativePath,
+						fileName: md.fileName,
+					});
+				});
+				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+			},
+			null,
+			this._disposables
+		);
+		watcher.onDidChange(
+			async (e) => {
+				let allAdrs: {
+					adr: ArchitecturalDecisionRecord;
+					fullPath: string;
+					relativePath: string;
+					fileName: string;
+				}[] = [];
+				(await getAllMDs()).forEach((md) => {
+					allAdrs.push({
+						adr: md2adr(md.adr),
+						fullPath: md.fullPath,
+						relativePath: md.relativePath,
+						fileName: md.fileName,
+					});
+				});
+				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+			},
+			null,
+			this._disposables
+		);
+		watcher.onDidDelete(
+			async (e) => {
+				let allAdrs: {
+					adr: ArchitecturalDecisionRecord;
+					fullPath: string;
+					relativePath: string;
+					fileName: string;
+				}[] = [];
+				(await getAllMDs()).forEach((md) => {
+					allAdrs.push({
+						adr: md2adr(md.adr),
+						fullPath: md.fullPath,
+						relativePath: md.relativePath,
+						fileName: md.fileName,
+					});
+				});
+				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+			},
+			null,
+			this._disposables
+		);
+	}
+
+	/**
+	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing configuration settings.
+	 */
+	private watchForConfigurationChanges() {
+		vscode.workspace.onDidChangeConfiguration(
+			async (e) => {
+				if (e.affectsConfiguration("adrManager.adrDirectory")) {
+					let allAdrs: {
+						adr: ArchitecturalDecisionRecord;
+						fullPath: string;
+						relativePath: string;
+						fileName: string;
+					}[] = [];
+					(await getAllMDs()).forEach((md) => {
+						allAdrs.push({
+							adr: md2adr(md.adr),
+							fullPath: md.fullPath,
+							relativePath: md.relativePath,
+							fileName: md.fileName,
+						});
+					});
+					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+				}
+			},
+			null,
+			this._disposables
+		);
+	}
 }

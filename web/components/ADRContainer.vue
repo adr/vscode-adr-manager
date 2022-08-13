@@ -2,7 +2,7 @@
 	<div id="container">
 		<div id="adr-box" :class="adr.adr.conforming ? 'conforming' : 'not-conforming'">
 			<div class="adr-info">
-				<h3>{{ adr.adr.title ? adr.adr.title : "(No title)" }}</h3>
+				<h3>{{ adr.adr.title ? getAdrNumber + ": " + adr.adr.title : "(No title)" }}</h3>
 				<h5>
 					<TT>{{ adr.relativePath }}</TT>
 				</h5>
@@ -35,6 +35,14 @@
 			adr: {
 				type: Object,
 				required: true,
+			},
+		},
+		computed: {
+			/**
+			 * Returns the number of the ADR.
+			 */
+			getAdrNumber() {
+				return `#${this.adr.fileName.substring(0, 4)}`;
 			},
 		},
 	});

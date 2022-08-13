@@ -632,55 +632,6 @@ async function getHighestAdrNumber(): Promise<number> {
 }
 
 /**
- * Sets up a watcher that notifies the specified webview panel to update the ADR list
- * every time a change occurs in the workspace regarding Markdown files.
- * @param panel The webview panel that will be notified of changes on Markdown files
- */
-export function watchMarkdownChanges(panel: vscode.WebviewPanel) {
-	// Listen for file changes
-	const watcher = vscode.workspace.createFileSystemWatcher("**/*.md");
-	watcher.onDidCreate(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
-			[];
-		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({
-				adr: md2adr(md.adr),
-				fullPath: md.fullPath,
-				relativePath: md.relativePath,
-				fileName: md.fileName,
-			});
-		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
-	});
-	watcher.onDidChange(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
-			[];
-		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({
-				adr: md2adr(md.adr),
-				fullPath: md.fullPath,
-				relativePath: md.relativePath,
-				fileName: md.fileName,
-			});
-		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
-	});
-	watcher.onDidDelete(async (e) => {
-		let allAdrs: { adr: ArchitecturalDecisionRecord; fullPath: string; relativePath: string; fileName: string }[] =
-			[];
-		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({
-				adr: md2adr(md.adr),
-				fullPath: md.fullPath,
-				relativePath: md.relativePath,
-				fileName: md.fileName,
-			});
-		});
-		panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
-	});
-}
-
-/**
  * Returns the path of a specified ADR relative to a specified root folder.
  * This function returns a correct path iff the specified ADR is located in the
  * specified root folder or in one of its subdirectories.
@@ -705,4 +656,21 @@ function getAdrPathRelativeFromRootFolder(adrUri: vscode.Uri): string {
 export function updateAdrDirectoryWhenClauseContext() {
 	const contextKeys = [...cleanPathString(getAdrDirectoryString()).split("/")];
 	vscode.commands.executeCommand("setContext", "vscode-adr-manager.adrDirectory", contextKeys);
+}
+
+/**
+ * Returns the number of the specified ADR file as a string, or the empty string if the specified file is not an ADR.
+ * @param fileUri The URI to the ADR file for which the ADR number should be returned
+ * @returns The number of the specified ADR file, or an empty string if the file is not an ADR
+ */
+export async function getAdrNumberFromUri(fileUri: vscode.Uri): Promise<string> {
+	const content = await vscode.workspace.fs.readFile(fileUri);
+	const md = new TextDecoder().decode(content);
+	if (!md2adr(md).conforming) {
+		return "";
+	} else {
+		const splitArray = fileUri.toString().split("/");
+		const fileName = splitArray[splitArray.length - 1];
+		return fileName.substring(0, 4);
+	}
 }
