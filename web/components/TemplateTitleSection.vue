@@ -43,6 +43,9 @@
 				title: this.titleProp,
 			};
 		},
+		mounted() {
+			this.v$.$touch();
+		},
 		validations() {
 			return {
 				title: {

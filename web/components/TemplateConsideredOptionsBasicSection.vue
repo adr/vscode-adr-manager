@@ -9,6 +9,15 @@
 			<AddOptionButton @addOption="$emit('addOption')"></AddOptionButton>
 		</div>
 		<div id="options">
+			<div id="no-options-container" v-if="consideredOptions.length === 0">
+				<h3>
+					<strong>No options available.</strong>
+				</h3>
+				<br />
+				<h3>
+					<strong>There must be one chosen option.</strong>
+				</h3>
+			</div>
 			<draggable
 				class="drag-area"
 				:list="consideredOptions"
@@ -94,6 +103,11 @@
 		@include centered-flex(column);
 		justify-content: flex-start;
 		flex-wrap: wrap;
+	}
+
+	#no-options-container {
+		@include centered-flex(column);
+		margin-top: 2rem;
 	}
 
 	.drag-area {

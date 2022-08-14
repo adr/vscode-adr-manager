@@ -7,7 +7,14 @@
 		@mouseleave="isHovered = false"
 	>
 		<h4 @click="$emit('selectOption')"><strong>Title</strong></h4>
-		<input spellcheck="true" :value="title" @input="$emit('update:title', $event.target.value)" ref="description" />
+		<input
+			spellcheck="true"
+			v-model="v$.title.$model"
+			:class="v$.title.$error ? 'invalid-input' : ''"
+			@input="$emit('update:title', $event.target.value)"
+			ref="description"
+		/>
+		<h4 class="error-message" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
 		<div id="option-description-container" @click.self="$emit('selectOption')">
 			<h4 @click="$emit('selectOption')"><strong>Description</strong></h4>
 			<textarea
@@ -96,6 +103,8 @@
 
 <script lang="ts">
 	import { defineComponent, PropType } from "vue";
+	import useValidate from "@vuelidate/core";
+	import { required } from "@vuelidate/validators";
 	import { VueDraggableNext } from "vue-draggable-next";
 	import { createShortTitle } from "../../src/plugins/utils";
 
@@ -104,8 +113,13 @@
 		components: {
 			draggable: VueDraggableNext,
 		},
+		setup() {
+			return {
+				v$: useValidate(),
+			};
+		},
 		props: {
-			title: String,
+			titleProp: String,
 			description: String,
 			prosProp: {
 				type: Array as PropType<string[]>,
@@ -118,6 +132,7 @@
 		},
 		data() {
 			return {
+				title: this.titleProp,
 				isExpanded: false,
 				isHovered: false,
 				pros: this.prosProp,
@@ -209,6 +224,17 @@
 					}
 				}
 			},
+		},
+		mounted() {
+			this.v$.$touch();
+		},
+		validations() {
+			return {
+				title: {
+					required,
+					$lazy: true,
+				},
+			};
 		},
 	});
 </script>
@@ -374,5 +400,16 @@
 
 	.invisible {
 		display: none !important;
+	}
+
+	.invalid-input,
+	.invalid-input:focus {
+		border: 1.5px solid var(--vscode-editorError-foreground) !important;
+		outline-color: var(--vscode-editorError-foreground) !important;
+	}
+
+	.error-message {
+		margin-top: 0.5rem !important;
+		color: var(--vscode-editorError-foreground);
 	}
 </style>

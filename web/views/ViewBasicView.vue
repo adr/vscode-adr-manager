@@ -1,9 +1,14 @@
 <template>
 	<div id="view">
 		<div id="basic-view-header">
-			<button id="back-button" class="secondary" @click="sendMessage('main')">
-				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
-			</button>
+			<div id="header-buttons">
+				<button id="back-button" class="secondary" @click="sendMessage('main')">
+					<div id="back-button-content">
+						<i class="codicon codicon-chevron-left"></i> Back to ADR overview
+					</div>
+				</button>
+				<button id="text-editor-button" class="secondary" @click="openEditor">Open Text Editor</button>
+			</div>
 			<div id="professional-fields-note" v-if="hasProfessionalFields">
 				<h4>
 					<strong>{{ missingFieldsNote }}</strong>
@@ -23,11 +28,11 @@
 				@invalidated="disableButton"
 			></MadrTemplateBasic>
 			<p id="basic-template-note">
-				<em
-					>Note: The fields 'Status', 'Deciders', 'Date', 'Technical Story', 'Decision Drivers', 'Option
+				<em>
+					Note: The fields 'Status', 'Deciders', 'Date', 'Technical Story', 'Decision Drivers', 'Option
 					Descriptions', 'Pros and Cons of the Options', 'Positive and Negative Consequences' and 'Links' are
-					not shonw in the basic editor mode.</em
-				>
+					not shonw in the basic editor mode.
+				</em>
 			</p>
 		</div>
 		<div class="button-group">
@@ -172,6 +177,11 @@
 		flex-shrink: 0;
 	}
 
+	#header-buttons {
+		display: flex;
+		margin-left: 1rem;
+	}
+
 	#back-button {
 		@include button-sizing;
 		@include button-styling;
@@ -185,9 +195,19 @@
 		@include centered-flex(row);
 	}
 
+	#text-editor-button {
+		@include button-sizing;
+		@include button-styling;
+		width: 10%;
+		margin: 1.5rem 1rem;
+		padding: 0.5rem 1rem;
+		background: var(--vscode-button-secondaryBackground);
+		flex-shrink: 0;
+	}
+
 	#professional-fields-note {
 		margin: auto 2rem;
-		max-width: 40%;
+		max-width: 30%;
 		color: var(--vscode-editorWarning-foreground);
 	}
 
@@ -202,11 +222,13 @@
 	#madr {
 		width: 100%;
 		overflow: auto;
+		flex-grow: 1;
+		height: auto;
 	}
 
 	#basic-template-note {
-		width: 95%;
-		margin: auto;
+		width: 70%;
+		margin: 0 2rem;
 	}
 
 	.button-group {

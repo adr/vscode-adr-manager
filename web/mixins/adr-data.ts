@@ -159,7 +159,7 @@ export default {
 			this.sendMessage("addOption");
 		},
 		/**
-		 * Sends a message to the extension to promt the user to enter a new name for the option.
+		 * Sends a message to the extension to prompt the user to enter a new name for the option.
 		 * @param option The option to edit
 		 */
 		editOption(option: { title: string; index: number }) {

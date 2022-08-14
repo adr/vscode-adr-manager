@@ -91,6 +91,7 @@
 		display: flex;
 		justify-content: space-between;
 		flex-shrink: 0;
+		margin-left: 1rem;
 	}
 
 	#back-button {
@@ -118,6 +119,7 @@
 		width: 100%;
 		overflow: auto;
 		flex-grow: 1;
+		height: auto;
 	}
 
 	.button-group-container {

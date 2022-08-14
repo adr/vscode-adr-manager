@@ -148,6 +148,12 @@ export default {
 			);
 		},
 		/**
+		 * Sends a message to the extension to open the ADR in the text editor.
+		 */
+		openEditor() {
+			this.sendMessage("requestEdit", { fullPath: this.fullPath });
+		},
+		/**
 		 * Update the height of 'Context and Problem Statement' and 'Explanation' textareas when the input gets large.
 		 */
 		updateTextAreaHeight() {

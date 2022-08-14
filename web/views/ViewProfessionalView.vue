@@ -1,9 +1,14 @@
 <template>
 	<div id="view">
 		<div id="professional-view-header">
-			<button id="back-button" class="secondary" @click="sendMessage('main')">
-				<div id="back-button-content"><i class="codicon codicon-chevron-left"></i> Back to ADR overview</div>
-			</button>
+			<div id="header-buttons">
+				<button id="back-button" class="secondary" @click="sendMessage('main')">
+					<div id="back-button-content">
+						<i class="codicon codicon-chevron-left"></i> Back to ADR overview
+					</div>
+				</button>
+				<button id="text-editor-button" class="secondary" @click="openEditor">Open Text Editor</button>
+			</div>
 			<div id="toggle-container">
 				<h4><strong>Editor Mode: </strong></h4>
 				<h4>Basic</h4>
@@ -91,6 +96,11 @@
 		flex-shrink: 0;
 	}
 
+	#header-buttons {
+		display: flex;
+		margin-left: 1rem;
+	}
+
 	#back-button {
 		@include button-sizing;
 		@include button-styling;
@@ -102,6 +112,16 @@
 
 	#back-button-content {
 		@include centered-flex(row);
+	}
+
+	#text-editor-button {
+		@include button-sizing;
+		@include button-styling;
+		width: 10%;
+		margin: 1.5rem 1rem;
+		padding: 0.5rem 1rem;
+		background: var(--vscode-button-secondaryBackground);
+		flex-shrink: 0;
 	}
 
 	#toggle-container {
@@ -116,6 +136,7 @@
 		width: 100%;
 		overflow: auto;
 		flex-grow: 1;
+		height: auto;
 	}
 
 	.buttonGroup {

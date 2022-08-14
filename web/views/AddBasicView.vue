@@ -23,7 +23,11 @@
 				@invalidated="disableButton"
 			></MadrTemplateBasic>
 			<p id="basic-template-note">
-				<em>{{ missingFieldsNote }}</em>
+				<em>
+					Note: The fields 'Status', 'Deciders', 'Date', 'Technical Story', 'Decision Drivers', 'Option
+					Descriptions', 'Pros and Cons of the Options', 'Positive and Negative Consequences' and 'Links' are
+					not shonw in the basic editor mode.
+				</em>
 			</p>
 		</div>
 		<div class="button-group-container">
@@ -166,6 +170,7 @@
 		display: flex;
 		justify-content: space-between;
 		flex-shrink: 0;
+		margin-left: 1rem;
 	}
 
 	#back-button {
@@ -197,11 +202,14 @@
 	#madr {
 		width: 100%;
 		overflow: auto;
+		flex-grow: 1;
+		height: auto;
 	}
 
 	#basic-template-note {
 		width: 95%;
 		margin: auto;
+		margin: 0 2rem;
 	}
 
 	.button-group-container {
