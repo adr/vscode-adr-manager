@@ -5,10 +5,25 @@
 		>
 			<h2>Decision Drivers</h2>
 		</TemplateHeader>
-		<draggable class="drag-area" :list="decisionDrivers" :sort="true" handle=".drivers-grabber" @update="checkMove">
-			<div v-for="(driver, index) in decisionDriversWithBlank" :key="index" class="multi-input">
+		<draggable
+			class="drag-area"
+			:list="decisionDrivers"
+			:sort="true"
+			handle=".drivers-grabber"
+			@update="
+				updateHeight();
+				checkMove;
+			"
+		>
+			<div
+				v-for="(driver, index) in decisionDriversWithBlank"
+				:key="index"
+				class="multi-input"
+				ref="decisionDrivers"
+			>
 				<i class="codicon codicon-grabber drivers-grabber" v-if="decisionDrivers[index] !== ''"></i>
-				<input
+				<textarea
+					class="auto-grow-decision-driver"
 					spellcheck="true"
 					v-model="decisionDrivers[index]"
 					@input="updateArray($event.target.value, index)"
@@ -75,7 +90,33 @@
 				this.decisionDrivers.splice(index, 1, text);
 				this.decisionDrivers = this.decisionDrivers.filter((driver) => driver !== "");
 				this.$emit("update:decisionDrivers", this.decisionDrivers);
+				this.updateHeight();
 			},
+			/**
+			 * Updated the height of the textarea based on the input.
+			 */
+			updateHeight() {
+				this.$nextTick(() => {
+					const decisionDrivers = document.querySelectorAll(
+						".auto-grow-decision-driver"
+					)! as NodeListOf<HTMLElement>;
+					decisionDrivers.forEach((driver) => {
+						driver.style.height = "auto";
+						driver.style.height = `${driver.scrollHeight}px`;
+					});
+				});
+			},
+		},
+		/**
+		 * Triggers the height update for textareas when first loading the webview (in case existing data is being loaded)
+		 */
+		mounted() {
+			//@ts-ignore
+			this.$refs.decisionDrivers.forEach((driver) => {
+				if (driver.children[1]) {
+					driver.children[1].dispatchEvent(new Event("input"));
+				}
+			});
 		},
 	});
 </script>
@@ -95,6 +136,11 @@
 		@include centered-flex(row);
 		justify-content: left;
 		margin: 0.5rem 0;
+		& .auto-grow-decision-driver {
+			height: 39px;
+			resize: none;
+			overflow-y: hidden;
+		}
 	}
 
 	.drag-area {

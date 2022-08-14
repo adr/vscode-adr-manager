@@ -10,12 +10,12 @@
 			spellcheck="true"
 			:class="v$.contextAndProblemStatement.$error ? 'invalid-input' : ''"
 			v-model="v$.contextAndProblemStatement.$model"
-			@mouseover.once="updateHeight"
 			@input="
 				updateHeight();
 				$emit('update:contextAndProblemStatement', $event.target.value);
 				$emit('validate');
 			"
+			ref="contextAndProblemStatement"
 		/>
 		<h4 class="error-message" v-for="error of v$.contextAndProblemStatement.$errors" :key="error.$uid">
 			{{ error.$message }}
@@ -52,10 +52,19 @@
 			 * Updated the height of the textarea based on the input.
 			 */
 			updateHeight() {
-				const cps = document.getElementById("auto-grow-context-problem-statement")!;
-				cps.style.height = "auto";
-				cps.style.height = `${cps.scrollHeight}px`;
+				this.$nextTick(() => {
+					const cps = document.getElementById("auto-grow-context-problem-statement")!;
+					cps.style.height = "auto";
+					cps.style.height = `${cps.scrollHeight}px`;
+				});
 			},
+		},
+		/**
+		 * Triggers the height update for textareas when first loading the webview (in case existing data is being loaded)
+		 */
+		mounted() {
+			//@ts-ignore
+			this.$refs.contextAndProblemStatement.dispatchEvent(new Event("input"));
 		},
 		validations() {
 			return {
@@ -78,7 +87,7 @@
 			height: 3rem;
 		}
 
-		&#context-and-problem-statement-container textarea {
+		& #auto-grow-context-problem-statement {
 			min-height: 6rem;
 			resize: none;
 			overflow-y: hidden;

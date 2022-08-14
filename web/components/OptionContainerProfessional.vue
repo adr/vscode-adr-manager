@@ -7,10 +7,19 @@
 		@mouseleave="isHovered = false"
 	>
 		<h4 @click="$emit('selectOption')"><strong>Title</strong></h4>
-		<input spellcheck="true" :value="title" @input="$emit('update:title', $event.target.value)" />
-		<div id="option-description-container">
-			<h4><strong>Description</strong></h4>
-			<input spellcheck="true" :value="description" @input="$emit('update:description', $event.target.value)" />
+		<input spellcheck="true" :value="title" @input="$emit('update:title', $event.target.value)" ref="description" />
+		<div id="option-description-container" @click.self="$emit('selectOption')">
+			<h4 @click="$emit('selectOption')"><strong>Description</strong></h4>
+			<textarea
+				id="auto-grow-description"
+				spellcheck="true"
+				:value="description"
+				@input="
+					updateHeight('description');
+					$emit('update:description', $event.target.value);
+				"
+				refs="description"
+			/>
 		</div>
 		<div id="pros-and-cons" @click.self="$emit('selectOption')">
 			<div id="pros-container" @click.self="$emit('selectOption')">
@@ -20,19 +29,23 @@
 					:list="pros"
 					:sort="true"
 					handle=".pros-grabber"
-					@update="checkMove('pros', $event)"
+					@update="
+						updateHeight('pros');
+						checkMove('pros', $event);
+					"
 				>
-					<div v-for="(pro, index) in prosWithBlank" :key="index" id="pros">
+					<div v-for="(pro, index) in prosWithBlank" :key="index" id="pros" ref="pros">
 						<i class="codicon codicon-grabber pros-grabber" v-if="pros[index] !== ''"></i>
-						<input
+						<textarea
+							class="auto-grow-pro"
 							spellcheck="true"
 							v-model="pros[index]"
-							@input="updateArray('pros', $event.target.value, index)"
+							@input="updateArray('pros', $event.target.value, index, 'pros')"
 						/>
 						<i
 							class="codicon codicon-close multi-input-delete-icon"
 							v-if="pros[index] !== ''"
-							@click="updateArray('pros', '', index)"
+							@click="updateArray('pros', '', index, 'pros')"
 						></i>
 					</div>
 				</draggable>
@@ -44,19 +57,23 @@
 					:list="cons"
 					:sort="true"
 					handle=".cons-grabber"
-					@update="checkMove('cons', $event)"
+					@update="
+						updateHeight('cons');
+						checkMove('cons', $event);
+					"
 				>
-					<div v-for="(con, index) in consWithBlank" :key="index" id="cons">
+					<div v-for="(con, index) in consWithBlank" :key="index" id="cons" ref="cons">
 						<i class="codicon codicon-grabber cons-grabber" v-if="cons[index] !== ''"></i>
-						<input
+						<textarea
+							class="auto-grow-con"
 							spellcheck="true"
 							v-model="cons[index]"
-							@input="updateArray('cons', $event.target.value, index)"
+							@input="updateArray('cons', $event.target.value, index, 'cons')"
 						/>
 						<i
 							class="codicon codicon-close multi-input-delete-icon"
 							v-if="cons[index] !== ''"
-							@click="updateArray('cons', '', index)"
+							@click="updateArray('cons', '', index, 'cons')"
 						></i>
 					</div>
 				</draggable>
@@ -65,7 +82,12 @@
 		<i
 			class="codicon expand-arrow"
 			:class="isExpanded ? 'codicon-chevron-down' : 'codicon-chevron-up'"
-			@click="isExpanded = !isExpanded"
+			@click="
+				isExpanded = !isExpanded;
+				updateHeight('description');
+				updateHeight('pros');
+				updateHeight('cons');
+			"
 		></i>
 		<i class="codicon codicon-grabber option-grabber"></i>
 		<i class="codicon codicon-trash delete-option-icon" @click="$emit('deleteOption')"></i>
@@ -140,7 +162,7 @@
 			/**
 			 * Updates the list of decision drivers/links.
 			 */
-			updateArray(array: string, text: string, index: number) {
+			updateArray(array: string, text: string, index: number, heightKey: string) {
 				if (array === "pros") {
 					this.pros.splice(index, 1, text);
 					this.pros = this.pros.filter((pro) => pro !== "");
@@ -149,6 +171,42 @@
 					this.cons.splice(index, 1, text);
 					this.cons = this.cons.filter((con) => con !== "");
 					this.$emit("update:cons", this.cons);
+				}
+				this.updateHeight(heightKey);
+			},
+			/**
+			 * Updated the height of the textarea based on the input.
+			 */
+			updateHeight(key: string) {
+				switch (key) {
+					case "description": {
+						this.$nextTick(() => {
+							const description = document.getElementById("auto-grow-description")!;
+							description.style.height = "auto";
+							description.style.height = `${description.scrollHeight}px`;
+						});
+						break;
+					}
+					case "pros": {
+						this.$nextTick(() => {
+							const pros = document.querySelectorAll(".auto-grow-pro") as NodeListOf<HTMLElement>;
+							pros.forEach((pros) => {
+								pros.style.height = "auto";
+								pros.style.height = `${pros.scrollHeight}px`;
+							});
+						});
+						break;
+					}
+					case "cons": {
+						this.$nextTick(() => {
+							const cons = document.querySelectorAll(".auto-grow-con") as NodeListOf<HTMLElement>;
+							cons.forEach((cons) => {
+								cons.style.height = "auto";
+								cons.style.height = `${cons.scrollHeight}px`;
+							});
+						});
+						break;
+					}
 				}
 			},
 		},
@@ -196,6 +254,14 @@
 		height: auto;
 	}
 
+	#option-description-container {
+		& #auto-grow-description {
+			height: 39px;
+			resize: none;
+			overflow-y: hidden;
+		}
+	}
+
 	#pros-and-cons {
 		display: flex;
 		margin: 1rem 0;
@@ -226,6 +292,13 @@
 		width: auto;
 		display: flex;
 		align-items: center;
+
+		& .auto-grow-pro,
+		& .auto-grow-con {
+			height: 39px;
+			resize: none;
+			overflow-y: hidden;
+		}
 	}
 
 	.drag-area {

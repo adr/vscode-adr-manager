@@ -16,13 +16,13 @@
 					spellcheck="true"
 					:class="v$.decisionOutcome.explanation.$error ? 'invalid-input' : ''"
 					v-model="v$.decisionOutcome.explanation.$model"
-					@mouseover.once="updateHeight"
 					@click.once="updateHeight"
 					@input="
 						updateHeight();
 						$emit('update:explanation', $event.target.value);
 						$emit('validate');
 					"
+					ref="explanation"
 				/>
 				<h4 class="error-message" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
 					{{ error.$message }}
@@ -82,10 +82,19 @@
 			 * Updated the height of the textarea based on the input.
 			 */
 			updateHeight() {
-				const explanation = document.getElementById("auto-grow-explanation")!;
-				explanation.style.height = "auto";
-				explanation.style.height = `${explanation.scrollHeight}px`;
+				this.$nextTick(() => {
+					const explanation = document.getElementById("auto-grow-explanation")!;
+					explanation.style.height = "auto";
+					explanation.style.height = `${explanation.scrollHeight}px`;
+				});
 			},
+		},
+		/**
+		 * Triggers the height update for textareas when first loading the webview (in case existing data is being loaded)
+		 */
+		mounted() {
+			//@ts-ignore
+			this.$refs.explanation.dispatchEvent(new Event("input"));
 		},
 		validations() {
 			return {
@@ -127,7 +136,7 @@
 		flex-direction: column;
 		width: 100%;
 
-		& textarea {
+		& #auto-grow-explanation {
 			height: 39px;
 			resize: none;
 			overflow-y: hidden;

@@ -3,10 +3,24 @@
 		<TemplateHeader :infoText="'Add references, e.g., to related ADRs.'">
 			<h2>Links</h2>
 		</TemplateHeader>
-		<draggable class="drag-area" :list="links" :sort="true" handle=".links-grabber" @update="checkMove">
-			<div v-for="(link, index) in linksWithBlank" :key="index" class="multiInput">
+		<draggable
+			class="drag-area"
+			:list="links"
+			:sort="true"
+			handle=".links-grabber"
+			@update="
+				updateHeight();
+				checkMove;
+			"
+		>
+			<div v-for="(link, index) in linksWithBlank" :key="index" class="multi-input" ref="links">
 				<i class="codicon codicon-grabber links-grabber" v-if="links[index] !== ''"></i>
-				<input spellcheck="true" v-model="links[index]" @input="updateArray($event.target.value, index)" />
+				<textarea
+					class="auto-grow-link"
+					spellcheck="true"
+					v-model="links[index]"
+					@input="updateArray($event.target.value, index)"
+				/>
 				<i
 					class="codicon codicon-close multi-input-delete-icon"
 					v-if="links[index] !== ''"
@@ -69,7 +83,31 @@
 				this.links.splice(index, 1, text);
 				this.links = this.links.filter((link) => link !== "");
 				this.$emit("update:links", this.links);
+				this.updateHeight();
 			},
+			/**
+			 * Updated the height of the textarea based on the input.
+			 */
+			updateHeight() {
+				this.$nextTick(() => {
+					const links = document.querySelectorAll(".auto-grow-link") as NodeListOf<HTMLElement>;
+					links.forEach((link) => {
+						link.style.height = "auto";
+						link.style.height = `${link.scrollHeight}px`;
+					});
+				});
+			},
+		},
+		/**
+		 * Triggers the height update for textareas when first loading the webview (in case existing data is being loaded)
+		 */
+		mounted() {
+			//@ts-ignore
+			this.$refs.links.forEach((link) => {
+				if (link.children[1]) {
+					link.children[1].dispatchEvent(new Event("input"));
+				}
+			});
 		},
 	});
 </script>
@@ -85,10 +123,15 @@
 		}
 	}
 
-	.multiInput {
+	.multi-input {
 		@include centered-flex(row);
 		justify-content: left;
 		margin: 0.5rem 0;
+		& .auto-grow-link {
+			height: 39px;
+			resize: none;
+			overflow-y: hidden;
+		}
 	}
 
 	.multi-input-delete-icon {

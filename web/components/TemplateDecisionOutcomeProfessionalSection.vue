@@ -14,12 +14,12 @@
 					spellcheck="true"
 					:class="v$.decisionOutcome.explanation.$error ? 'invalid-input' : ''"
 					v-model="v$.decisionOutcome.explanation.$model"
-					@mouseover.once="updateHeight"
 					@input="
-						updateHeight();
+						updateHeight('explanation');
 						$emit('update:explanation', $event.target.value);
 						$emit('validate');
 					"
+					ref="explanation"
 				/>
 				<h4 class="error-message" v-for="error of v$.decisionOutcome.explanation.$errors" :key="error.$uid">
 					{{ error.$message }}
@@ -38,27 +38,32 @@
 					:list="decisionOutcome.positiveConsequences"
 					:sort="true"
 					handle=".positive-consequences-grabber"
-					@update="checkMove('positiveConsequences', $event)"
+					@update="
+						updateHeight('positives');
+						checkMove('positiveConsequences', $event);
+					"
 				>
 					<div
 						v-for="(positive, index) in positiveConsequencesWithBlank"
 						:key="index"
 						class="multi-input"
 						id="positives"
+						ref="positives"
 					>
 						<i
 							class="codicon codicon-grabber positive-consequences-grabber"
 							v-if="decisionOutcome.positiveConsequences[index] !== ''"
 						></i>
-						<input
+						<textarea
+							class="auto-grow-positive-consequence"
 							spellcheck="true"
 							v-model="decisionOutcome.positiveConsequences[index]"
-							@input="updateArray('positiveConsequences', $event.target.value, index)"
+							@input="updateArray('positiveConsequences', $event.target.value, index, 'positives')"
 						/>
 						<i
 							class="codicon codicon-close multi-input-delete-icon"
 							v-if="decisionOutcome.positiveConsequences[index] !== ''"
-							@click="updateArray('positiveConsequences', '', index)"
+							@click="updateArray('positiveConsequences', '', index, 'positives')"
 						></i>
 					</div>
 				</draggable>
@@ -74,27 +79,32 @@
 					:list="decisionOutcome.negativeConsequences"
 					:sort="true"
 					handle=".negative-consequences-grabber"
-					@update="checkMove('negativeConsequences', $event)"
+					@update="
+						updateHeight('negatives');
+						checkMove('negativeConsequences', $event);
+					"
 				>
 					<div
 						v-for="(negative, index) in negativeConsequencesWithBlank"
 						:key="index"
 						class="multi-input"
 						id="negatives"
+						ref="negatives"
 					>
 						<i
 							class="codicon codicon-grabber negative-consequences-grabber"
 							v-if="decisionOutcome.negativeConsequences[index] !== ''"
 						></i>
-						<input
+						<textarea
+							class="auto-grow-negative-consequence"
 							spellcheck="true"
 							v-model="decisionOutcome.negativeConsequences[index]"
-							@input="updateArray('negativeConsequences', $event.target.value, index)"
+							@input="updateArray('negativeConsequences', $event.target.value, index, 'negatives')"
 						/>
 						<i
 							class="codicon codicon-close multi-input-delete-icon"
 							v-if="decisionOutcome.negativeConsequences[index] !== ''"
-							@click="updateArray('negativeConsequences', '', index)"
+							@click="updateArray('negativeConsequences', '', index, 'negatives')"
 						></i>
 					</div>
 				</draggable>
@@ -200,7 +210,7 @@
 			/**
 			 * Updates the list of decision drivers/links.
 			 */
-			updateArray(name: string, text: string, index: number) {
+			updateArray(name: string, text: string, index: number, heightKey: string) {
 				if (name === "positiveConsequences") {
 					this.decisionOutcome.positiveConsequences.splice(index, 1, text);
 					this.decisionOutcome.positiveConsequences = this.decisionOutcome.positiveConsequences.filter(
@@ -215,15 +225,66 @@
 					this.$emit("update:negativeConsequences", this.decisionOutcome.negativeConsequences);
 				}
 				this.$emit("updateArray");
+				this.updateHeight(heightKey);
 			},
 			/**
 			 * Updated the height of the textarea based on the input.
 			 */
-			updateHeight() {
-				const explanation = document.getElementById("auto-grow-explanation")!;
-				explanation.style.height = "auto";
-				explanation.style.height = `${explanation.scrollHeight}px`;
+			updateHeight(key: string) {
+				switch (key) {
+					case "explanation": {
+						this.$nextTick(() => {
+							const explanation = document.getElementById("auto-grow-explanation")!;
+							explanation.style.height = "auto";
+							explanation.style.height = `${explanation.scrollHeight}px`;
+						});
+						break;
+					}
+					case "positives": {
+						this.$nextTick(() => {
+							const positives = document.querySelectorAll(
+								".auto-grow-positive-consequence"
+							) as NodeListOf<HTMLElement>;
+							positives.forEach((positive) => {
+								positive.style.height = "auto";
+								positive.style.height = `${positive.scrollHeight}px`;
+							});
+						});
+						break;
+					}
+					case "negatives": {
+						this.$nextTick(() => {
+							const negatives = document.querySelectorAll(
+								".auto-grow-negative-consequence"
+							) as NodeListOf<HTMLElement>;
+							negatives.forEach((negative) => {
+								negative.style.height = "auto";
+								negative.style.height = `${negative.scrollHeight}px`;
+							});
+						});
+						break;
+					}
+				}
 			},
+		},
+		/**
+		 * Triggers the height update for textareas when first loading the webview (in case existing data is being loaded)
+		 */
+		mounted() {
+			//@ts-ignore
+			this.$refs.explanation.dispatchEvent(new Event("input"));
+			//@ts-ignore
+			this.$refs.positives.forEach((positive) => {
+				if (positive.children[1]) {
+					positive.children[1].dispatchEvent(new Event("input"));
+				}
+			});
+			//@ts-ignore
+			this.$refs.negatives.forEach((negative) => {
+				if (negative.children[1]) {
+					negative.children[1].dispatchEvent(new Event("input"));
+				}
+			});
 		},
 		validations() {
 			return {
@@ -263,7 +324,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		& textarea {
+		& #auto-grow-explanation {
 			height: 39px;
 			resize: none;
 			overflow-y: hidden;
@@ -311,6 +372,12 @@
 		@include centered-flex(row);
 		justify-content: left;
 		margin: 0.5rem 0;
+		& .auto-grow-positive-consequence,
+		& .auto-grow-negative-consequence {
+			height: 39px;
+			resize: none;
+			overflow-y: hidden;
+		}
 	}
 
 	.multi-input-delete-icon {
