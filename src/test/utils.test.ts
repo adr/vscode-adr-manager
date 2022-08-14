@@ -49,6 +49,10 @@ describe("Test MADR Title Format Match", () => {
 			"0002-use-antlr-for-parsing-adrs.md",
 			"0003-use-rollup-to-bundle-webviews.md",
 			"0004-example-madr-title.md",
+			"0005_madr_with_underscores.md",
+			"0006_madr-with_mixed-word_delimiters.md",
+			"0007-Uppercase-File-Name.md",
+			"0008_UpperCase_LetTErs_IN_WorDs.md",
 		];
 		validTitles.forEach((title) => {
 			let result = matchesMadrTitleFormat(title);
@@ -59,10 +63,11 @@ describe("Test MADR Title Format Match", () => {
 	test("Invalid MADR titles", () => {
 		let invalidTitles = [
 			"001-only-three-numbers-at-the-start.md",
-			"0002-Uppercase-Title.md",
 			"0003-not-ending-in-md.txt",
 			"0004-dash-in-the-end-.md",
-			"0005_underscores_instead_of_dashes.md",
+			"0004_underscore_in_the_end_.md",
+			"0005-title-with-#-in-its-name.md",
+			"0006-title-with-?-in-its-name.md",
 		];
 
 		invalidTitles.forEach((title) => {

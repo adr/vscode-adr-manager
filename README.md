@@ -48,7 +48,7 @@ As of now, the following commands are supported by this extension:
 <i>Note</i>: Currently, only Markdown files that meet the following criteria will be listed in this webview:
 
 1. Be located in the ADR Directory
-2. Follow the naming convention of MADR <br/>(NNNN-lowercase-title.md, in (lower) kebab-case and N corresponds to a number between 0-9)
+2. Follow the naming convention of MADR <br/>(NNNN{-,\_}random{-,\_}title.md, in kebab-case, snake_case or a combination of these two cases, as long as there is no '#' or '?' character present (due to complications when parsing URIs), and N corresponds to a number between 0-9)
 
 If the content of a potential ADR detected by the extension does not conform to MADR, an error message will be shown and the user won't be able to view the Markdown file using the provided MADR template(s).
 

@@ -119,7 +119,7 @@
 				},
 				{
 					"command": "vscode-adr-manager.viewAdrFromContextMenu",
-					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}(-[^A-Z-]+)+\\.md$/",
+					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}((-|_)[^\\s-_#?]+)+\\.md$/",
 					"group": "vscode-adr-manager"
 				}
 			]

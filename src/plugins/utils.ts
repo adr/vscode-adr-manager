@@ -47,6 +47,7 @@ export function cleanUpString(string: string): string {
  *
  * - the short description (marked with a "-"), if it has one
  * - Markdown links (marked with [...](...)), if it has any
+ * - backticks (`), if it has any
  *
  * @param title string to be shortened
  * @returns a shortened string based on the input string
@@ -112,6 +113,10 @@ export function createShortTitle(title: string): string {
 			result.substr(idxOpeningBracket + 1, idxClosingBracket - idxOpeningBracket - 1) +
 			(result.length > idxClosingRoundedBracket + 1 ? result.substr(idxClosingRoundedBracket + 1) : "");
 	}
+
+	// Strip out backticks (`)
+	result = result.replace(/`/g, "");
+
 	return result;
 }
 
@@ -200,11 +205,14 @@ export function naturalCase2titleCase(natural: string): string {
 }
 
 /**
- * Returns true iff the given string matches the format of a MADR, i.e. iff the string starts with a four-digit number, is in lower kebab-case and ends in .md.
+ * Returns true if the given string matches the format of a MADR or is similar to it,
+ * i.e. if the string starts with a four-digit number, is in kebab-case, snake_case or a combination of these two cases
+ * and ends in .md.
+ * Due to complications when parsing URIs, the characters '#' and '?' are prohibited in a file name.
  * @param name The string to be checked
  */
 export function matchesMadrTitleFormat(name: string) {
-	return name.match(/^\d{4}(-[^A-Z-]+)+\.md$/);
+	return name.match(/^\d{4}((-|_)[^\s-_#?]+)+\.md$/);
 }
 
 /**
