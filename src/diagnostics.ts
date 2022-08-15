@@ -13,7 +13,6 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 		consideredOptions: false,
 		decisionOutcome: false,
 	};
-	let yamlMarkers = 0;
 
 	const rawText = doc.getText();
 	const textLines = rawText.split(/\r\n|\n/);
