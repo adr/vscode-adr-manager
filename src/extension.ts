@@ -193,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
 async function createAdrDiagnostics(context: vscode.ExtensionContext) {
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection("adr-manager");
 	const diagnosticsHandler = async (doc: vscode.TextDocument) => {
-		const splitFilePath = doc.fileName.split("/");
+		const splitFilePath = cleanPathString(doc.fileName).split("/");
 		// only add diagnostics to ADR files
 		if (!matchesMadrTitleFormat(splitFilePath[splitFilePath.length - 1])) {
 			return;
