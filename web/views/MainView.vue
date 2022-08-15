@@ -2,14 +2,20 @@
 	<div id="main">
 		<img src="../assets/header-dark-theme.png" alt="ADR Manager Header Image" class="logo" />
 		<div id="adr-list">
-			<ADRContainer
-				v-for="(adr, index) in sortedAdrs"
-				:key="index"
-				:adr="adr"
-				@requestDelete="requestDelete(adr)"
-				@requestView="requestView(adr)"
-				@requestEdit="requestEdit(adr)"
-			></ADRContainer>
+			<div class="adr-folder" v-for="(folder, index) in nonEmptyWorkspaceFolders" :key="index">
+				<h2>
+					<strong>{{ folder }}</strong>
+				</h2>
+				<div class="adr-folder-list" v-for="(adr, adrIndex) in adrsInFolder(folder)" :key="adrIndex">
+					<ADRContainer
+						:key="index"
+						:adr="adr"
+						@requestDelete="requestDelete(adr)"
+						@requestView="requestView(adr)"
+						@requestEdit="requestEdit(adr)"
+					></ADRContainer>
+				</div>
+			</div>
 			<h1 v-if="!adrsAvailable">No ADRs detected in the workspace.</h1>
 		</div>
 
@@ -36,6 +42,7 @@
 					relativePath: string;
 					fileName: string;
 				}[],
+				workspaceFolders: [] as string[],
 			};
 		},
 		computed: {
@@ -52,6 +59,14 @@
 				});
 			},
 			/**
+			 * Returns an array of all workspace folders which contain at least one ADR.
+			 */
+			nonEmptyWorkspaceFolders() {
+				return this.workspaceFolders.filter((folder) => {
+					return this.adrsInFolder(folder).length > 0;
+				});
+			},
+			/**
 			 * Returns true iff the extension has detected at least one ADR.
 			 */
 			adrsAvailable() {
@@ -60,11 +75,18 @@
 		},
 		methods: {
 			/**
-			 * Passes a message to the extension to fetch the ADRs from all workspace folders.
+			 * Returns an array of ADRs that are located inside of the specified folder.
+			 * @param folder The folder the ADRs should be located in
 			 */
-			async fetchAdrs() {
-				this.sendMessage("fetchAdrs");
+			adrsInFolder(folder: string) {
+				return this.sortedAdrs.filter((adr) => {
+					return adr.relativePath.includes(folder);
+				});
 			},
+			/**
+			 * Sends a message to the extension to open a text editor for the specified ADR file.
+			 * @param adr The ADR for which a text editor will be opened
+			 */
 			requestEdit(adr: {
 				adr: ArchitecturalDecisionRecord;
 				fullPath: string;
@@ -73,6 +95,10 @@
 			}) {
 				this.sendMessage("requestEdit", { fullPath: adr.fullPath });
 			},
+			/**
+			 * Sends a message to the extension to initialize the deletion of the specified ADR file.
+			 * @param adr The ADR to be deleted
+			 */
 			requestDelete(adr: {
 				adr: ArchitecturalDecisionRecord;
 				fullPath: string;
@@ -81,6 +107,10 @@
 			}) {
 				this.sendMessage("requestDelete", { title: adr.adr.title, fullPath: adr.fullPath });
 			},
+			/**
+			 * Sends a message to the extension to load the viewing webview with the content of the specified ADR file.
+			 * @param adr The ADR to be openend in the ADR Manager webview
+			 */
 			requestView(adr: {
 				adr: ArchitecturalDecisionRecord;
 				fullPath: string;
@@ -101,9 +131,13 @@
 					case "fetchAdrs":
 						this.allAdrs = JSON.parse(message.adrs);
 						break;
+					case "getWorkspaceFolders":
+						this.workspaceFolders = JSON.parse(message.workspaceFolders);
+						break;
 				}
 			});
-			this.fetchAdrs();
+			this.sendMessage("fetchAdrs");
+			this.sendMessage("getWorkspaceFolders");
 		},
 	});
 </script>
@@ -142,6 +176,10 @@
 			margin-top: 5rem;
 			text-align: center;
 		}
+	}
+
+	.adr-folder {
+		margin-bottom: 2rem;
 	}
 
 	#add-adr-button {

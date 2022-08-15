@@ -1,12 +1,18 @@
 import * as vscode from "vscode";
 import { cleanPathString, getNonce } from "./plugins/utils";
 import {
+	containsOnlyRootFolders,
 	createBasicAdr,
 	createProfessionalAdr,
 	getAdrDirectoryString,
 	getAdrNumberFromUri,
+	getAllChildRootFoldersAsStrings,
 	getAllMDs,
+	getWorkspaceFolderNames,
+	getWorkspaceFolders,
+	isSingleRootWorkspace,
 	saveAdr,
+	treatAsMultiRoot,
 } from "./extension-functions";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
 import { md2adr } from "./plugins/parser";
@@ -104,6 +110,10 @@ export class WebPanel {
 							});
 						});
 						this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+						return;
+					}
+					case "getWorkspaceFolders": {
+						this.sendWorkspaceFolders();
 						return;
 					}
 					case "requestEdit": {
@@ -341,6 +351,26 @@ export class WebPanel {
 	}
 
 	/**
+	 * Sends the current workspace folder names to the webview.
+	 */
+	private async sendWorkspaceFolders() {
+		let workspaceFolders = [] as string[];
+		if (
+			isSingleRootWorkspace() &&
+			treatAsMultiRoot() &&
+			(await containsOnlyRootFolders(getWorkspaceFolders()[0].uri))
+		) {
+			workspaceFolders = await getAllChildRootFoldersAsStrings(getWorkspaceFolders()[0].uri);
+		} else {
+			workspaceFolders = getWorkspaceFolderNames();
+		}
+		this._panel.webview.postMessage({
+			command: "getWorkspaceFolders",
+			workspaceFolders: JSON.stringify(workspaceFolders),
+		});
+	}
+
+	/**
 	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing a Markdown file in the workspace.
 	 */
 	private watchForWorkspaceChanges() {
@@ -362,6 +392,7 @@ export class WebPanel {
 					});
 				});
 				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+				this.sendWorkspaceFolders();
 			},
 			null,
 			this._disposables
@@ -462,6 +493,7 @@ export class WebPanel {
 						});
 					});
 					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+					this.sendWorkspaceFolders();
 				}
 			},
 			null,

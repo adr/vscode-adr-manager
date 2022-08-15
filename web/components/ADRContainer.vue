@@ -14,7 +14,7 @@
 			</div>
 		</div>
 		<h4 v-if="!adr.adr.conforming" class="not-conforming-message" v-for="error in adr.adr.parseErrors">
-			{{ "Line " + error.line + ", Position " + error.charPosition + ": " + error.message }}
+			{{ "Parsing error at line " + error.line + ", position " + error.charPosition + ": " + error.message }}
 		</h4>
 	</div>
 </template>
@@ -72,7 +72,7 @@
 
 	.not-conforming-message {
 		color: var(--vscode-editorError-foreground);
-		margin: -1rem 0 1.5rem 0;
+		margin: -0.75rem 0 1rem 0;
 	}
 
 	.button-group {
