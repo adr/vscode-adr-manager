@@ -13,6 +13,7 @@ This VS Code extension is part of a Bachelor Thesis written at the University of
     1. [Commands](#commands)
     2. [Settings](#settings)
     3. [Menus](#menus)
+    4. [Linting](#linting)
 3. [Known Issues](#known-issues)
 
 ## Workspace Concept
@@ -87,6 +88,15 @@ As of now, this extension contributes the following settings:
 
 * `adrManager.treatSingleRootAsMultiRoot`: Specifies whether the extension should treat single-root workspaces with only subdirectories as multi-root workspaces (default: true)
 
+### Linting
+
+As of now, this extension provides linting for potential ADR files for the following cases:
+
+* If there is no header for the title
+* If there is no subheader for all other required fields of an ADR, i.e. if there is no subheader for 'Context and Problem Statement', 'Considered Options' or 'Decision Outcome'
+* If headings or subheadings are not written in title case
+* If the chosen option is not listed in the list of considered options
+* If the YAML Front Matter is not at the beginning of the ADR file
 
 ## Known Issues
 
