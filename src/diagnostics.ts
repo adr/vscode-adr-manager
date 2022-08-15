@@ -65,15 +65,6 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 		}
 	}
 
-	if (yamlMarkers > 0 && yamlMarkers % 2 !== 0) {
-		diagnostics.push({
-			severity: vscode.DiagnosticSeverity.Error,
-			message: "Invalid YAML",
-			code: "madr-invalid-yaml",
-			range: new vscode.Range(0, 0, 0, 1),
-		});
-	}
-
 	diagnostics.push(...getRequiredFieldsDiagnostics(requiredFields));
 
 	return diagnostics;
