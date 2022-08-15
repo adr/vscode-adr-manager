@@ -10,7 +10,7 @@
 				@requestView="requestView(adr)"
 				@requestEdit="requestEdit(adr)"
 			></ADRContainer>
-			<h1 v-if="sortedAdrs.length === 0">No ADRs detected in the workspace.</h1>
+			<h1 v-if="!adrsAvailable">No ADRs detected in the workspace.</h1>
 		</div>
 
 		<button id="add-adr-button" @click="sendMessage('add')">Add ADR</button>
@@ -45,8 +45,17 @@
 			 */
 			sortedAdrs() {
 				return this.allAdrs.sort((a, b) => {
-					return a.fileName.localeCompare(b.fileName, undefined, { numeric: true });
+					return (
+						a.relativePath.localeCompare(b.relativePath) ||
+						a.fileName.localeCompare(b.fileName, undefined, { numeric: true })
+					);
 				});
+			},
+			/**
+			 * Returns true iff the extension has detected at least one ADR.
+			 */
+			adrsAvailable() {
+				return this.allAdrs.length > 0;
 			},
 		},
 		methods: {

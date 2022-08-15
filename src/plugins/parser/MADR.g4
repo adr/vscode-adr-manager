@@ -9,8 +9,7 @@ start:
 		TECHNICAL_STORY_MARKER technicalStory (WS OPTIONAL_MAKER)? wslbs
 	)? (CONTEXT_AND_PROBLEM_STATEMENT wslbs)? (
 		NEWLINE contextAndProblemStatement wslbs
-	)? // Text without a heading is interpreted as context and problem statement
-	(
+	)? (
 		DECISION_DRIVERS_HEADING (WS OPTIONAL_MAKER)? wslbs decisionDrivers wslbs
 	)? (CONSIDERED_OPTIONS_HEADING wslbs consideredOptions wslbs)? (
 		DECISION_OUTCOME_HEADING wslbs decisionOutcome wslbs
@@ -103,14 +102,46 @@ SUBSUBSUBHEADING_PREFIX: '###' '#'+ ' ';
 
 // Headings
 CONTEXT_AND_PROBLEM_STATEMENT:
-	NEWLINE ('## Context and Problem Statement');
-DECISION_DRIVERS_HEADING: NEWLINE ('## Decision Drivers');
-CONSIDERED_OPTIONS_HEADING: NEWLINE ('## Considered Options');
-DECISION_OUTCOME_HEADING: NEWLINE ('## Decision Outcome');
+	NEWLINE (
+		'## Context And Problem Statement'
+		| '## Context and Problem Statement'
+		| '## Context and problem statement'
+		| '## context and problem statement'
+	);
+DECISION_DRIVERS_HEADING:
+	NEWLINE (
+		'## Decision Drivers'
+		| '## Decision drivers'
+		| '## decision drivers'
+	);
+CONSIDERED_OPTIONS_HEADING:
+	NEWLINE (
+		'## Considered Options'
+		| '## Considered options'
+		| '## considered options'
+	);
+DECISION_OUTCOME_HEADING:
+	NEWLINE (
+		'## Decision Outcome'
+		| '## Decision outcome'
+		| '## decision outcome'
+	);
 POSITIVE_CONSEQUENCES_HEADING:
-	NEWLINE ('### Positive Consequences');
+	NEWLINE (
+		'### Positive Consequences'
+		| '### Positive consequences'
+		| '### positive consequences'
+	);
 NEGATIVE_CONSEQUENCES_HEADING:
-	NEWLINE ('### Negative Consequences');
+	NEWLINE (
+		'### Negative Consequences'
+		| '### Negative consequences'
+		| '### negative consequences'
+	);
 PROS_AND_CONS_OF_THE_OPTIONS_HEADING:
-	NEWLINE ('## Pros and Cons of the Options');
-LINKS_HEADING: NEWLINE '## Links';
+	NEWLINE (
+		'## Pros and Cons of the Options'
+		| '## Pros and cons of the options'
+		| '## pros and cons of the options'
+	);
+LINKS_HEADING: NEWLINE ('## Links' | '## links');

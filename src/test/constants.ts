@@ -404,6 +404,8 @@ Which format and structure should these records follow?`,
 	{
 		md: `# Use CC0 as License
 
+## Context and Problem Statement
+
 Everything needs to be licensed, otherwise the default copyright laws apply.
 For instance, in Germany that means users may not alter anything without explicitly asking for permission.
 For more information see <https://help.github.com/articles/licensing-a-repository/>.
@@ -464,6 +466,8 @@ We want to have MADR used without any hassle and that users can just go ahead an
 	{
 		md: `# Do Not Use Numbers in Headings
 
+## Context and Problem Statement
+
 How to render the first line in an ADR?
 ADRs have to take a unique identifier.
 
@@ -517,6 +521,8 @@ ADRs have to take a unique identifier.`,
 	// madr/master/docs/adr/0005-use-dashes-in-filenames.md
 	{
 		md: `# Use Dashes in Filenames
+
+## Context and Problem Statement
 
 What is the pattern of the filename where an ADR is stored?
 

@@ -13,15 +13,8 @@
 				<button id="delete" @click="$emit('requestDelete')">Delete</button>
 			</div>
 		</div>
-		<h4 v-if="!adr.adr.conforming" class="not-conforming-message">
-			{{
-				"Line " +
-				adr.adr.parseErrors[1].line +
-				", Position " +
-				adr.adr.parseErrors[1].charPosition +
-				": " +
-				adr.adr.parseErrors[1].message
-			}}
+		<h4 v-if="!adr.adr.conforming" class="not-conforming-message" v-for="error in adr.adr.parseErrors">
+			{{ "Line " + error.line + ", Position " + error.charPosition + ": " + error.message }}
 		</h4>
 	</div>
 </template>
