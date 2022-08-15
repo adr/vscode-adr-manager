@@ -35,19 +35,6 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 			requiredFields.decisionOutcome = true;
 		}
 
-		// check for YAML
-		if (/^---$/.test(textLines[i])) {
-			if (yamlMarkers === 0 && i > 0) {
-				diagnostics.push({
-					severity: vscode.DiagnosticSeverity.Error,
-					message: "YAML Front Matter is not at the beginning of the ADR.",
-					code: "madr-yaml-not-at-the-beginning",
-					range: new vscode.Range(i, 0, i, textLines[i].length),
-				});
-			}
-			yamlMarkers++;
-		}
-
 		// check header lines
 		if (textLines[i].startsWith("#", 0)) {
 			diagnostics.push(...getHeaderDiagnostics(textLines[i], i));
