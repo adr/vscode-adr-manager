@@ -48,7 +48,10 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 		if (/^Chosen option:/i.test(textLines[i])) {
 			if (
 				consideredOptions.findIndex((option) => {
-					return createShortTitle(option) === createShortTitle(getChosenOptionFromLine(textLines[i]));
+					return (
+						createShortTitle(option.trim()) ===
+						createShortTitle(getChosenOptionFromLine(textLines[i]).trim())
+					);
 				}) === -1
 			) {
 				diagnostics.push(getInvalidChosenOptionDiagnostic(textLines[i], i));
@@ -111,7 +114,10 @@ function getRequiredFieldsDiagnostics(
 	// check if present required fields are empty
 	Object.entries(indices).forEach(([key, value]) => {
 		if (value !== -1) {
-			const indexOfNextHeaderLine = value + getIndexOfFirstHeaderLine(lines.slice(value + 1)) + 1;
+			// also check if a section is the last section of the ADR (i.e., there is no (sub)header line after it)
+			const headerIndex = getIndexOfFirstHeaderLine(lines.slice(value + 1));
+			const indexOfNextHeaderLine = value + (headerIndex !== -1 ? headerIndex : lines.length - 1) + 1;
+
 			// if section is empty
 			if (
 				!lines
@@ -208,7 +214,7 @@ function getChosenOptionFromLine(line: string): string {
 
 /**
  * Returns the index of the first header or subheader line in an array (i.e., a line that starts with the '#' symbol)
- * of strings that represent the text lines of a text document
+ * of strings that represent the text lines of a text document. Returns -1 if there is no line that starts with '#'.
  * @param lines A string array of text lines
  */
 function getIndexOfFirstHeaderLine(lines: string[]) {
