@@ -212,7 +212,7 @@ export function naturalCase2titleCase(natural: string): string {
  * @param name The string to be checked
  */
 export function matchesMadrTitleFormat(name: string) {
-	return name.match(/^\d{4}((-|_)[^\s-_#?]+)+\.md$/);
+	return name.match(/^\d{4}((-|_)[^\s-_]+)+\.md$/);
 }
 
 /**

@@ -1,10 +1,9 @@
 import * as vscode from "vscode";
-import { cleanPathString, getNonce } from "./plugins/utils";
+import { getNonce } from "./plugins/utils";
 import {
 	containsOnlyRootFolders,
 	createBasicAdr,
 	createProfessionalAdr,
-	getAdrDirectoryString,
 	getAdrNumberFromUri,
 	getAllChildRootFoldersAsStrings,
 	getAllMDs,
@@ -91,7 +90,7 @@ export class WebPanel {
 						return;
 					}
 					case "view": {
-						const fileUri = vscode.Uri.parse(e.data.fullPath);
+						const fileUri = vscode.Uri.file(e.data.fullPath);
 						await this.viewAdr(fileUri);
 					}
 					case "fetchAdrs": {
@@ -103,7 +102,7 @@ export class WebPanel {
 						return;
 					}
 					case "requestEdit": {
-						const fileUri = vscode.Uri.parse(e.data.fullPath);
+						const fileUri = vscode.Uri.file(e.data.fullPath);
 						vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fileUri));
 						return;
 					}
@@ -114,7 +113,9 @@ export class WebPanel {
 							"Cancel"
 						);
 						if (selection === "Yes") {
-							await vscode.workspace.fs.delete(vscode.Uri.parse(e.data.fullPath), { useTrash: true });
+							await vscode.workspace.fs.delete(vscode.Uri.file(e.data.fullPath), {
+								useTrash: true,
+							});
 							vscode.window.showInformationMessage("ADR deleted.");
 						}
 						return;
@@ -155,7 +156,7 @@ export class WebPanel {
 						if (uri) {
 							this._panel.webview.postMessage({
 								command: "saveSuccessful",
-								newPath: uri.toString(),
+								newPath: uri.fsPath,
 							});
 							const open = await vscode.window.showInformationMessage(
 								"ADR saved. Do you want to open the Markdown file?",
@@ -198,6 +199,16 @@ export class WebPanel {
 						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
+					case "updateFileStatus": {
+						const fileUri = vscode.Uri.file(e.data.fullPath);
+						if (!fileUri) {
+							vscode.window.showWarningMessage(
+								"The ADR file has changed unexpectedly. Returning to main webview."
+							);
+							vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
+						}
+						return;
+					}
 				}
 			},
 			null,
@@ -232,7 +243,7 @@ export class WebPanel {
 				consideredOptions: adr.consideredOptions,
 				decisionOutcome: adr.decisionOutcome,
 				links: adr.links,
-				fullPath: fileUri.toString(),
+				fullPath: fileUri.fsPath,
 			}),
 		});
 	}
@@ -243,7 +254,7 @@ export class WebPanel {
 	public dispose() {
 		WebPanel.currentPanel = undefined;
 
-		// Clean up our resources
+		// Clean up resources
 		this._panel.dispose();
 
 		while (this._disposables.length) {
@@ -383,7 +394,7 @@ export class WebPanel {
 	 */
 	private watchMarkdownChanges() {
 		// Listen for file changes
-		const watcher = vscode.workspace.createFileSystemWatcher(`**/${cleanPathString(getAdrDirectoryString())}/*.md`);
+		const watcher = vscode.workspace.createFileSystemWatcher(`**/*.md`);
 		watcher.onDidCreate(
 			async (e) => {
 				this.fetchAdrs();
@@ -394,6 +405,7 @@ export class WebPanel {
 		watcher.onDidChange(
 			async (e) => {
 				this.fetchAdrs();
+				this._panel.webview.postMessage({ command: "updateFileStatus" });
 			},
 			null,
 			this._disposables
@@ -401,6 +413,7 @@ export class WebPanel {
 		watcher.onDidDelete(
 			async (e) => {
 				this.fetchAdrs();
+				this._panel.webview.postMessage({ command: "updateFileStatus" });
 			},
 			null,
 			this._disposables
@@ -428,7 +441,7 @@ export class WebPanel {
 	 */
 	private async fetchAdrs() {
 		// only refetch ADRs if the main webview is currently open
-		if (this._panel.title !== "ADR Manager") {
+		if (WebPanel.currentPanel && this._panel.title !== "ADR Manager") {
 			return;
 		}
 		const allAdrs: {

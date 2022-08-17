@@ -29,6 +29,98 @@ export default {
 			fullPath: "",
 		};
 	},
+	computed: {
+		/**
+		 * Returns true iff the current data has at least one non-required field which is not empty.
+		 */
+		hasProfessionalFields() {
+			return (
+				this.status ||
+				this.deciders ||
+				this.date ||
+				this.technicalStory ||
+				this.decisionDrivers.length ||
+				this.consideredOptions.some((option) => {
+					return option.description || option.pros.length || option.cons.length;
+				}) ||
+				this.decisionOutcome.positiveConsequences.length ||
+				this.decisionOutcome.negativeConsequences.length ||
+				this.links.length
+			);
+		},
+		/**
+		 * Returns a string listing all non-empty fields that are not shown in the Basic editor
+		 */
+		missingFieldsNote() {
+			let fields = "";
+			if (this.status) {
+				fields = fields.concat("'Status', ");
+			}
+			if (this.deciders) {
+				fields = fields.concat("'Deciders', ");
+			}
+			if (this.date) {
+				fields = fields.concat("'Date', ");
+			}
+			if (this.technicalStory) {
+				fields = fields.concat("'Technical Story', ");
+			}
+			if (
+				this.decisionDrivers.filter((driver) => {
+					driver !== "";
+				}).length
+			) {
+				fields = fields.concat("'Decision Drivers', ");
+			}
+			if (
+				this.consideredOptions.some((option) => {
+					return option.description;
+				})
+			) {
+				fields = fields.concat("'Option Descriptions', ");
+			}
+			if (
+				this.consideredOptions.some((option) => {
+					return (
+						option.pros.filter((option) => {
+							option !== "";
+						}).length ||
+						option.cons.filter((option) => {
+							option !== "";
+						}).length
+					);
+				})
+			) {
+				fields = fields.concat("'Pros and Cons of the Options', ");
+			}
+			if (
+				this.decisionOutcome.positiveConsequences.filter((positive) => {
+					positive !== "";
+				}).length ||
+				this.decisionOutcome.negativeConsequences.filter((negative) => {
+					negative !== "";
+				}).length
+			) {
+				fields = fields.concat("'Positive and Negative Consequences', ");
+			}
+			if (
+				this.links.filter((link) => {
+					link !== "";
+				}).length
+			) {
+				fields = fields.concat("'Links', ");
+			}
+
+			if (fields !== "") {
+				let string = "The fields ";
+				string = string.concat(fields.substring(0, fields.length - 2));
+				string = string.concat(" of this ADR have values, but are not shown in the basic editor mode.");
+				return string;
+			} else {
+				return "";
+			}
+		},
+	},
 	methods: {
 		/**
 		 * Saves the values of the MADR template in the view component's data variables.
@@ -180,6 +272,10 @@ export default {
 				}
 				case "saveSuccessful": {
 					this.fullPath = message.newPath;
+					break;
+				}
+				case "updateFileStatus": {
+					this.sendMessage("updateFileStatus", { fullPath: this.fullPath });
 					break;
 				}
 			}

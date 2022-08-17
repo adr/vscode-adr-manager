@@ -328,7 +328,7 @@ export async function getMDsFromFolder(
 			const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folderUri, name));
 			adrs.push({
 				adr: new TextDecoder().decode(content),
-				fullPath: vscode.Uri.joinPath(folderUri, name).toString(),
+				fullPath: vscode.Uri.joinPath(folderUri, name).fsPath,
 				relativePath: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
 				fileName: name,
 			});
@@ -437,7 +437,7 @@ export async function saveAdr(fields: {
 	fullPath: string;
 }): Promise<vscode.Uri | undefined> {
 	// Update, convert ADR object to Markdown and save
-	const fileUri = vscode.Uri.parse(fields.fullPath);
+	const fileUri = vscode.Uri.file(fields.fullPath);
 	if (fileUri) {
 		const adr = md2adr(new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri)));
 		adr.update({
@@ -523,9 +523,9 @@ export function getAdrObjectFromFields(fields: {
  * @returns A new URI with the replaced file name
  */
 function getRenamedUri(fileUri: vscode.Uri, newName: string): vscode.Uri {
-	const uriWithoutTitleInFileName = fileUri.toString().substring(0, fileUri.toString().lastIndexOf("/") + 6);
+	const uriWithoutTitleInFileName = fileUri.fsPath.substring(0, fileUri.fsPath.lastIndexOf("/") + 6);
 	const newUriString = uriWithoutTitleInFileName.concat(naturalCase2snakeCase(newName), ".md");
-	return vscode.Uri.parse(newUriString);
+	return vscode.Uri.file(newUriString);
 }
 
 /**

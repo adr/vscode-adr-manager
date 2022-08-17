@@ -66,8 +66,6 @@ describe("Test MADR Title Format Match", () => {
 			"0003-not-ending-in-md.txt",
 			"0004-dash-in-the-end-.md",
 			"0004_underscore_in_the_end_.md",
-			"0005-title-with-#-in-its-name.md",
-			"0006-title-with-?-in-its-name.md",
 		];
 
 		invalidTitles.forEach((title) => {
