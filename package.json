@@ -128,7 +128,13 @@
 					"group": "vscode-adr-manager"
 				}
 			]
-		}
+		},
+		"snippets": [
+			{
+				"language": "markdown",
+				"path": "./snippets.json"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
