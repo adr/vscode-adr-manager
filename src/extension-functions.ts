@@ -241,6 +241,19 @@ export async function adrDirectoryExists(folderUri: vscode.Uri) {
 }
 
 /**
+ * Creates an ADR Directory inside of the specified root folder, if it does not already have an ADR Directory.
+ * @param folderUri The root folder URI where the ADR Directory will be created
+ */
+async function createAdrDirectory(folderUri: vscode.Uri) {
+	if (await adrDirectoryExists(folderUri)) {
+		return;
+	}
+
+	const adrDirectoryUri = vscode.Uri.joinPath(folderUri, getAdrDirectoryString());
+	await vscode.workspace.fs.createDirectory(adrDirectoryUri);
+}
+
+/**
  * Fills the specified directory with README, an ADR template and a sample ADR.
  * @param folderUri The URI of the directory to be filled
  */
@@ -565,9 +578,15 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 					{ title: "Choose the folder to save the ADR to:" }
 				);
 				if (childRootFolder) {
-					const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(
-						title
-					)}.md`;
+					const childRootFolderUri = vscode.Uri.joinPath(getWorkspaceFolders()[0].uri, childRootFolder);
+					if (!(await adrDirectoryExists(childRootFolderUri))) {
+						await createAdrDirectory(childRootFolderUri);
+					}
+					const fileName = `${_.padStart(
+						(await getHighestAdrNumber(childRootFolderUri)) + 1,
+						4,
+						"0"
+					)}-${naturalCase2snakeCase(title)}.md`;
 					const fileUri = vscode.Uri.joinPath(
 						getWorkspaceFolders()[0].uri,
 						childRootFolder,
@@ -588,9 +607,14 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 				}
 			} else {
 				// "Real" single-root workspace
-				const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(
-					title
-				)}.md`;
+				if (!(await adrDirectoryExists(getWorkspaceFolders()[0].uri))) {
+					await createAdrDirectory(getWorkspaceFolders()[0].uri);
+				}
+				const fileName = `${_.padStart(
+					(await getHighestAdrNumber(getWorkspaceFolders()[0].uri)) + 1,
+					4,
+					"0"
+				)}-${naturalCase2snakeCase(title)}.md`;
 				const fileUri = vscode.Uri.joinPath(getWorkspaceFolders()[0].uri, getAdrDirectoryString(), fileName);
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
 				// Show success message and potentially open file in separate editor
@@ -607,9 +631,14 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 			// Multi-root workspace
 			const destinationFolder = await vscode.window.showWorkspaceFolderPick();
 			if (destinationFolder) {
-				const fileName = `${_.padStart((await getHighestAdrNumber()) + 1, 4, "0")}-${naturalCase2snakeCase(
-					title
-				)}.md`;
+				if (!(await adrDirectoryExists(destinationFolder.uri))) {
+					await createAdrDirectory(destinationFolder.uri);
+				}
+				const fileName = `${_.padStart(
+					(await getHighestAdrNumber(destinationFolder.uri)) + 1,
+					4,
+					"0"
+				)}-${naturalCase2snakeCase(title)}.md`;
 				const fileUri = vscode.Uri.joinPath(destinationFolder.uri, getAdrDirectoryString(), fileName);
 				await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(md));
 				// Show success message and potentially open file in separate editor
@@ -627,17 +656,22 @@ async function saveMarkdownToAdrDirectory(md: string, title: string) {
 }
 
 /**
- * Returns the highest number ADR of all ADRs detected in the current workspace.
- * @returns The highest number of all ADRs in all ADR directories of the workspace
+ * Returns the highest ADR number of the ADR Directory of the specified root folder.
+ * @returns The highest ADR number of the ADR Directory in the specified root folder.
  */
-async function getHighestAdrNumber(): Promise<number> {
-	const allAdrs = await getAllMDs();
+async function getHighestAdrNumber(folderUri: vscode.Uri): Promise<number> {
+	const adrFolderUri = vscode.Uri.joinPath(folderUri, getAdrDirectoryString());
+	const allAdrs = await getMDsFromFolder(adrFolderUri);
 	const titleNumbers = allAdrs.map((md) => {
 		return Number.parseInt(
 			md.fileName.substring(md.fileName.lastIndexOf("/") + 1, md.fileName.lastIndexOf("/") + 5)
 		);
 	});
-	return titleNumbers.sort((a, b) => a - b)[titleNumbers.length - 1];
+	return (
+		titleNumbers.sort(function (a, b) {
+			return a - b;
+		})[titleNumbers.length - 1] || -1
+	);
 }
 
 /**
