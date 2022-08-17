@@ -200,14 +200,12 @@ export class WebPanel {
 						return;
 					}
 					case "updateFileStatus": {
-						const fileUri = vscode.Uri.file(e.data.fullPath);
-						if (!fileUri) {
-							vscode.window.showWarningMessage(
-								"The ADR file has changed unexpectedly. Returning to main webview."
-							);
+						try {
+							const tryRead = await vscode.workspace.fs.readFile(vscode.Uri.file(e.data.fullPath));
+						} catch (FileSystemError) {
+							vscode.window.showErrorMessage("The ADR file has changed unexpectedly.");
 							vscode.commands.executeCommand("vscode-adr-manager.openMainWebView");
 						}
-						return;
 					}
 				}
 			},
@@ -357,6 +355,10 @@ export class WebPanel {
 	 * Sends the current workspace folder names to the webview.
 	 */
 	private async sendWorkspaceFolders() {
+		// only need to update if the main webview is currently showing
+		if (this._panel.title !== "ADR Manager") {
+			return;
+		}
 		let workspaceFolders = [] as string[];
 		if (
 			isSingleRootWorkspace() &&
@@ -398,6 +400,7 @@ export class WebPanel {
 		watcher.onDidCreate(
 			async (e) => {
 				this.fetchAdrs();
+				this.sendWorkspaceFolders();
 			},
 			null,
 			this._disposables
@@ -405,7 +408,10 @@ export class WebPanel {
 		watcher.onDidChange(
 			async (e) => {
 				this.fetchAdrs();
-				this._panel.webview.postMessage({ command: "updateFileStatus" });
+				this.sendWorkspaceFolders();
+				if (this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
+					this._panel.webview.postMessage({ command: "updateFileStatus" });
+				}
 			},
 			null,
 			this._disposables
@@ -413,7 +419,10 @@ export class WebPanel {
 		watcher.onDidDelete(
 			async (e) => {
 				this.fetchAdrs();
-				this._panel.webview.postMessage({ command: "updateFileStatus" });
+				this.sendWorkspaceFolders();
+				if (this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
+					this._panel.webview.postMessage({ command: "updateFileStatus" });
+				}
 			},
 			null,
 			this._disposables
