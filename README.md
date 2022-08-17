@@ -49,7 +49,7 @@ As of now, the following commands are supported by this extension:
 <i>Note</i>: Currently, only Markdown files that meet the following criteria will be listed in this webview:
 
 1. Be located in the ADR Directory
-2. Follow the naming convention of MADR <br/>(NNNN{-,\_}random{-,\_}title.md, in kebab-case, snake_case or a combination of these two cases, as long as there is no '#' or '?' character present (due to complications when parsing URIs), and N corresponds to a number between 0-9)
+2. Follow the naming convention of MADR <br/>(NNNN{-,\_}random{-,\_}title.md, in kebab-case, snake_case or a combination of these two cases, and N corresponds to a number between 0-9)
 
 If the content of a potential ADR detected by the extension does not conform to MADR, an error message will be shown and the user won't be able to view the Markdown file using the provided MADR template(s).
 
@@ -57,7 +57,7 @@ If the content of a potential ADR detected by the extension does not conform to 
 The extension chooses the basic or the professional MADR template according to the user's preferences configured in the user/workspace settings.<br/>
 If the user is working in a multi-root workspace (or a multi-root-like workspace), the extension will ask the user in which ADR Directory of which root folder the newly created ADR should be saved to.
 
-* `Open ADR Manager On This File`: When having a Markdown file opened, prompts the extension to view the Markdown file using the MADR template(s) provided by the extension.<br/>
+* `Open ADR Manager On This File`: Only when a Markdown file is open: Prompts the extension to view the Markdown file using the MADR template(s) provided by the extension.<br/>
 This command is not bound to the ADR Directory, i.e., the user may execute this command on an ADR even if it's not located inside of (an) ADR Directory.<br/>
 This command only works if the content of the Markdown file conforms to MADR.
 
@@ -88,15 +88,24 @@ As of now, this extension contributes the following settings:
 
 * `adrManager.treatSingleRootAsMultiRoot`: Specifies whether the extension should treat single-root workspaces with only subdirectories as multi-root workspaces (default: true)
 
+* `adrManager.showDiagnostics`: Specifies if the extension shows diagnostics in the text editor when working on ADR files (default: true)
+
 ### Linting
 
 As of now, this extension provides linting for potential ADR files for the following cases:
 
 * If there is no header for the title
 * If there is no subheader for all other required fields of an ADR, i.e. if there is no subheader for 'Context and Problem Statement', 'Considered Options' or 'Decision Outcome'
+* If a required section, excluding the title, (i.e., 'Context and Problem Statement', 'Considered Options' or 'Decision Outcome') is empty
 * If headings or subheadings are not written in title case
 * If the chosen option is not listed in the list of considered options
-* If the YAML Front Matter is not at the beginning of the ADR file
+
+### Snippets
+
+As of now, this extension contributes the following snippets that can be inserted when typing certain keywords in a text editor:
+
+* `Basic ADR Template`: Inserts a template with only the required fields of a MADR (keywords: `basic-madr`, `adr`)
+* `Professional ADR Template`: Inserts a template with all fields of a MADR (keywords: `professional-madr`, `adr`)
 
 ## Known Issues
 
