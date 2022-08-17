@@ -4,6 +4,7 @@ import {
 	containsOnlyRootFolders,
 	createBasicAdr,
 	createProfessionalAdr,
+	getAdrDirectoryString,
 	getAdrNumberFromUri,
 	getAllChildRootFoldersAsStrings,
 	getAllMDs,
@@ -99,6 +100,10 @@ export class WebPanel {
 					}
 					case "getWorkspaceFolders": {
 						this.sendWorkspaceFolders();
+						return;
+					}
+					case "getAdrDirectory": {
+						this.sendAdrDirectory();
 						return;
 					}
 					case "requestEdit": {
@@ -373,6 +378,18 @@ export class WebPanel {
 			command: "getWorkspaceFolders",
 			workspaceFolders: JSON.stringify(workspaceFolders),
 		});
+	}
+
+	/**
+	 * Send the current name of the ADR Directory to the webview.
+	 */
+	private sendAdrDirectory() {
+		// only need to update if the main webview is currently showing
+		if (this._panel.title !== "ADR Manager") {
+			return;
+		}
+
+		this._panel.webview.postMessage({ command: "getAdrDirectory", adrDirectory: getAdrDirectoryString() });
 	}
 
 	/**

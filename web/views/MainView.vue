@@ -2,7 +2,7 @@
 	<div id="main">
 		<img src="../assets/header-dark-theme.png" alt="ADR Manager Header Image" class="logo" />
 		<div id="adr-list">
-			<div class="adr-folder" v-for="(folder, index) in nonEmptyWorkspaceFolders" :key="index">
+			<div class="adr-folder" v-for="(folder, index) in nonEmptySortedWorkspaceFolders" :key="index">
 				<h2>
 					<strong>{{ folder }}</strong>
 				</h2>
@@ -28,6 +28,7 @@
 	import ADRContainer from "../components/ADRContainer.vue";
 	import vscode from "../mixins/vscode-api-mixin";
 	import { ArchitecturalDecisionRecord } from "../../src/plugins/classes";
+	import { cleanPathString } from "../../src/plugins/utils";
 
 	export default defineComponent({
 		components: {
@@ -43,6 +44,7 @@
 					fileName: string;
 				}[],
 				workspaceFolders: [] as string[],
+				adrDirectory: "",
 			};
 		},
 		computed: {
@@ -61,10 +63,14 @@
 			/**
 			 * Returns an array of all workspace folders which contain at least one ADR.
 			 */
-			nonEmptyWorkspaceFolders() {
-				return this.workspaceFolders.filter((folder) => {
-					return this.adrsInFolder(folder).length > 0;
-				});
+			nonEmptySortedWorkspaceFolders() {
+				return this.workspaceFolders
+					.filter((folder) => {
+						return this.adrsInFolder(folder).length > 0;
+					})
+					.sort((a, b) => {
+						return a.localeCompare(b);
+					});
 			},
 			/**
 			 * Returns true iff the extension has detected at least one ADR.
@@ -80,7 +86,7 @@
 			 */
 			adrsInFolder(folder: string) {
 				return this.sortedAdrs.filter((adr) => {
-					return adr.relativePath.includes(folder);
+					return adr.relativePath.includes(cleanPathString(folder + "/" + this.adrDirectory));
 				});
 			},
 			/**
@@ -128,16 +134,23 @@
 			window.addEventListener("message", (event) => {
 				const message = event.data;
 				switch (message.command) {
-					case "fetchAdrs":
+					case "fetchAdrs": {
 						this.allAdrs = JSON.parse(message.adrs);
 						break;
-					case "getWorkspaceFolders":
+					}
+					case "getWorkspaceFolders": {
 						this.workspaceFolders = JSON.parse(message.workspaceFolders);
 						break;
+					}
+					case "getAdrDirectory": {
+						this.adrDirectory = message.adrDirectory;
+						break;
+					}
 				}
 			});
 			this.sendMessage("fetchAdrs");
 			this.sendMessage("getWorkspaceFolders");
+			this.sendMessage("getAdrDirectory");
 		},
 	});
 </script>
