@@ -3,9 +3,12 @@
 		<TemplateHeader :infoText="'Add an explanation for the chosen option.'">
 			<h2>Decision Outcome</h2>
 		</TemplateHeader>
-		<h3 id="chosen-option-text">
-			Chosen Option: <b>{{ chosenOptionText }}</b>
-		</h3>
+		<div id="chosen-option-container">
+			<h3 id="chosen-option-text">
+				Chosen Option: <b>{{ chosenOptionText }}</b>
+			</h3>
+			<h3 id="chosen-option-error" v-if="!decisionOutcome.chosenOption">There must be one chosen option</h3>
+		</div>
 		<div id="explanation">
 			<h3>because</h3>
 			<div id="explanation-input-container">
@@ -306,8 +309,18 @@
 <style lang="scss" scoped>
 	@use "../static/mixins.scss" as *;
 
+	#chosen-option-container {
+		display: flex;
+		align-items: baseline;
+	}
+
 	#chosen-option-text {
 		margin-top: 2rem;
+	}
+
+	#chosen-option-error {
+		color: var(--vscode-editorError-foreground);
+		margin-left: 1.5rem;
 	}
 
 	#explanation {

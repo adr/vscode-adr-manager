@@ -11,11 +11,7 @@
 		<div id="options">
 			<div id="no-options-container" v-if="consideredOptions.length === 0">
 				<h3>
-					<strong>No options available.</strong>
-				</h3>
-				<br />
-				<h3>
-					<strong>There must be one chosen option.</strong>
+					<strong>No options available</strong>
 				</h3>
 			</div>
 			<draggable
