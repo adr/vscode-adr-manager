@@ -96,26 +96,6 @@
 			TemplateLinksSection,
 		},
 		mixins: [vscode, adrData],
-		mounted() {
-			// add listeners to receive data from extension
-			window.addEventListener("message", (event) => {
-				const message = event.data;
-				switch (message.command) {
-					case "addOption":
-						this.consideredOptions.push({ title: message.option, description: "", pros: [], cons: [] });
-						if (this.consideredOptions.length === 1) {
-							this.selectOption(0);
-						}
-						break;
-					case "fetchAdrValues":
-						this.fillFields(JSON.parse(message.adr));
-						break;
-					case "saveSuccessful":
-						this.fullPath = message.newPath;
-						break;
-				}
-			});
-		},
 	});
 </script>
 

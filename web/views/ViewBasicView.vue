@@ -108,18 +108,33 @@
 				}
 				if (
 					this.consideredOptions.some((option) => {
-						return option.pros.length || option.cons.length;
+						return (
+							option.pros.filter((option) => {
+								option !== "";
+							}).length ||
+							option.cons.filter((option) => {
+								option !== "";
+							}).length
+						);
 					})
 				) {
 					fields = fields.concat("'Pros and Cons of the Options', ");
 				}
 				if (
-					this.decisionOutcome.positiveConsequences.length ||
-					this.decisionOutcome.negativeConsequences.length
+					this.decisionOutcome.positiveConsequences.filter((positive) => {
+						positive !== "";
+					}).length ||
+					this.decisionOutcome.negativeConsequences.filter((negative) => {
+						negative !== "";
+					}).length
 				) {
 					fields = fields.concat("'Positive and Negative Consequences', ");
 				}
-				if (this.links.length) {
+				if (
+					this.links.filter((link) => {
+						link !== "";
+					}).length
+				) {
 					fields = fields.concat("'Links', ");
 				}
 

@@ -328,7 +328,7 @@ export async function getMDsFromFolder(
 			const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folderUri, name));
 			adrs.push({
 				adr: new TextDecoder().decode(content),
-				fullPath: vscode.Uri.joinPath(folderUri, name).path,
+				fullPath: vscode.Uri.joinPath(folderUri, name).toString(),
 				relativePath: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
 				fileName: name,
 			});

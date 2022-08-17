@@ -14,6 +14,7 @@
 				$emit('update:title', $event.target.value);
 				$emit('validate');
 			"
+			ref="title"
 		/>
 		<h4 class="error-message" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
 	</div>
@@ -44,7 +45,8 @@
 			};
 		},
 		mounted() {
-			this.v$.$touch();
+			//@ts-ignore
+			this.$refs.title.dispatchEvent(new Event("input"));
 		},
 		validations() {
 			return {

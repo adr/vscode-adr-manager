@@ -169,4 +169,20 @@ export default {
 			});
 		},
 	},
+	mounted() {
+		// add listeners to receive data from extension
+		window.addEventListener("message", (event) => {
+			const message = event.data;
+			switch (message.command) {
+				case "fetchAdrValues": {
+					this.getInput(JSON.parse(message.adr));
+					break;
+				}
+				case "saveSuccessful": {
+					this.fullPath = message.newPath;
+					break;
+				}
+			}
+		});
+	},
 };

@@ -95,21 +95,7 @@ export class WebPanel {
 						await this.viewAdr(fileUri);
 					}
 					case "fetchAdrs": {
-						const allAdrs: {
-							adr: ArchitecturalDecisionRecord;
-							fullPath: string;
-							relativePath: string;
-							fileName: string;
-						}[] = [];
-						(await getAllMDs()).forEach((md) => {
-							allAdrs.push({
-								adr: md2adr(md.adr),
-								fullPath: md.fullPath,
-								relativePath: md.relativePath,
-								fileName: md.fileName,
-							});
-						});
-						this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+						this.fetchAdrs();
 						return;
 					}
 					case "getWorkspaceFolders": {
@@ -167,7 +153,10 @@ export class WebPanel {
 					case "saveAdr": {
 						const uri = await saveAdr(JSON.parse(e.data).adr);
 						if (uri) {
-							this._panel.webview.postMessage({ command: "saveSuccessful", newPath: uri.toString() });
+							this._panel.webview.postMessage({
+								command: "saveSuccessful",
+								newPath: uri.toString(),
+							});
 							const open = await vscode.window.showInformationMessage(
 								"ADR saved. Do you want to open the Markdown file?",
 								"Yes",
@@ -181,11 +170,13 @@ export class WebPanel {
 					}
 					case "switchAddViewBasicToProfessional": {
 						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-professional");
+						// restore data from before the switch
 						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
 					case "switchAddViewProfessionalToBasic": {
 						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-basic");
+						// restore data from before the switch
 						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
@@ -196,13 +187,14 @@ export class WebPanel {
 							"",
 							"view-professional"
 						);
+						// restore data from before the switch
 						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
-
 						return;
 					}
 					case "switchViewingViewProfessionalToBasic": {
 						// mdString argument not needed since the editor mode is specified
 						vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", "", "view-basic");
+						// restore data from before the switch
 						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
@@ -377,21 +369,7 @@ export class WebPanel {
 		this.watchMarkdownChanges();
 		vscode.workspace.onDidChangeWorkspaceFolders(
 			async (e) => {
-				let allAdrs: {
-					adr: ArchitecturalDecisionRecord;
-					fullPath: string;
-					relativePath: string;
-					fileName: string;
-				}[] = [];
-				(await getAllMDs()).forEach((md) => {
-					allAdrs.push({
-						adr: md2adr(md.adr),
-						fullPath: md.fullPath,
-						relativePath: md.relativePath,
-						fileName: md.fileName,
-					});
-				});
-				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: allAdrs });
+				this.fetchAdrs();
 				this.sendWorkspaceFolders();
 			},
 			null,
@@ -408,63 +386,21 @@ export class WebPanel {
 		const watcher = vscode.workspace.createFileSystemWatcher(`**/${cleanPathString(getAdrDirectoryString())}/*.md`);
 		watcher.onDidCreate(
 			async (e) => {
-				let allAdrs: {
-					adr: ArchitecturalDecisionRecord;
-					fullPath: string;
-					relativePath: string;
-					fileName: string;
-				}[] = [];
-				(await getAllMDs()).forEach((md) => {
-					allAdrs.push({
-						adr: md2adr(md.adr),
-						fullPath: md.fullPath,
-						relativePath: md.relativePath,
-						fileName: md.fileName,
-					});
-				});
-				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+				this.fetchAdrs();
 			},
 			null,
 			this._disposables
 		);
 		watcher.onDidChange(
 			async (e) => {
-				let allAdrs: {
-					adr: ArchitecturalDecisionRecord;
-					fullPath: string;
-					relativePath: string;
-					fileName: string;
-				}[] = [];
-				(await getAllMDs()).forEach((md) => {
-					allAdrs.push({
-						adr: md2adr(md.adr),
-						fullPath: md.fullPath,
-						relativePath: md.relativePath,
-						fileName: md.fileName,
-					});
-				});
-				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+				this.fetchAdrs();
 			},
 			null,
 			this._disposables
 		);
 		watcher.onDidDelete(
 			async (e) => {
-				let allAdrs: {
-					adr: ArchitecturalDecisionRecord;
-					fullPath: string;
-					relativePath: string;
-					fileName: string;
-				}[] = [];
-				(await getAllMDs()).forEach((md) => {
-					allAdrs.push({
-						adr: md2adr(md.adr),
-						fullPath: md.fullPath,
-						relativePath: md.relativePath,
-						fileName: md.fileName,
-					});
-				});
-				this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+				this.fetchAdrs();
 			},
 			null,
 			this._disposables
@@ -478,26 +414,37 @@ export class WebPanel {
 		vscode.workspace.onDidChangeConfiguration(
 			async (e) => {
 				if (e.affectsConfiguration("adrManager.adrDirectory")) {
-					let allAdrs: {
-						adr: ArchitecturalDecisionRecord;
-						fullPath: string;
-						relativePath: string;
-						fileName: string;
-					}[] = [];
-					(await getAllMDs()).forEach((md) => {
-						allAdrs.push({
-							adr: md2adr(md.adr),
-							fullPath: md.fullPath,
-							relativePath: md.relativePath,
-							fileName: md.fileName,
-						});
-					});
-					this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+					this.fetchAdrs();
 					this.sendWorkspaceFolders();
 				}
 			},
 			null,
 			this._disposables
 		);
+	}
+
+	/**
+	 * Sends a message to the webview containing the data of all ADRs detected by this extension.
+	 */
+	private async fetchAdrs() {
+		// only refetch ADRs if the main webview is currently open
+		if (this._panel.title !== "ADR Manager") {
+			return;
+		}
+		const allAdrs: {
+			adr: ArchitecturalDecisionRecord;
+			fullPath: string;
+			relativePath: string;
+			fileName: string;
+		}[] = [];
+		(await getAllMDs()).forEach((md) => {
+			allAdrs.push({
+				adr: md2adr(md.adr),
+				fullPath: md.fullPath,
+				relativePath: md.relativePath,
+				fileName: md.fileName,
+			});
+		});
+		this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 	}
 }

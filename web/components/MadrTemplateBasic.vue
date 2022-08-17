@@ -65,13 +65,7 @@
 			window.addEventListener("message", (event) => {
 				const message = event.data;
 				switch (message.command) {
-					case "addOption":
-						this.consideredOptions.push({ title: message.option, description: "", pros: [], cons: [] });
-						if (this.consideredOptions.length === 1) {
-							this.selectOption(0);
-						}
-						break;
-					case "requestBasicOptionEdit":
+					case "requestBasicOptionEdit": {
 						if (message.newTitle) {
 							const oldTitle = this.consideredOptions[message.index].title;
 							this.consideredOptions[message.index].title = message.newTitle;
@@ -80,12 +74,7 @@
 							}
 						}
 						break;
-					case "fetchAdrValues":
-						this.fillFields(JSON.parse(message.adr));
-						break;
-					case "saveSuccessful":
-						this.fullPath = message.newPath;
-						break;
+					}
 				}
 			});
 		},
