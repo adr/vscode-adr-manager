@@ -65,11 +65,6 @@
 					"pattern": "^([^?*:\"<>|]+[\\/]?)+$",
 					"patternErrorMessage": "Invalid directory. Avoid using the following characters:\n? * : \" < > |"
 				},
-				"adrManager.treatSingleRootAsMultiRoot": {
-					"type": "boolean",
-					"default": true,
-					"description": "Specifies whether ADR Manager treats single-root workspaces with only subdirectories like multi-root workspaces"
-				},
 				"adrManager.editorMode.addAdrEditorMode": {
 					"type": "string",
 					"default": "basic",
@@ -97,6 +92,16 @@
 						"Automatically select the least sufficient editor mode based on the displayed MADR"
 					],
 					"description": "Specifies the grade of detail of the MADR template when editing an existing MADR"
+				},
+				"adrManager.showDiagnostics": {
+					"type": "boolean",
+					"default": true,
+					"description": "Specifies whether ADR Manager displays diagnostics when viewing potential ADRs in the text editor"
+				},
+				"adrManager.treatSingleRootAsMultiRoot": {
+					"type": "boolean",
+					"default": true,
+					"description": "Specifies whether ADR Manager treats single-root workspaces with only subdirectories like multi-root workspaces"
 				}
 			}
 		},

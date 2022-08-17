@@ -15,10 +15,11 @@ import {
 	treatAsMultiRoot,
 	getAllMDs,
 	getAdrDirectoryString,
+	isDiagnosticsEnabled,
 } from "./extension-functions";
 import { WebPanel } from "./WebPanel";
 import { md2adr } from "./plugins/parser";
-import { getDiagnostics } from "./diagnostics";
+import { getDiagnostics } from "./diagnostics/diagnostics";
 import { AdrManagerCodeActionProvider } from "./AdrManagerCodeActionProvider";
 
 /**
@@ -195,23 +196,34 @@ async function createAdrDiagnostics(context: vscode.ExtensionContext) {
 	const diagnosticsHandler = async (doc: vscode.TextDocument) => {
 		const splitFilePath = cleanPathString(doc.fileName).split("/");
 		// only add diagnostics to ADR files
-		if (!matchesMadrTitleFormat(splitFilePath[splitFilePath.length - 1])) {
+		if (!isDiagnosticsEnabled() || !matchesMadrTitleFormat(splitFilePath[splitFilePath.length - 1])) {
+			diagnosticCollection.clear();
 			return;
 		}
 		const diagnostics = await getDiagnostics(doc);
 		diagnosticCollection.set(doc.uri, diagnostics);
 	};
+
+	// set up event listeners
 	const didOpen = vscode.workspace.onDidOpenTextDocument((doc) => diagnosticsHandler(doc));
 	const didChange = vscode.workspace.onDidChangeTextDocument((e) => diagnosticsHandler(e.document));
+	const didUpdateConfiguration = vscode.workspace.onDidChangeConfiguration(async (e) => {
+		if (e.affectsConfiguration("adrManager.showDiagnostics")) {
+			for (const document of vscode.workspace.textDocuments) {
+				await diagnosticsHandler(document);
+			}
+		}
+	});
 	const codeActionProvider = vscode.languages.registerCodeActionsProvider(
 		"markdown",
 		new AdrManagerCodeActionProvider()
 	);
 
+	// add diagnostics if VS Code opens with an active text editor
 	if (vscode.window.activeTextEditor) {
 		await diagnosticsHandler(vscode.window.activeTextEditor.document);
 	}
-	context.subscriptions.push(diagnosticCollection, didOpen, didChange, codeActionProvider);
+	context.subscriptions.push(diagnosticCollection, didOpen, didChange, didUpdateConfiguration, codeActionProvider);
 }
 
 /**
@@ -224,4 +236,15 @@ export function updateWhenClauseContexts() {
 	// Add custom when clause context for the current ADR Directory
 	const contextKeys = [...cleanPathString(getAdrDirectoryString()).split("/")];
 	vscode.commands.executeCommand("setContext", "vscode-adr-manager.adrDirectory", contextKeys);
+}
+
+/**
+ * Frees up resources upon deactivating the extension.
+ * @param context The context of the extension (automatically provided by the extension)
+ */
+export function deactivate(context: vscode.ExtensionContext) {
+	WebPanel.currentPanel?.dispose();
+	context.subscriptions.forEach((disposable) => {
+		disposable.dispose();
+	});
 }

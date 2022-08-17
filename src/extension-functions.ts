@@ -33,7 +33,7 @@ export function getAdrDirectoryString(): string {
 }
 
 /**
- * Returns if the user wants the extension to treat single-root workspaces with only subdirectories like multi-root workspaces.
+ * Returns true iff the user wants the extension to treat single-root workspaces with only subdirectories like multi-root workspaces.
  * Defaults to true if the extension received an undefined value.
  * @returns The ADR Directory specified by the user
  */
@@ -57,6 +57,15 @@ export function getAddEditorMode(): string {
  */
 export function getViewEditorMode(): string {
 	return vscode.workspace.getConfiguration("adrManager.editorMode").get("viewAdrEditorMode") ?? "sufficient";
+}
+
+/**
+ * Returns true iff the user wants the extension to display diagnostics related to MADR in ADR files.
+ * Defaults to true if the extension received an undefined value.
+ * @returns The ADR Directory specified by the user
+ */
+export function isDiagnosticsEnabled(): boolean {
+	return vscode.workspace.getConfiguration("adrManager").get("showDiagnostics") ?? true;
 }
 
 /**
