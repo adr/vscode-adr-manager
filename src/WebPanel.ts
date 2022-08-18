@@ -23,7 +23,7 @@ export class WebPanel {
 	 */
 	public static currentPanel: WebPanel | undefined;
 
-	public static readonly viewType = "ADR Manager";
+	public static readonly viewType = "adrManager";
 
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;

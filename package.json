@@ -19,7 +19,12 @@
 		"ADR, MADR, Manager"
 	],
 	"activationEvents": [
-		"onStartupFinished"
+		"onStartupFinished",
+		"onLanguage:markdown",
+		"onWebviewPanel:adrManager",
+		"onCommand:vscode-adr-manager.openMainWebView",
+		"onCommand:vscode-adr-manager.openAddAdrWebView",
+		"onCommand:vscode-adr-manager.viewInAdrManager"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
