@@ -141,7 +141,7 @@ export function snakeCase2naturalCase(snake: string): string {
  * @param {string} natural - a string in natural case
  */
 export function naturalCase2snakeCase(natural: string): string {
-	return natural.trim().toLowerCase().split(" ").join("-");
+	return natural.trim().toLowerCase().replace(/  +/g, " ").split(" ").join("-");
 }
 
 /**
@@ -212,7 +212,7 @@ export function naturalCase2titleCase(natural: string): string {
  * @param name The string to be checked
  */
 export function matchesMadrTitleFormat(name: string) {
-	return name.match(/^\d{4}((-|_)[^\s-_]+)+\.md$/);
+	return name.match(/^\d{4}((-|_)[^\s-_?*:\"<>|/\\]+)+\.md$/);
 }
 
 /**

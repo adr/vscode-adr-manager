@@ -119,7 +119,7 @@
 <script lang="ts">
 	import { defineComponent, PropType } from "vue";
 	import useVuelidate from "@vuelidate/core";
-	import { required } from "@vuelidate/validators";
+	import { helpers, required } from "@vuelidate/validators";
 	import { VueDraggableNext } from "vue-draggable-next";
 	import TemplateHeader from "./TemplateHeader.vue";
 	import { createShortTitle } from "../../src/plugins/utils";
@@ -297,7 +297,7 @@
 						$lazy: true,
 					},
 					explanation: {
-						required,
+						required: helpers.withMessage("Explanation is required", required),
 						$lazy: true,
 					},
 				},

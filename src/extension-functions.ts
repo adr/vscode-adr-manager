@@ -341,7 +341,7 @@ export async function getMDsFromFolder(
 			const content = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folderUri, name));
 			adrs.push({
 				adr: new TextDecoder().decode(content),
-				fullPath: vscode.Uri.joinPath(folderUri, name).fsPath,
+				fullPath: vscode.Uri.joinPath(folderUri, name).path,
 				relativePath: getAdrPathRelativeFromRootFolder(vscode.Uri.joinPath(folderUri, name)),
 				fileName: name,
 			});
@@ -536,7 +536,7 @@ export function getAdrObjectFromFields(fields: {
  * @returns A new URI with the replaced file name
  */
 function getRenamedUri(fileUri: vscode.Uri, newName: string): vscode.Uri {
-	const uriWithoutTitleInFileName = fileUri.fsPath.substring(0, fileUri.fsPath.lastIndexOf("/") + 6);
+	const uriWithoutTitleInFileName = fileUri.path.substring(0, fileUri.path.lastIndexOf("/") + 6);
 	const newUriString = uriWithoutTitleInFileName.concat(naturalCase2snakeCase(newName), ".md");
 	return vscode.Uri.file(newUriString);
 }

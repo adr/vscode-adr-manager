@@ -23,8 +23,12 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import useValidate from "@vuelidate/core";
-	import { required } from "@vuelidate/validators";
+	import { required, helpers } from "@vuelidate/validators";
 	import TemplateHeader from "./TemplateHeader.vue";
+
+	const noInvalidCharacters = (value: string) => {
+		return !value.match(/[?*:\"<>|/\\]/);
+	};
 
 	export default defineComponent({
 		name: "TemplateTitleSection",
@@ -51,7 +55,11 @@
 		validations() {
 			return {
 				title: {
-					required,
+					required: helpers.withMessage("Title is required", required),
+					noInvalidCharacters: helpers.withMessage(
+						'Title must not include the following characters: ? * : " < > | / \\',
+						noInvalidCharacters
+					),
 					$lazy: true,
 				},
 			};

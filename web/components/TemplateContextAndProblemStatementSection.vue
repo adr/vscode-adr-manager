@@ -26,7 +26,7 @@
 <script lang="ts">
 	import { defineComponent } from "vue";
 	import useValidate from "@vuelidate/core";
-	import { required } from "@vuelidate/validators";
+	import { helpers, required } from "@vuelidate/validators";
 	import TemplateHeader from "./TemplateHeader.vue";
 
 	export default defineComponent({
@@ -69,7 +69,7 @@
 		validations() {
 			return {
 				contextAndProblemStatement: {
-					required,
+					required: helpers.withMessage("Context and Problem Statement is required", required),
 					$lazy: true,
 				},
 			};

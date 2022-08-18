@@ -124,7 +124,7 @@
 				},
 				{
 					"command": "vscode-adr-manager.viewAdrFromContextMenu",
-					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}((-|_)[^\\s-_#?]+)+\\.md$/",
+					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}((-|_)[^\\s-_?*:\"<>|/\\]+)+\\.md$/",
 					"group": "vscode-adr-manager"
 				}
 			]
@@ -132,7 +132,7 @@
 		"snippets": [
 			{
 				"language": "markdown",
-				"path": "./snippets.json"
+				"path": "./snippets/markdown.json"
 			}
 		]
 	},

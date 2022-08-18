@@ -104,7 +104,7 @@
 <script lang="ts">
 	import { defineComponent, PropType } from "vue";
 	import useValidate from "@vuelidate/core";
-	import { required } from "@vuelidate/validators";
+	import { helpers, required } from "@vuelidate/validators";
 	import { VueDraggableNext } from "vue-draggable-next";
 	import { createShortTitle } from "../../src/plugins/utils";
 
@@ -231,7 +231,7 @@
 		validations() {
 			return {
 				title: {
-					required,
+					required: helpers.withMessage("Option Title is required", required),
 					$lazy: true,
 				},
 			};

@@ -161,7 +161,7 @@ export class WebPanel {
 						if (uri) {
 							this._panel.webview.postMessage({
 								command: "saveSuccessful",
-								newPath: uri.fsPath,
+								newPath: uri.path,
 							});
 							const open = await vscode.window.showInformationMessage(
 								"ADR saved. Do you want to open the Markdown file?",
@@ -246,7 +246,7 @@ export class WebPanel {
 				consideredOptions: adr.consideredOptions,
 				decisionOutcome: adr.decisionOutcome,
 				links: adr.links,
-				fullPath: fileUri.fsPath,
+				fullPath: fileUri.path,
 			}),
 		});
 	}
