@@ -132,7 +132,7 @@
 		"snippets": [
 			{
 				"language": "markdown",
-				"path": "./snippets/markdown.json"
+				"path": "./snippets/snippets.json"
 			}
 		]
 	},
