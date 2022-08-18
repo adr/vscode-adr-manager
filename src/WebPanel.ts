@@ -357,6 +357,103 @@ export class WebPanel {
 	}
 
 	/**
+	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing a Markdown file in the workspace.
+	 */
+	private watchForWorkspaceChanges() {
+		this.watchForMarkdownChanges();
+		vscode.workspace.onDidChangeWorkspaceFolders(
+			async (e) => {
+				this.fetchAdrs();
+				this.sendWorkspaceFolders();
+			},
+			null,
+			this._disposables
+		);
+	}
+
+	/**
+	 * Sets up a watcher that notifies the specified webview panel to update the ADR list
+	 * every time a change occurs in the workspace regarding Markdown files.
+	 */
+	private watchForMarkdownChanges() {
+		const fileWatcher = vscode.workspace.createFileSystemWatcher(`**/*.md`);
+		this._disposables.push(fileWatcher);
+
+		fileWatcher.onDidCreate(
+			async (e) => {
+				this.fetchAdrs();
+				this.sendWorkspaceFolders();
+			},
+			null,
+			this._disposables
+		);
+		fileWatcher.onDidChange(
+			async (e) => {
+				this.fetchAdrs();
+				this.sendWorkspaceFolders();
+				if (this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
+					this._panel.webview.postMessage({ command: "updateFileStatus" });
+				}
+			},
+			null,
+			this._disposables
+		);
+		fileWatcher.onDidDelete(
+			async (e) => {
+				this.fetchAdrs();
+				this.sendWorkspaceFolders();
+				if (this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
+					this._panel.webview.postMessage({ command: "updateFileStatus" });
+				}
+			},
+			null,
+			this._disposables
+		);
+	}
+
+	/**
+	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing configuration settings.
+	 */
+	private watchForConfigurationChanges() {
+		vscode.workspace.onDidChangeConfiguration(
+			async (e) => {
+				if (e.affectsConfiguration("adrManager.adrDirectory")) {
+					this.fetchAdrs();
+					this.sendWorkspaceFolders();
+					this.sendAdrDirectory();
+				}
+			},
+			null,
+			this._disposables
+		);
+	}
+
+	/**
+	 * Sends a message to the webview containing the data of all ADRs detected by this extension.
+	 */
+	private async fetchAdrs() {
+		// only refetch ADRs if the main webview is currently open
+		if (WebPanel.currentPanel && this._panel.title !== "ADR Manager") {
+			return;
+		}
+		const allAdrs: {
+			adr: ArchitecturalDecisionRecord;
+			fullPath: string;
+			relativePath: string;
+			fileName: string;
+		}[] = [];
+		(await getAllMDs()).forEach((md) => {
+			allAdrs.push({
+				adr: md2adr(md.adr),
+				fullPath: md.fullPath,
+				relativePath: md.relativePath,
+				fileName: md.fileName,
+			});
+		});
+		this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
+	}
+
+	/**
 	 * Sends the current workspace folder names to the webview.
 	 */
 	private async sendWorkspaceFolders() {
@@ -390,100 +487,5 @@ export class WebPanel {
 		}
 
 		this._panel.webview.postMessage({ command: "getAdrDirectory", adrDirectory: getAdrDirectoryString() });
-	}
-
-	/**
-	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing a Markdown file in the workspace.
-	 */
-	private watchForWorkspaceChanges() {
-		this.watchMarkdownChanges();
-		vscode.workspace.onDidChangeWorkspaceFolders(
-			async (e) => {
-				this.fetchAdrs();
-				this.sendWorkspaceFolders();
-			},
-			null,
-			this._disposables
-		);
-	}
-
-	/**
-	 * Sets up a watcher that notifies the specified webview panel to update the ADR list
-	 * every time a change occurs in the workspace regarding Markdown files.
-	 */
-	private watchMarkdownChanges() {
-		// Listen for file changes
-		const watcher = vscode.workspace.createFileSystemWatcher(`**/*.md`);
-		watcher.onDidCreate(
-			async (e) => {
-				this.fetchAdrs();
-				this.sendWorkspaceFolders();
-			},
-			null,
-			this._disposables
-		);
-		watcher.onDidChange(
-			async (e) => {
-				this.fetchAdrs();
-				this.sendWorkspaceFolders();
-				if (this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
-					this._panel.webview.postMessage({ command: "updateFileStatus" });
-				}
-			},
-			null,
-			this._disposables
-		);
-		watcher.onDidDelete(
-			async (e) => {
-				this.fetchAdrs();
-				this.sendWorkspaceFolders();
-				if (this._panel.title.startsWith("ADR Manager - View ADR", 0)) {
-					this._panel.webview.postMessage({ command: "updateFileStatus" });
-				}
-			},
-			null,
-			this._disposables
-		);
-	}
-
-	/**
-	 * Sets up watchers to notify the webview to re-fetch ADRs upon changing configuration settings.
-	 */
-	private watchForConfigurationChanges() {
-		vscode.workspace.onDidChangeConfiguration(
-			async (e) => {
-				if (e.affectsConfiguration("adrManager.adrDirectory")) {
-					this.fetchAdrs();
-					this.sendWorkspaceFolders();
-				}
-			},
-			null,
-			this._disposables
-		);
-	}
-
-	/**
-	 * Sends a message to the webview containing the data of all ADRs detected by this extension.
-	 */
-	private async fetchAdrs() {
-		// only refetch ADRs if the main webview is currently open
-		if (WebPanel.currentPanel && this._panel.title !== "ADR Manager") {
-			return;
-		}
-		const allAdrs: {
-			adr: ArchitecturalDecisionRecord;
-			fullPath: string;
-			relativePath: string;
-			fileName: string;
-		}[] = [];
-		(await getAllMDs()).forEach((md) => {
-			allAdrs.push({
-				adr: md2adr(md.adr),
-				fullPath: md.fullPath,
-				relativePath: md.relativePath,
-				fileName: md.fileName,
-			});
-		});
-		this._panel.webview.postMessage({ command: "fetchAdrs", adrs: JSON.stringify(allAdrs) });
 	}
 }
