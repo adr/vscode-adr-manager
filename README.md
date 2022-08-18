@@ -102,7 +102,7 @@ As of now, this extension provides linting for potential ADR files for the follo
 
 ### Snippets
 
-As of now, this extension contributes the following snippets that can be inserted when typing certain keywords in a text editor:
+As of now, this extension contributes the following snippets that can be inserted using IntelliSense or when typing certain keywords in a text editor:
 
 * `Basic ADR Template`: Inserts a template with only the required fields of a MADR (keywords: `basic-madr`, `adr`)
 * `Professional ADR Template`: Inserts a template with all fields of a MADR (keywords: `professional-madr`, `adr`)
