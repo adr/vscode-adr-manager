@@ -277,6 +277,8 @@ export default {
 					if (this.consideredOptions.length === 1) {
 						this.selectOption(0);
 					}
+					this.validate("consideredOptions");
+					this.validate("chosenOption");
 					break;
 				}
 				case "fetchAdrValues": {

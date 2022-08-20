@@ -1,5 +1,6 @@
 # Changes
 
+* 0.1.1 - Bugfixes
 * 0.1.0 - Ready for evaluation: Added more diagnostics, added snippets for generating basic and professional ADRs, ADRs may now contain '#' in their titles, bugfixes
 * 0.0.4 - Added some basic linting rules using diagnostics, UI changes
 * 0.0.3 - Several UI changes, loosened criteria for detecting ADRs 
