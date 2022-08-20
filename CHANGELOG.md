@@ -1,4 +1,4 @@
-# Changes
+# Changelog
 
 * 0.1.1 - Bugfixes
 * 0.1.0 - Ready for evaluation: Added more diagnostics, added snippets for generating basic and professional ADRs, ADRs may now contain '#' in their titles, bugfixes

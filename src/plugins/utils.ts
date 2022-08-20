@@ -181,7 +181,7 @@ export function naturalCase2titleCase(natural: string): string {
 	let uppers = ["ID", "TV", "ADR", "CC0", "MADR"];
 
 	let str = natural.replace(/([^\W_]+[^\s-]*) */g, (txt) => {
-		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
+		return txt.charAt(0).toUpperCase() + txt.substring(1);
 	});
 
 	for (let i = 0, j = lowers.length; i < j; i++) {
