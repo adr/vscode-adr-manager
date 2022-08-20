@@ -38,7 +38,13 @@
 					"
 					@selectOption="$emit('selectOption', index)"
 					@deleteOption="$emit('deleteOption', index)"
-					@update:title="if (selectedIndex === index) $emit('selectOption', index);"
+					@update:title="
+						if (selectedIndex === index) $emit('selectOption', index);
+						$emit('validate');
+					"
+					@update:description="$emit('validate')"
+					@update:pros="$emit('validate')"
+					@update:cons="$emit('validate')"
 				></OptionContainerProfessional>
 			</draggable>
 			<div id="rearrange-message-container" v-if="consideredOptions.length >= 2">

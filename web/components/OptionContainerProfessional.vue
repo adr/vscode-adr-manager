@@ -12,7 +12,6 @@
 			v-model="v$.title.$model"
 			:class="v$.title.$error ? 'invalid-input' : ''"
 			@input="$emit('update:title', $event.target.value)"
-			ref="description"
 		/>
 		<h4 class="error-message" v-for="error of v$.title.$errors" :key="error.$uid">{{ error.$message }}</h4>
 		<div id="option-description-container" @click.self="$emit('selectOption')">
@@ -25,7 +24,6 @@
 					updateHeight('description');
 					$emit('update:description', $event.target.value);
 				"
-				refs="description"
 			/>
 		</div>
 		<div id="pros-and-cons" @click.self="$emit('selectOption')">

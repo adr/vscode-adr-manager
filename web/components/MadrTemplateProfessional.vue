@@ -45,6 +45,10 @@
 			@selectOption="selectOption"
 			@deleteOption="deleteOption"
 			@checkSelection="checkSelection"
+			@validate="
+				validate('consideredOptions');
+				validate('chosenOption');
+			"
 			:key="dataFetched"
 		></TemplateConsideredOptionsProfessionalSection>
 		<hr />
