@@ -73,6 +73,8 @@
 								this.selectOption(message.index);
 							}
 						}
+						this.validate("consideredOptions");
+						this.validate("chosenOption");
 						break;
 					}
 				}
