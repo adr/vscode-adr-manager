@@ -667,11 +667,14 @@ async function getHighestAdrNumber(folderUri: vscode.Uri): Promise<number> {
 			md.fileName.substring(md.fileName.lastIndexOf("/") + 1, md.fileName.lastIndexOf("/") + 5)
 		);
 	});
-	return (
-		titleNumbers.sort(function (a, b) {
-			return a - b;
-		})[titleNumbers.length - 1] || -1
-	);
+	const highestNumber = titleNumbers.sort(function (a, b) {
+		return a - b;
+	})[titleNumbers.length - 1];
+	if (!highestNumber && highestNumber !== 0) {
+		return -1;
+	} else {
+		return highestNumber;
+	}
 }
 
 /**

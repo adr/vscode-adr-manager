@@ -1,5 +1,6 @@
 # Changelog
 
+* 0.1.3 - Bugfix for wrongfully determining highest ADR number when the current highest number is 0
 * 0.1.2 - Bugfix specifically for detecting title case headings
 * 0.1.1 - Several bugfixes
 * 0.1.0 - Ready for evaluation: Added more diagnostics, added snippets for generating basic and professional ADRs, ADRs may now contain '#' in their titles, bugfixes
