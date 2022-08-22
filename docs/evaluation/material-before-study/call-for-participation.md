@@ -4,7 +4,10 @@ Hello! My name is Steven Chen and I am currently writing my Bachelor's thesis at
 
 I am looking for software professionals to test my extension of the ADR Manager as an IDE plugin which provides ADR management features based on local folders instead of GitHub repositories. 
 
-Participants should bring a basic understanding and experience in the general use of ADRs and be familiar with the workflow of VS Code, e.g., VS Code features such as executing commands using the command palette must not be foreign to the participant. Experience in using MADR is beneficial, but is not strictly required.
+Participants should bring a basic understanding and experience in the use of ADRs. Particular experience in using MADR is beneficial, but is not strictly required.
+Participants should also be familiar with the core features and the workflow of the VS Code IDE.
+
+To save some time in the study, I would kindly ask participants to familiarize themselves with the features of the ADR extension before the study. For this, I have created a [repository](https://github.com/stevenchencb/vscode-adr-manager-introduction) which briefly introduces the current features of the extension.
 
 \<Sign-up (maybe online)\>
 
@@ -26,7 +29,7 @@ This study is split into two parts:
 
 The estimated time for the study is between 40 and 60 minutes.
 
-For this study, I kindly ask you to share your screen and also think aloud while solving the given tasks. I would also like to ask you for your permission to record the meeting, including the shared screen and the audio of the meeting.
+For this study, I would kindly ask you to share your screen and also think aloud while solving the given tasks. I would also like to ask you for your permission to record the meeting, including the shared screen and the audio of the meeting.
 
 The recording will be used to create a case description for each participant which highlights the most important statement of the study with regard to the VS Code extension.
 The case description will be anonymized and the recording will then be destroyed. The anonymized case descriptions will then be the sole basis for the analysis.
