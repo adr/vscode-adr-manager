@@ -189,6 +189,7 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 		const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, getAdrDirectoryString());
 		await vscode.workspace.fs.createDirectory(adrFolderUri);
 		await fillAdrDirectory(adrFolderUri);
+		vscode.window.showInformationMessage("ADR Directory initialized.");
 	} else {
 		const selection = await vscode.window.showInformationMessage(
 			"The ADR Directory already exists. Do you want to fill the directory with boilerplate Markdown files?",
@@ -198,9 +199,9 @@ export async function initializeAdrDirectory(rootFolderUri: vscode.Uri) {
 		if (selection === "Yes") {
 			const adrFolderUri = vscode.Uri.joinPath(rootFolderUri, getAdrDirectoryString());
 			await fillAdrDirectory(adrFolderUri);
+			vscode.window.showInformationMessage("ADR Directory initialized.");
 		}
 	}
-	vscode.window.showInformationMessage("ADR Directory initialized.");
 }
 
 /**
