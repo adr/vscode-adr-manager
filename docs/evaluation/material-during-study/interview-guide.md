@@ -4,6 +4,7 @@
 
 Die folgenden Abschnitte beschreiben eine grobe Struktur des Interviews, die während der Studie befolgt werden kann (aber nicht muss).
 
+
 ### Allgemeines (bevor Aufgaben gelöst werden)
 
 * Beruf/Rolle:
@@ -16,9 +17,17 @@ Die folgenden Abschnitte beschreiben eine grobe Struktur des Interviews, die wä
   * Erfahrung mit den web-basierten ADR Manager: 
 
 
+### Persönliches Feedback für das VS Code Plugin für den ADR Manager (Freitext)
+
+* a
+* b
+* c
+* ...
+
+
 ### System Usability Scale
 
-For jedes Item der System Usability Scale wird eine Punktzahl von 1 bis 5 vergeben, wobei eine 1 für 'Stimmt auf keine Fall zu' und eine 5 für 'Stimme auf jeden Fall zu' steht.
+For jedes Item der System Usability Scale wird eine Punktzahl von 1 bis 5 vergeben, wobei eine 1 für 'Stimme auf keine Fall zu' und eine 5 für 'Stimme auf jeden Fall zu' steht.
 
 1. Ich denke, dass ich das System regelmäßig verwenden möchte: X
 2. Ich fand das System unnötig komplex: X
@@ -32,18 +41,12 @@ For jedes Item der System Usability Scale wird eine Punktzahl von 1 bis 5 vergeb
 10. Ich musste viele Dinge lernen, ehe ich mit dem System durchstarten konnte: X
 
 
-### Feedback für das VS Code Plugin für den ADR Manager
-
-* a
-* b
-* c
-* ...
-
 
 
 ## English
 
 The following sections describe a loose structure of the interview that can be followed during the study (not mandatory).
+
 
 ### General (before tasks)
 
@@ -55,6 +58,14 @@ The following sections describe a loose structure of the interview that can be f
   * Experience in MADR: 
   * Experience with ADR tooling: 
   * Experience with web-based ADR Manager: 
+
+
+### Personal feedback for the VS Code Extension of the ADR Manager (free form)
+
+* a
+* b
+* c
+* ...
 
 
 ### System Usability Scale
@@ -72,9 +83,3 @@ For each item in the System Usability Scale (SUS), choose a number from 1 to 5 w
 9. I felt very confident using the system: X
 10. I needed to learn a lot of things before I could get going with this system: X
 
-### Feedback for the VS Code Extension of the ADR Manager
-
-* a
-* b
-* c
-* ...
