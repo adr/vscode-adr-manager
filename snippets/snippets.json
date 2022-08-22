@@ -1,8 +1,7 @@
 {
     "Generate Basic MADR": {
         "prefix": [
-            "basic-madr",
-            "adr"
+            "basic-madr"
         ],
         "body": [
             "# ${1:{short title of solved problem and solution\\}}",
@@ -26,8 +25,7 @@
     },
     "Generate Professional MADR": {
         "prefix": [
-            "professional-madr",
-            "adr"
+            "professional-madr"
         ],
         "body": [
             "# ${1:{short title of solved problem and solution\\}}",

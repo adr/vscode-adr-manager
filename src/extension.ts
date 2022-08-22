@@ -163,16 +163,23 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand("vscode-adr-manager.viewAdrFromContextMenu", async (uri: vscode.Uri) => {
 			const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
-			if (!WebPanel.currentPanel) {
-				WebPanel.createOrShow(context.extensionUri, "main");
-			}
-			WebPanel.currentPanel!.viewAdr(uri);
-			if (
-				!(await getAllMDs()).some((md) => {
-					return md.adr === mdString;
-				})
-			) {
-				vscode.window.showWarningMessage("This ADR is not inside of the ADR Directory.");
+			const adr = md2adr(mdString);
+			if (!adr.conforming) {
+				vscode.window.showErrorMessage(
+					"The requested Markdown file does not conform to MADR, please edit the file such that it conforms to MADR."
+				);
+			} else {
+				if (!WebPanel.currentPanel) {
+					WebPanel.createOrShow(context.extensionUri, "main");
+				}
+				WebPanel.currentPanel!.viewAdr(uri);
+				if (
+					!(await getAllMDs()).some((md) => {
+						return md.adr === mdString;
+					})
+				) {
+					vscode.window.showWarningMessage("This ADR is not inside of the ADR Directory.");
+				}
 			}
 		})
 	);

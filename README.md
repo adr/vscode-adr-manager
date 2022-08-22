@@ -61,12 +61,12 @@ If the user is working in a multi-root workspace (or a multi-root-like workspace
 This command is not bound to the ADR Directory, i.e., the user may execute this command on an ADR even if it's not located inside of (an) ADR Directory.<br/>
 This command only works if the content of the Markdown file conforms to MADR.
 
+* `Change ADR Directory`: Upon executing this command, the extension will ask the user to enter a new path to the ADR Directory. This path must be a path relative to the root folder(s).<br/>
+Alternatively, this can be configured in the user/workspace settings.
+
 * `Initialize ADR Directory`: Upon running this command, the extension will generate the ADR Directory specified in the settings. In addition, the files "0000-use-markdown-architectural-decision-records.md", "adr-template.md" and "README.md" are created inside the ADR Directory as boilerplate. <br/>
 If the ADR Directory already exists in the workspace folder, the extension will ask the user if he wants to generate the boilerplate files or not.<br/>
 If the user is working in a multi-root workspace (or  a multi-root-like workspace), the extension will ask the user for the root folder in which the ADR Directory should be initialized.
-
-* `Change ADR Directory`: Upon executing this command, the extension will ask the user to enter a new path to the ADR Directory. This path must be a path relative to the root folder(s).<br/>
-Alternatively, this can be configured in the user/workspace settings.
 
 ### Menus
 
@@ -74,21 +74,6 @@ As of now, this extension contributes the following menus:
 
 * `Explorer Context Menu`: When right-clicking on an ADR Directory (or any directory along the way to the ADR Directory), the extension will display the option `Open ADR Manager` which executes the command with the same name.<br/>
 When right-clicking on a Markdown file that follows the naming convention of MADR, the extension will display the option `View in ADR Manager`, opening the webview to view (and edit) the ADR using the template(s) provided by the extension.
-
-
-### Settings
-
-As of now, this extension contributes the following settings:
-
-* `adrManager.adrDirectory`: Specifies the path of the directory containing the ADRs, relative to the root workspace folder(s) (default: docs/decisions)
-
-* `adrManager.editorMode.addAdrEditorMode`: Specifies the preferred editor mode when creating a new ADR using the extension's webview (default: basic)
-  
-* `adrManager.editorMode.viewAdrEditorMode`: Specifies the preferred editor mode when viewing/editing an existing ADR using the extension's webview (default: sufficient; the extension will choose the template based on the content of the ADR)
-
-* `adrManager.treatSingleRootAsMultiRoot`: Specifies whether the extension should treat single-root workspaces with only subdirectories as multi-root workspaces (default: true)
-
-* `adrManager.showDiagnostics`: Specifies if the extension shows diagnostics in the text editor when working on ADR files (default: true)
 
 ### Linting
 
@@ -106,6 +91,20 @@ As of now, this extension contributes the following snippets that can be inserte
 
 * `Basic ADR Template`: Inserts a template with only the required fields of a MADR (keywords: `basic-madr`, `adr`)
 * `Professional ADR Template`: Inserts a template with all fields of a MADR (keywords: `professional-madr`, `adr`)
+
+### Settings
+
+As of now, this extension contributes the following settings:
+
+* `adrManager.adrDirectory`: Specifies the path of the directory containing the ADRs, relative to the root workspace folder(s) (default: docs/decisions)
+
+* `adrManager.editorMode.addAdrEditorMode`: Specifies the preferred editor mode when creating a new ADR using the extension's webview (default: basic)
+  
+* `adrManager.editorMode.viewAdrEditorMode`: Specifies the preferred editor mode when viewing/editing an existing ADR using the extension's webview (default: sufficient; the extension will choose the template based on the content of the ADR)
+
+* `adrManager.treatSingleRootAsMultiRoot`: Specifies whether the extension should treat single-root workspaces with only subdirectories as multi-root workspaces (default: true)
+
+* `adrManager.showDiagnostics`: Specifies if the extension shows diagnostics in the text editor when working on ADR files (default: true)
 
 ## Known Issues
 

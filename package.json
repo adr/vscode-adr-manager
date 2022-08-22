@@ -56,7 +56,7 @@
 			},
 			{
 				"command": "vscode-adr-manager.viewAdrFromContextMenu",
-				"title": "View in ADR Manager",
+				"title": "Open ADR Manager on This File",
 				"category": "ADR Manager"
 			}
 		],
@@ -129,7 +129,7 @@
 				},
 				{
 					"command": "vscode-adr-manager.viewAdrFromContextMenu",
-					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}((-|_)[^\\s-_?*:\"<>|/\\]+)+\\.md$/",
+					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}((-|_)[^\\s-_?*:\"<>|\\/]+)+.md$/",
 					"group": "vscode-adr-manager"
 				}
 			]
