@@ -12,7 +12,7 @@ The study is divided into two parts:
 * Video conferencing tool [WebEx](https://www.webex.com)
 * VS Code IDE installed
 * VS Code extension for the ADR Manager installed
-* Knowledge about the use of the ADR Manager extension (e.g. via the provided [repository](https://github.com/stevenchencb/vscode-adr-manager-introduction))
+* Knowledge about the use of the ADR Manager extension (e.g. using the provided [repository](https://github.com/stevenchencb/vscode-adr-manager-introduction))
 
 
 ## Material Provided by the Organizers
