@@ -1,5 +1,6 @@
 //@ts-nocheck
 // Vue mixin which holds all the data used by the webview to save a new/edited ADR
+import { naturalCase2titleCase } from "../../src/plugins/utils";
 
 export default {
 	data() {
@@ -226,7 +227,7 @@ export default {
 						title: this.title,
 						oldTitle: this.oldTitle,
 						date: this.date,
-						status: this.status,
+						status: naturalCase2titleCase(this.status),
 						deciders: this.deciders,
 						technicalStory: this.technicalStory,
 						contextAndProblemStatement: this.contextAndProblemStatement,

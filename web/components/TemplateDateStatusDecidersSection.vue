@@ -24,17 +24,17 @@
 			<select
 				name="status"
 				id="status"
-				:value="status"
+				:value="status.toLowerCase()"
 				@input="
-					$emit('update:status', $event.target.value);
+					$emit('update:status', $event.target.value.toLowerCase());
 					$emit('validate');
 				"
 			>
 				<option value="" selected></option>
-				<option value="Proposed">Proposed</option>
-				<option value="Accepted">Accepted</option>
-				<option value="Rejected">Rejected</option>
-				<option value="Superseded">Superseded</option>
+				<option value="proposed">Proposed</option>
+				<option value="accepted">Accepted</option>
+				<option value="rejected">Rejected</option>
+				<option value="superseded">Superseded</option>
 			</select>
 			<div id="icon" class="tooltip">
 				<div class="bottom">

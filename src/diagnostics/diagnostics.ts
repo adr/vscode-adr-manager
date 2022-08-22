@@ -19,6 +19,7 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 	const rawText = doc.getText();
 	const textLines = rawText.split(/\r\n|\n/);
 
+	// Array of considered options under 'Considered Options' subheader
 	const consideredOptions = await extractListItems(doc.uri, "Considered Options");
 
 	for (let i = 0; i < textLines.length; i++) {
@@ -49,8 +50,8 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 			if (
 				consideredOptions.findIndex((option) => {
 					return (
-						createShortTitle(option.trim()) ===
-						createShortTitle(getChosenOptionFromLine(textLines[i]).trim())
+						createShortTitle(option.trim().replace(/"/g, "'")) ===
+						createShortTitle(getChosenOptionFromLine(textLines[i]).trim().replace(/"/g, "'"))
 					);
 				}) === -1
 			) {
@@ -73,7 +74,7 @@ function getHeaderDiagnostics(line: string, lineNumber: number): vscode.Diagnost
 	const headerDiagnostics = new Array<vscode.Diagnostic>();
 
 	// Check header and subheader lines for title casing
-	if (/^#{1,2}\s.*/.test(line) && !headerIsInTitleCase(line)) {
+	if (/^#{1,2}\s.*/.test(line) && !isHeaderInTitleCase(line)) {
 		headerDiagnostics.push(allDiagnostics.headerNotInTitleCase(lineNumber, 0, lineNumber, line.length));
 	}
 
@@ -163,7 +164,7 @@ function getInvalidChosenOptionDiagnostic(line: string, lineNumber: number): vsc
  * Returns true iff the specified line is written in title case.
  * @param line The line to check
  */
-function headerIsInTitleCase(line: string): boolean {
+function isHeaderInTitleCase(line: string): boolean {
 	return line === naturalCase2titleCase(line);
 }
 

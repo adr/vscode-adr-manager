@@ -207,6 +207,7 @@ async function createAdrDiagnostics(context: vscode.ExtensionContext) {
 	// set up event listeners
 	const didOpen = vscode.workspace.onDidOpenTextDocument((doc) => diagnosticsHandler(doc));
 	const didChange = vscode.workspace.onDidChangeTextDocument((e) => diagnosticsHandler(e.document));
+	const didClose = vscode.workspace.onDidCloseTextDocument((doc) => diagnosticCollection.set(doc.uri, undefined));
 	const didUpdateConfiguration = vscode.workspace.onDidChangeConfiguration(async (e) => {
 		if (e.affectsConfiguration("adrManager.showDiagnostics")) {
 			for (const document of vscode.workspace.textDocuments) {
@@ -223,7 +224,14 @@ async function createAdrDiagnostics(context: vscode.ExtensionContext) {
 	if (vscode.window.activeTextEditor) {
 		await diagnosticsHandler(vscode.window.activeTextEditor.document);
 	}
-	context.subscriptions.push(diagnosticCollection, didOpen, didChange, didUpdateConfiguration, codeActionProvider);
+	context.subscriptions.push(
+		diagnosticCollection,
+		didOpen,
+		didChange,
+		didClose,
+		didUpdateConfiguration,
+		codeActionProvider
+	);
 }
 
 /**
