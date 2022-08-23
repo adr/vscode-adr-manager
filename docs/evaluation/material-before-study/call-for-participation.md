@@ -7,9 +7,7 @@ I am looking for software professionals to test my extension of the ADR Manager 
 Participants should bring a basic understanding and experience in the use of ADRs. Particular experience in using MADR is beneficial, but is not strictly required.
 Participants should also be familiar with the core features and the workflow of the VS Code IDE.
 
-To save some time in the study, I would kindly ask participants to familiarize themselves with the features of the ADR extension before the study. For this, I have created a [repository](https://github.com/stevenchencb/vscode-adr-manager-introduction) which briefly introduces the current features of the extension (estimated time: 5-7 minutes).
-
-\<Sign-up (maybe online)\>
+To save some time in the study, I would kindly ask participants to install the [extension](https://marketplace.visualstudio.com/items?itemName=StevenChen.vscode-adr-manager) and familiarize themselves with the features of the ADR extension before the study. For this, I have created a [repository](https://github.com/stevenchencb/vscode-adr-manager-introduction) which briefly introduces the current features of the extension (estimated time: 5-7 minutes).
 
 The material of this study will be provided in English but the study itself may be held in either German or English, based on the participant's preference. The study will be held in [WebEx](https://www.webex.com).
 
