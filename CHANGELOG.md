@@ -1,5 +1,6 @@
 # Changelog
 
+* 0.1.6 - Fixed spelling error in UI
 * 0.1.5 - Several bugfixes
 * 0.1.4 - Several bugfixes
 * 0.1.3 - Bugfix for wrongfully determining highest ADR number when the current highest number is 0
