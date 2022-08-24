@@ -26,7 +26,7 @@
 				<em>
 					Note: The fields 'Status', 'Deciders', 'Date', 'Technical Story', 'Decision Drivers', 'Option
 					Descriptions', 'Pros and Cons of the Options', 'Positive and Negative Consequences' and 'Links' are
-					not shonw in the basic editor mode.
+					not shown in the basic editor mode.
 				</em>
 			</p>
 		</div>
