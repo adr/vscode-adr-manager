@@ -17,7 +17,7 @@
 		<div id="option-description-container" @click.self="$emit('selectOption')">
 			<h4 @click="$emit('selectOption')"><strong>Description</strong></h4>
 			<textarea
-				id="auto-grow-description"
+				class="auto-grow-description"
 				spellcheck="true"
 				:value="description"
 				@input="
@@ -194,9 +194,13 @@
 				switch (key) {
 					case "description": {
 						this.$nextTick(() => {
-							const description = document.getElementById("auto-grow-description")!;
-							description.style.height = "auto";
-							description.style.height = `${description.scrollHeight}px`;
+							const descriptions = document.querySelectorAll(
+								".auto-grow-description"
+							) as NodeListOf<HTMLElement>;
+							descriptions.forEach((description) => {
+								description.style.height = "auto";
+								description.style.height = `${description.scrollHeight}px`;
+							});
 						});
 						break;
 					}
@@ -279,7 +283,7 @@
 	}
 
 	#option-description-container {
-		& #auto-grow-description {
+		& .auto-grow-description {
 			height: 39px;
 			resize: none;
 			overflow-y: hidden;
