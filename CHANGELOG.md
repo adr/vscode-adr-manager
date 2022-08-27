@@ -1,5 +1,6 @@
 # Changelog
 
+* 0.1.7 - Fixed bug where option description boxes after the first option were not auto-growing
 * 0.1.6 - Fixed spelling error in UI
 * 0.1.5 - Several bugfixes
 * 0.1.4 - Several bugfixes
