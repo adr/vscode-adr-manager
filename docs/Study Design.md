@@ -14,16 +14,16 @@ Optimally, the external stakeholders should have experience in working with ADRs
 
 # Table of Contents
 
-1. [Preparation Phase](#preparation-phase)
+1. [Requirements Phase](#requirements-phase)
 2. [Design Phase](#design-phase)
-3. [Refinement Phase](#refinement-phase)
+3. [Implementation Phase](#implementation-phase)
 4. [Evaluation Phase](#evaluation-phase)
 5. [Analysis Phase](#analysis-phase)
 6. [Correction Phase](#correction-phase)
 
 <br/>
 
-# Preparation Phase
+# Requirements Phase
 
 The first phase of the study aims at acquiring the knowledge and skills necessary for this study, mainly focusing on the acquisition of requirements for the extension.
 
@@ -121,7 +121,7 @@ A diagram similar to a UML diagram may be suitable for documenting the architect
 
 <br/>
 
-# Refinement Phase
+# Implementation Phase
 
 In this phase of the study, the functionality of the prototype will be implemented in an iterative rapid prototyping approach to quickly generate feedback and continuously improving the prototype into a functional extension.
 
