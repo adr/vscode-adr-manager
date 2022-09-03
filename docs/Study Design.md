@@ -16,7 +16,7 @@ Optimally, the external stakeholders should have experience in working with ADRs
 
 1. [Requirements Phase](#requirements-phase)
 2. [Design Phase](#design-phase)
-3. [Implementation Phase](#inplementation-phase)
+3. [Implementation Phase](#implementation-phase)
 4. [Evaluation Phase](#evaluation-phase)
 5. [Analysis Phase](#analysis-phase)
 6. [Correction Phase](#correction-phase)
