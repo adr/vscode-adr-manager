@@ -20,7 +20,7 @@ In the following, the main structure and most important files will be briefly de
 
 Here is a diagram that illustrates the architecture of the VS Code extension:
 
-<img src="docs/images/Extension%20Architecture.png"></img><br/>
+<img src="images/Extension%20Architecture.png"></img><br/>
 <i>Visualization of the extension architecture.</i>
 
 The extension consists of two main components:
