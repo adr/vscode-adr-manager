@@ -2,6 +2,8 @@
 
 Visual Studio Code (VS Code) extension based on the [ADR Manager](https://github.com/adr/adr-manager), providing features for managing Architectural Decision Records (ADRs) based on the [MADR template](https://adr.github.io/madr/) in the version 2.1.2.
 
+A quick introduction to all the features of this extension is available [here](https://github.com/adr/vscode-adr-manager-introduction).
+
 This VS Code extension is part of a Bachelor Thesis written at the University of Stuttgart by Steven Chen.
 
 # Index
