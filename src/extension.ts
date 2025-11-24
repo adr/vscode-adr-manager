@@ -227,9 +227,9 @@ async function createAdrDiagnostics(context: vscode.ExtensionContext) {
 		new AdrManagerCodeActionProvider()
 	);
 
-	// add diagnostics if VS Code opens with an active text editor
-	if (vscode.window.activeTextEditor) {
-		await diagnosticsHandler(vscode.window.activeTextEditor.document);
+	// add diagnostics to already open text documents
+	for (const doc of vscode.workspace.textDocuments) {
+		await diagnosticsHandler(doc);
 	}
 	context.subscriptions.push(
 		diagnosticCollection,
