@@ -201,10 +201,13 @@ export function activate(context: vscode.ExtensionContext) {
 async function createAdrDiagnostics(context: vscode.ExtensionContext) {
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection("adr-manager");
 	const diagnosticsHandler = async (doc: vscode.TextDocument) => {
+		if (!isDiagnosticsEnabled()) {
+			diagnosticCollection.clear();
+			return;
+		}
 		const splitFilePath = cleanPathString(doc.fileName).split("/");
 		// only add diagnostics to ADR files
-		if (!isDiagnosticsEnabled() || !matchesMadrTitleFormat(splitFilePath[splitFilePath.length - 1])) {
-			diagnosticCollection.clear();
+		if (!matchesMadrTitleFormat(splitFilePath[splitFilePath.length - 1])) {
 			return;
 		}
 		const diagnostics = await getDiagnostics(doc);
