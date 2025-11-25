@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { allDiagnostics } from "./diagnostics-collection";
 import { createShortTitle, naturalCase2titleCase } from "../plugins/utils";
+import { md2adr } from "../plugins/parser";
 
 /**
  * Returns an array of MADR-related diagnostics for the specified text document
@@ -18,6 +19,7 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 
 	const rawText = doc.getText();
 	const textLines = rawText.split(/\r\n|\n/);
+	diagnostics.push(...getParserDiagnostics(rawText, textLines));
 
 	// Array of considered options under 'Considered Options' subheader
 	const consideredOptions = await extractListItems(doc.uri, "Considered Options");
@@ -64,6 +66,28 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 	diagnostics.push(...getRequiredFieldsDiagnostics(indicesOfRequiredFields, textLines));
 
 	return diagnostics;
+}
+
+function getParserDiagnostics(rawText: string, textLines: string[]): vscode.Diagnostic[] {
+	const parserDiagnostics = new Array<vscode.Diagnostic>();
+	const adr = md2adr(rawText);
+	if (!adr || !adr.parseErrors || adr.parseErrors.length === 0) {
+		return parserDiagnostics;
+	}
+	for (const error of adr.parseErrors) {
+		const lineIndex = Math.min(Math.max(error.line - 1, 0), textLines.length - 1);
+		const lineText = textLines[lineIndex] ?? "";
+		const lineLength = lineText.length;
+		const startCharacter = Math.min(Math.max(error.charPosition, 0), lineLength);
+		parserDiagnostics.push({
+			severity: vscode.DiagnosticSeverity.Error,
+			message: `Parsing error at line ${error.line}, position ${error.charPosition}: ${error.message}`,
+			code: "madr-parse-error",
+			source: "ADR Manager",
+			range: new vscode.Range(lineIndex, startCharacter, lineIndex, lineLength),
+		});
+	}
+	return parserDiagnostics;
 }
 
 /**
