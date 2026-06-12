@@ -10,5 +10,5 @@
 		"allowJs": true,
 		"outDir": "./dist"
 	},
-	"exclude": ["node_modules", "dist", "dist-web", "src/**/*.js"]
+	"exclude": ["node_modules", "dist", "dist-web", "src/**/*.js", "src/test"]
 }

@@ -246,6 +246,7 @@ export class WebPanel {
 				consideredOptions: adr.consideredOptions,
 				decisionOutcome: adr.decisionOutcome,
 				links: adr.links,
+				tc: adr.tc,
 				fullPath: fileUri.path,
 			}),
 		});

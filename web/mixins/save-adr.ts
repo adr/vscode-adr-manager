@@ -1,6 +1,7 @@
 //@ts-nocheck
 // Vue mixin which holds all the data used by the webview to save a new/edited ADR
 import { naturalCase2titleCase } from "../../src/plugins/utils";
+import { TcAnnotation } from "../../src/plugins/tc-types";
 
 export default {
 	data() {
@@ -27,10 +28,41 @@ export default {
 				negativeConsequences: [] as string[],
 			},
 			links: [] as string[],
+			tc: {
+				benefit: "",
+				category: "",
+				conditions: "",
+				signals: {
+					tags: [] as string[],
+					note: "",
+				},
+				confidence: 3,
+				status: "",
+				related: [] as string[],
+			} as Partial<TcAnnotation>,
 			fullPath: "",
 		};
 	},
 	computed: {
+		/**
+		 * Returns the TC annotation object if the user has filled out any of its fields,
+		 * otherwise undefined so that ADRs without a TC annotation are not polluted with
+		 * empty tc-* YAML keys.
+		 */
+		tcForSaving() {
+			const tc = this.tc;
+			if (!tc) {
+				return undefined;
+			}
+			const hasContent =
+				tc.benefit ||
+				tc.category ||
+				tc.conditions ||
+				tc.status ||
+				(tc.signals && tc.signals.tags && tc.signals.tags.length) ||
+				(tc.related && tc.related.length);
+			return hasContent ? tc : undefined;
+		},
 		/**
 		 * Returns true iff the current data has at least one non-required field which is not empty.
 		 */
@@ -149,6 +181,7 @@ export default {
 				negativeConsequences: string[];
 			};
 			links: string[];
+			tc?: Partial<TcAnnotation>;
 			fullPath: string;
 		}) {
 			this.yaml = fields.yaml;
@@ -162,6 +195,7 @@ export default {
 			this.consideredOptions = fields.consideredOptions;
 			this.decisionOutcome = fields.decisionOutcome;
 			this.links = fields.links;
+			this.tc = fields.tc ?? this.tc;
 			this.fullPath = fields.fullPath;
 		},
 		/**
@@ -193,6 +227,7 @@ export default {
 						consideredOptions: this.consideredOptions,
 						chosenOption: this.decisionOutcome.chosenOption,
 						explanation: this.decisionOutcome.explanation,
+						tc: this.tcForSaving,
 					})
 				);
 			} else {
@@ -210,6 +245,7 @@ export default {
 						consideredOptions: this.consideredOptions,
 						decisionOutcome: this.decisionOutcome,
 						links: this.links.filter((link) => link),
+						tc: this.tcForSaving,
 					})
 				);
 			}
@@ -235,6 +271,7 @@ export default {
 						consideredOptions: this.consideredOptions,
 						decisionOutcome: this.decisionOutcome,
 						links: this.links,
+						tc: this.tcForSaving,
 						fullPath: this.fullPath,
 					},
 				})

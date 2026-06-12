@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { TcDashboardProvider } from "./TcDashboardProvider";
 import { cleanPathString, matchesMadrTitleFormat } from "./plugins/utils";
 import {
 	isSingleRootWorkspace,
@@ -30,6 +31,27 @@ import { AdrManagerCodeActionProvider } from "./AdrManagerCodeActionProvider";
 export function activate(context: vscode.ExtensionContext) {
 	// Add custom when clause context for ADR Directory
 	updateWhenClauseContexts();
+
+	// Register TC Dashboard Tree View
+	const tcDashboardProvider = new TcDashboardProvider();
+	context.subscriptions.push(vscode.window.registerTreeDataProvider("tcDashboard", tcDashboardProvider));
+	context.subscriptions.push(
+		vscode.commands.registerCommand("vscode-adr-manager.refreshTcDashboard", () => tcDashboardProvider.refresh())
+	);
+
+	// Refresh dashboard when ADR markdown files change or the ADR directory setting changes
+	const adrWatcher = vscode.workspace.createFileSystemWatcher("**/*.md");
+	adrWatcher.onDidCreate(() => tcDashboardProvider.refresh());
+	adrWatcher.onDidChange(() => tcDashboardProvider.refresh());
+	adrWatcher.onDidDelete(() => tcDashboardProvider.refresh());
+	context.subscriptions.push(adrWatcher);
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeConfiguration((e) => {
+			if (e.affectsConfiguration("adrManager.adrDirectory")) {
+				tcDashboardProvider.refresh();
+			}
+		})
+	);
 
 	// Create diagnostics for ADR files
 	createAdrDiagnostics(context);

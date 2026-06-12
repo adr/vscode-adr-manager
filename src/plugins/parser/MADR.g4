@@ -1,13 +1,7 @@
 grammar MADR;
 
 start:
-	(yaml wslbs)? HEADING_PREFIX title NEWLINE wslbs (
-		STATUS_MARKER status (WS OPTIONAL_MAKER)? wslbs
-	)? (DECIDERS_MARKER deciders (WS OPTIONAL_MAKER)? wslbs)? (
-		DATE_MARKER date (WS OPTIONAL_MAKER)? NEWLINE wslbs
-	)? (
-		TECHNICAL_STORY_MARKER technicalStory (WS OPTIONAL_MAKER)? wslbs
-	)? (CONTEXT_AND_PROBLEM_STATEMENT wslbs)? (
+	(yaml wslbs)? HEADING_PREFIX title NEWLINE wslbs (CONTEXT_AND_PROBLEM_STATEMENT wslbs)? (
 		NEWLINE contextAndProblemStatement wslbs
 	)? (
 		DECISION_DRIVERS_HEADING (WS OPTIONAL_MAKER)? wslbs decisionDrivers wslbs
@@ -15,19 +9,11 @@ start:
 		DECISION_OUTCOME_HEADING wslbs decisionOutcome wslbs
 	)? (
 		PROS_AND_CONS_OF_THE_OPTIONS_HEADING (WS OPTIONAL_MAKER)? wslbs prosAndConsOfOptions wslbs
-	)? (LINKS_HEADING (WS OPTIONAL_MAKER)? wslbs links wslbs)? EOF;
+	)? (MORE_INFORMATION_HEADING (WS OPTIONAL_MAKER)? wslbs moreInformation wslbs)? EOF;
 
 yaml: YAML_MARKER multilineText YAML_MARKER;
 
 title: textLine;
-
-status: textLine;
-
-deciders: textLine;
-
-date: textLine;
-
-technicalStory: textLine;
 
 contextAndProblemStatement: multilineText;
 
@@ -37,9 +23,9 @@ consideredOptions: list;
 
 decisionOutcome:
 	wslbs chosenOptionAndExplanation (
-		wslbs POSITIVE_CONSEQUENCES_HEADING (WS OPTIONAL_MAKER)? positiveConsequences
+		wslbs CONSEQUENCES_HEADING (WS OPTIONAL_MAKER)? consequences
 	)? (
-		wslbs NEGATIVE_CONSEQUENCES_HEADING (WS OPTIONAL_MAKER)? negativeConsequences
+		wslbs CONFIRMATION_HEADING (WS OPTIONAL_MAKER)? confirmation
 	)?;
 
 prosAndConsOfOptions: (optionSection wslbs)+;
@@ -47,18 +33,17 @@ prosAndConsOfOptions: (optionSection wslbs)+;
 optionSection:
 	SUBSUBHEADING_PREFIX optionTitle NEWLINE (
 		wslbs optionDescription
-	)? (wslbs prolist)? (wslbs conlist)?;
+	)? (wslbs argumentList)?;
 
 chosenOptionAndExplanation: multilineText;
-positiveConsequences: list;
-negativeConsequences: list;
+consequences: list;
+confirmation: multilineText;
 
 optionTitle: textLine;
 optionDescription: multilineText;
-prolist: (wslbs LIST_MARKER 'Good, because ' textLine)+;
-conlist: (wslbs LIST_MARKER 'Bad, because ' textLine)+;
+argumentList: (wslbs LIST_MARKER ('Good, because ' | 'Neutral, because ' | 'Bad, because ') textLine)+;
 
-links: list wslbs;
+moreInformation: multilineText;
 
 list: (wslbs LIST_MARKER textLine?)+;
 
@@ -87,11 +72,7 @@ WS: [\f\t ]; // White Space
 NEWLINE: [\r]? [\n]; // Line Breaks
 
 LIST_MARKER: NEWLINE ('* ' | '- ');
-STATUS_MARKER: LIST_MARKER 'Status: ';
-DATE_MARKER: LIST_MARKER 'Date: ';
-DECIDERS_MARKER: LIST_MARKER 'Deciders: ';
 OPTIONAL_MAKER: '<!-- optional -->';
-TECHNICAL_STORY_MARKER: NEWLINE 'Technical Story: ';
 YAML_MARKER: '---' NEWLINE;
 
 HEADING_PREFIX: '# '; // Start of a Heading
@@ -126,17 +107,15 @@ DECISION_OUTCOME_HEADING:
 		| '## Decision outcome'
 		| '## decision outcome'
 	);
-POSITIVE_CONSEQUENCES_HEADING:
+CONSEQUENCES_HEADING:
 	NEWLINE (
-		'### Positive Consequences'
-		| '### Positive consequences'
-		| '### positive consequences'
+		'### Consequences'
+		| '### consequences'
 	);
-NEGATIVE_CONSEQUENCES_HEADING:
+CONFIRMATION_HEADING:
 	NEWLINE (
-		'### Negative Consequences'
-		| '### Negative consequences'
-		| '### negative consequences'
+		'### Confirmation'
+		| '### confirmation'
 	);
 PROS_AND_CONS_OF_THE_OPTIONS_HEADING:
 	NEWLINE (
@@ -144,4 +123,9 @@ PROS_AND_CONS_OF_THE_OPTIONS_HEADING:
 		| '## Pros and cons of the options'
 		| '## pros and cons of the options'
 	);
-LINKS_HEADING: NEWLINE ('## Links' | '## links');
+MORE_INFORMATION_HEADING:
+	NEWLINE (
+		'## More Information'
+		| '## More information'
+		| '## more information'
+	);

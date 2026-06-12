@@ -1,4 +1,5 @@
-import { cloneDeep, concat, replace } from "lodash";
+import { cloneDeep } from "lodash";
+import { load as yamlLoad, dump as yamlDump } from "js-yaml";
 
 import antlr4 from "antlr4";
 import MADRLexer from "./parser/MADRLexer.js";
@@ -6,7 +7,27 @@ import MADRParser from "./parser/MADRParser.js";
 import MADRListener from "./parser/MADRListener.js";
 import { ArchitecturalDecisionRecord } from "./classes";
 import { createShortTitle, naturalCase2titleCase } from "./utils.ts";
-import { stringify } from "querystring";
+
+/**
+ * Normalises a YAML-parsed value to a string array. Accepts:
+ *   - an array (`[a, b]` flow style or `- a\n- b` block style)  -> coerced via String()
+ *   - a single string (`"a, b"` or `a, b`)                       -> split on commas, trimmed
+ *   - undefined / null                                          -> []
+ * Empty strings are filtered out.
+ *
+ * @param {unknown} value the parsed YAML value
+ * @returns {string[]}
+ */
+function toStringArray(value) {
+	if (value === undefined || value === null) return [];
+	if (Array.isArray(value)) {
+		return value.map((v) => String(v).trim()).filter((s) => s !== "");
+	}
+	return String(value)
+		.split(",")
+		.map((s) => s.trim())
+		.filter((s) => s !== "");
+}
 
 /**
  * Creates an ADR from a ParseTree by listening to a ParseTreeWalker.
@@ -25,27 +46,13 @@ class MADRGenerator extends MADRListener {
 	}
 
 	enterYaml(ctx) {
-		this.adr.yaml = ctx.getText();
+		const rawYaml = ctx.getText();
+		this.adr.yaml = rawYaml;
+		this.parseYamlMetadata(rawYaml);
 	}
 
 	enterTitle(ctx) {
 		this.adr.title = naturalCase2titleCase(ctx.getText());
-	}
-
-	enterStatus(ctx) {
-		this.adr.status = ctx.getText();
-	}
-
-	enterDeciders(ctx) {
-		this.adr.deciders = ctx.getText();
-	}
-
-	enterDate(ctx) {
-		this.adr.date = ctx.getText();
-	}
-
-	enterTechnicalStory(ctx) {
-		this.adr.technicalStory = ctx.getText();
 	}
 
 	enterContextAndProblemStatement(ctx) {
@@ -91,12 +98,20 @@ class MADRGenerator extends MADRListener {
 		}
 	}
 
-	enterPositiveConsequences(ctx) {
-		this.addListItemsFromListToList(ctx.children[0], this.adr.decisionOutcome.positiveConsequences);
+	/**
+	 * Handles "### Consequences" — bullets prefixed "Good, because " / "Bad, because " in one list.
+	 */
+	enterConsequences(ctx) {
+		// The ANTLR adaptive prediction does not reliably produce textLine children
+		// for the consequences list, so bullet text is extracted via parseConsequencesFromMd
+		// called after the walk (see md2adr). This handler is intentionally left as a no-op.
 	}
 
-	enterNegativeConsequences(ctx) {
-		this.addListItemsFromListToList(ctx.children[0], this.adr.decisionOutcome.negativeConsequences);
+	/**
+	 * Handles "### Confirmation" — free-form prose under Decision Outcome.
+	 */
+	enterConfirmation(ctx) {
+		this.adr.decisionOutcome.confirmation = ctx.getText();
 	}
 
 	/**
@@ -118,44 +133,84 @@ class MADRGenerator extends MADRListener {
 		}
 	}
 
-	enterProlist(ctx) {
-		if (this.currentOption) {
-			this.addListItemsFromListToList(ctx, this.currentOption.pros);
-		}
-	}
-
-	enterConlist(ctx) {
-		if (this.currentOption) {
-			this.addListItemsFromListToList(ctx, this.currentOption.cons);
-		}
-	}
-
-	enterLinks(ctx) {
-		this.addListItemsFromListToList(ctx.children[0], this.adr.links);
-	}
 	/**
+	 * Handles the mixed Good/Neutral/Bad argument list under each option.
+	 * The grammar consumes the prefix literal, so we walk children to recover which kind each bullet is.
+	 */
+	enterArgumentList(ctx) {
+		if (!this.currentOption) return;
+		let currentKind = null;
+		const textLineRuleIndex = MADRParser.ruleNames.indexOf("textLine");
+		for (const child of ctx.children || []) {
+			const text = typeof child.getText === "function" ? child.getText() : "";
+			if (text === "Good, because ") {
+				currentKind = "good";
+			} else if (text === "Neutral, because ") {
+				currentKind = "neutral";
+			} else if (text === "Bad, because ") {
+				currentKind = "bad";
+			} else if (currentKind != null && child.ruleIndex === textLineRuleIndex) {
+				const argText = text.trim();
+				if (argText) {
+					if (currentKind === "good") this.currentOption.pros.push(argText);
+					else if (currentKind === "neutral") this.currentOption.neutral.push(argText);
+					else if (currentKind === "bad") this.currentOption.cons.push(argText);
+				}
+				currentKind = null;
+			}
+		}
+	}
+
+	enterMoreInformation(ctx) {
+		this.adr.moreInformation = ctx.getText();
+	}
+
+	/**
+	 * Extracts MADR 4.0 metadata fields (status, date, decision-makers, consulted, informed)
+	 * from the YAML front-matter block and assigns them to the ADR. Uses js-yaml so block lists,
+	 * multi-line values, and quoted strings are handled correctly.
+	 *
+	 * @param {string} yamlText the raw "---\n...\n---" block from the grammar
+	 */
+	parseYamlMetadata(yamlText) {
+		const inner = yamlText.replace(/^---\s*\n/, "").replace(/\n---\s*$/, "");
+		let parsed;
+		try {
+			parsed = yamlLoad(inner);
+		} catch (e) {
+			return;
+		}
+		if (!parsed || typeof parsed !== "object") return;
+
+		if (parsed.status !== undefined) {
+			this.adr.status = String(parsed.status);
+		}
+		if (parsed.date !== undefined) {
+			this.adr.date = String(parsed.date);
+		}
+		this.adr.decisionMakers = toStringArray(parsed["decision-makers"]);
+		this.adr.consulted = toStringArray(parsed.consulted);
+		this.adr.informed = toStringArray(parsed.informed);
+	}
+
+	/**
+	 * Finds the considered-option whose title best matches `optTitle`, used when associating a
+	 * Pros/Cons subsection heading with an entry from the Considered Options list. Tries an
+	 * exact (whitespace + case insensitive) match first, then falls back to a relaxed match.
 	 *
 	 * @param {string} optTitle the title in the "Chosen option" part
+	 * @returns {object|null} the matched option, or null if none found
 	 */
 	getMostSimilarOptionTo(optTitle) {
-		// Find the option with a very similar title.
-		let opt = this.adr.consideredOptions.find(function (opt) {
-			return this.matchOptionTitleAlmostExactly(opt.title, optTitle);
-		}, this);
-		if (opt) {
-			// If a fitting option was found, return it.
-			return opt;
-		}
-		// Else check if there is another (less) similar title.
-		opt = this.adr.consideredOptions.find(function (opt) {
-			return matchOptionTitleMoreRelaxed(opt.title, optTitle);
-		}, this);
-		if (opt) {
-			// If a fitting option was found, return it.
-			return opt;
-		}
-		// just set the option to not found
-		return null;
+		const exactMatch = this.adr.consideredOptions.find((opt) =>
+			this.matchOptionTitleAlmostExactly(opt.title, optTitle)
+		);
+		if (exactMatch) return exactMatch;
+
+		const relaxedMatch = this.adr.consideredOptions.find((opt) =>
+			matchOptionTitleMoreRelaxed(opt.title, optTitle)
+		);
+		return relaxedMatch ?? null;
 	}
 
 	/**
@@ -174,17 +229,17 @@ class MADRGenerator extends MADRListener {
 	}
 
 	/**
+	 * Pushes the text content of each `textLine` child of a list parse-tree node into the
+	 * target array. Empty/whitespace-only items are skipped.
 	 *
-	 * @param {} parseTreeList - a list node in the parse tree.
-	 * @param {string[]} targetList - a js array, where each list entry is copied into.
+	 * @param {object} parseTreeList a list node in the parse tree
+	 * @param {string[]} targetList an array into which list entries are pushed
 	 */
 	addListItemsFromListToList(parseTreeList, targetList) {
-		for (let i = 0; i < parseTreeList.children.length; i++) {
-			if (
-				parseTreeList.children[i].ruleIndex === MADRParser.ruleNames.indexOf("textLine") && // if it is a text line
-				parseTreeList.children[i].getText().trim() !== ""
-			) {
-				targetList.push(parseTreeList.children[i].getText());
+		const textLineRuleIndex = MADRParser.ruleNames.indexOf("textLine");
+		for (const child of parseTreeList.children) {
+			if (child.ruleIndex === textLineRuleIndex && child.getText().trim() !== "") {
+				targetList.push(child.getText());
 			}
 		}
 	}
@@ -209,6 +264,116 @@ class MADRErrorListener extends antlr4.error.ErrorListener {
 }
 
 /**
+ * Strips the opening and closing --- fences from a raw YAML frontmatter string.
+ * @param {string} yaml
+ * @returns {string}
+ */
+function stripYamlFences(yaml) {
+	return yaml.replace(/^---\n?/, "").replace(/\n?---\n?$/, "");
+}
+
+/**
+ * Extracts TC annotation fields from the raw YAML frontmatter string stored in adr.yaml
+ * and populates adr.tc. Does nothing if no TC fields are present.
+ * @param {ArchitecturalDecisionRecord} adr
+ */
+function parseTcFromYaml(adr) {
+	if (!adr.yaml) return;
+	const raw = stripYamlFences(adr.yaml);
+	let parsed;
+	try {
+		parsed = yamlLoad(raw);
+	} catch (e) {
+		return;
+	}
+	if (!parsed || typeof parsed !== "object" || !parsed["tc-benefit"]) return;
+	adr.tc = {
+		benefit: parsed["tc-benefit"],
+		category: parsed["tc-category"],
+		conditions: parsed["tc-conditions"] ?? "",
+		signals: {
+			tags: parsed["tc-signals"] ?? [],
+			note: parsed["tc-signals-note"],
+		},
+		confidence: parsed["tc-confidence"],
+		status: parsed["tc-status"],
+		related: parsed["tc-related"],
+	};
+}
+
+/**
+ * Writes a pro-only TC field into the parsed YAML object, or deletes it if not in professional mode.
+ * @param {object} parsed
+ * @param {string} key
+ * @param {'basic'|'professional'} mode
+ * @param {*} value
+ */
+function writeProOnly(parsed, key, mode, value) {
+	if (mode === 'professional' && value !== undefined) {
+		parsed[key] = value;
+	} else {
+		delete parsed[key];
+	}
+}
+
+/**
+ * Merges the current adr.tc values back into the YAML frontmatter string (adr.yaml).
+ * Creates a new YAML block if one does not exist. Strips tc-* keys if adr.tc is undefined.
+ * Pro-only fields (tc-status, tc-related) are only written when mode === 'professional'.
+ * @param {ArchitecturalDecisionRecord} adr
+ * @param {'basic'|'professional'} mode
+ */
+function serializeTcToYaml(adr, mode = 'professional') {
+	if (!adr.tc && (!adr.yaml || !adr.yaml.includes("tc-"))) return;
+	const raw = adr.yaml ? stripYamlFences(adr.yaml) : "";
+	let parsed;
+	try {
+		parsed = yamlLoad(raw) ?? {};
+	} catch (e) {
+		parsed = {};
+	}
+	if (typeof parsed !== "object") parsed = {};
+	if (adr.tc) {
+		parsed["tc-schema-version"] = 1;
+		parsed["tc-benefit"] = adr.tc.benefit;
+		parsed["tc-category"] = adr.tc.category;
+		parsed["tc-conditions"] = adr.tc.conditions;
+		parsed["tc-signals"] = adr.tc.signals.tags;
+		if (adr.tc.signals.note) {
+			parsed["tc-signals-note"] = adr.tc.signals.note;
+		} else {
+			delete parsed["tc-signals-note"];
+		}
+		parsed["tc-confidence"] = adr.tc.confidence;
+		writeProOnly(parsed, "tc-status",  mode, adr.tc.status !== undefined ? adr.tc.status : undefined);
+		writeProOnly(parsed, "tc-related", mode, adr.tc.related?.length ? adr.tc.related : undefined);
+	} else {
+		Object.keys(parsed).filter((k) => k.startsWith("tc-")).forEach((k) => delete parsed[k]);
+	}
+	adr.yaml = "---\n" + yamlDump(parsed, { sortKeys: false }) + "---\n";
+}
+
+/**
+ * Extracts Good/Bad consequence bullets from the raw markdown string.
+ * The ANTLR adaptive prediction skips textLine in the consequences list context,
+ * so this regex pass is needed to reliably populate consequences after the walk.
+ * @param {string} md
+ * @param {ArchitecturalDecisionRecord} adr
+ */
+function parseConsequencesFromMd(md, adr) {
+	const match = md.match(/###\s+Consequences\s*\n([\s\S]*?)(?=\n##|\n###|$)/i);
+	if (!match) return;
+	const bullets = match[1].split(/\n/).map((l) => l.replace(/^[*\-]\s+/, "").trim()).filter(Boolean);
+	bullets.forEach((text) => {
+		if (text.startsWith("Good, because ")) {
+			adr.decisionOutcome.consequences.good.push(text.substring("Good, because ".length));
+		} else if (text.startsWith("Bad, because ")) {
+			adr.decisionOutcome.consequences.bad.push(text.substring("Bad, because ".length));
+		}
+	});
+}
+
+/**
  * Converts a markdown into a MADR object.
  * @param {string} md
  * @returns {ArchitecturalDecisionRecord}
@@ -223,44 +388,57 @@ export function md2adr(md) {
 	parser.removeErrorListeners();
 	parser.addErrorListener(errorListener);
 	const tree = parser.start(); // 'start' is the name of the starting rule.
-	// console.log('Created Parse Tree! ', tree)
 	const printer = new MADRGenerator();
 	antlr4.tree.ParseTreeWalker.DEFAULT.walk(printer, tree);
-	//console.log("Result ADR ", printer.adr);
 	printer.adr.cleanUp();
 	if (errorListener.syntaxErrors.length > 0) {
 		printer.adr.conforming = false;
 	}
 	printer.adr.parseErrors = errorListener.syntaxErrors;
+	parseTcFromYaml(printer.adr);
+	parseConsequencesFromMd(md, printer.adr);
 	return printer.adr;
 }
 
-export function adr2md(adrToParse) {
+export function adr2md(adrToParse, mode = 'professional') {
 	let adr = cloneDeep(adrToParse);
 	adr.cleanUp();
-	var md;
+	serializeTcToYaml(adr, mode);
+	let md;
+
+	// YAML frontmatter (MADR 4.0). If adr.yaml is set we preserve it verbatim so that
+	// downstream custom fields (e.g. TC annotations added in Track B) survive a round-trip.
+	// Otherwise build the frontmatter from the structured metadata fields.
 	if (adr.yaml) {
 		md = adr.yaml;
-		md = md.concat("\n" + "# " + naturalCase2titleCase(adr.title) + "\n");
+		md = md.concat("\n# " + naturalCase2titleCase(adr.title) + "\n");
+	} else if (
+		adr.status ||
+		adr.date ||
+		adr.decisionMakers.length > 0 ||
+		adr.consulted.length > 0 ||
+		adr.informed.length > 0
+	) {
+		let yamlBody = "---\n";
+		if (adr.status) {
+			yamlBody += `status: "${adr.status}"\n`;
+		}
+		if (adr.date) {
+			yamlBody += `date: ${adr.date}\n`;
+		}
+		if (adr.decisionMakers.length > 0) {
+			yamlBody += `decision-makers: [${adr.decisionMakers.join(", ")}]\n`;
+		}
+		if (adr.consulted.length > 0) {
+			yamlBody += `consulted: [${adr.consulted.join(", ")}]\n`;
+		}
+		if (adr.informed.length > 0) {
+			yamlBody += `informed: [${adr.informed.join(", ")}]\n`;
+		}
+		yamlBody += "---\n";
+		md = yamlBody + "\n# " + naturalCase2titleCase(adr.title) + "\n";
 	} else {
 		md = "# " + naturalCase2titleCase(adr.title) + "\n";
-	}
-
-	if ((adr.status !== "" && adr.status !== "null") || adr.deciders.length > 0 || adr.date !== "") {
-		if (adr.status !== "" && adr.status !== "null") {
-			md = md.concat("\n* Status: " + adr.status.trim());
-		}
-		if (adr.deciders.length > 0) {
-			md = md.concat("\n* Deciders: " + adr.deciders);
-		}
-		if (adr.date !== "") {
-			md = md.concat("\n* Date: " + adr.date);
-		}
-		md = md.concat("\n");
-	}
-
-	if (adr.technicalStory !== "") {
-		md = md.concat("\nTechnical Story: " + adr.technicalStory + "\n");
 	}
 
 	if (adr.contextAndProblemStatement !== "") {
@@ -295,26 +473,40 @@ export function adr2md(adrToParse) {
 		md = md.concat('"\n');
 	}
 
-	if (adr.decisionOutcome.positiveConsequences.length > 0) {
-		md = md.concat("\n### Positive Consequences\n\n");
-		md = adr.decisionOutcome.positiveConsequences.reduce((total, con) => total + "* " + con + "\n", md);
-	}
-	if (adr.decisionOutcome.negativeConsequences.length > 0) {
-		md = md.concat("\n### Negative Consequences\n\n");
-		md = adr.decisionOutcome.negativeConsequences.reduce((total, con) => total + "* " + con + "\n", md);
+	// MADR 4.0: unified Consequences section (Good then Bad bullets in one list)
+	if (adr.decisionOutcome.consequences.good.length > 0 || adr.decisionOutcome.consequences.bad.length > 0) {
+		md = md.concat("\n### Consequences\n\n");
+		md = adr.decisionOutcome.consequences.good.reduce(
+			(total, c) => total + "* Good, because " + c + "\n",
+			md
+		);
+		md = adr.decisionOutcome.consequences.bad.reduce(
+			(total, c) => total + "* Bad, because " + c + "\n",
+			md
+		);
 	}
 
-	if (adr.consideredOptions.some((opt) => opt.description !== "" || opt.pros.length > 0 || opt.cons.length > 0)) {
+	// MADR 4.0: Confirmation — H3 under Decision Outcome
+	if (adr.decisionOutcome.confirmation !== "") {
+		md = md.concat("\n### Confirmation\n\n" + adr.decisionOutcome.confirmation + "\n");
+	}
+
+	if (
+		adr.consideredOptions.some(
+			(opt) => opt.description !== "" || opt.pros.length > 0 || opt.neutral.length > 0 || opt.cons.length > 0
+		)
+	) {
 		md = md.concat("\n## Pros and Cons of the Options\n");
 		md = adr.consideredOptions.reduce((total, opt) => {
-			if (opt.description !== "" || opt.pros.length > 0 || opt.cons.length > 0) {
+			if (opt.description !== "" || opt.pros.length > 0 || opt.neutral.length > 0 || opt.cons.length > 0) {
 				let res = total.concat("\n### " + createShortTitle(opt.title) + "\n");
 				if (opt.description !== "") {
 					res = res.concat("\n" + opt.description + "\n");
 				}
-				res = opt.pros.reduce((total, arg) => total.concat("\n* Good, because " + arg), res);
-				res = opt.cons.reduce((total, arg) => total.concat("\n* Bad, because " + arg), res);
-				if (opt.pros.length > 0 || opt.cons.length > 0) {
+				res = opt.pros.reduce((t, arg) => t.concat("\n* Good, because " + arg), res);
+				res = opt.neutral.reduce((t, arg) => t.concat("\n* Neutral, because " + arg), res);
+				res = opt.cons.reduce((t, arg) => t.concat("\n* Bad, because " + arg), res);
+				if (opt.pros.length > 0 || opt.neutral.length > 0 || opt.cons.length > 0) {
 					// insert final new line
 					res = res + "\n";
 				}
@@ -324,15 +516,17 @@ export function adr2md(adrToParse) {
 			}
 		}, md);
 	}
-	if (adr.links.length > 0) {
-		md = md.concat("\n## Links\n\n");
-		md = adr.links.reduce((total, link) => total + "* " + link + "\n", md);
+
+	// MADR 4.0: More Information — top-level H2 at the end (replaces 2.x Links section)
+	if (adr.moreInformation !== "") {
+		md = md.concat("\n## More Information\n\n" + adr.moreInformation + "\n");
 	}
+
 	return md;
 }
 
 /**
- * Converts an string in snake case into an natural-language-like string.
+ * Converts a string in snake case into a natural-language-like string.
  *
  * Example: '0001-add-status-field' is converted to '0001 Add Status Field'
  *
@@ -343,13 +537,13 @@ export function snakeCase2naturalCase(snake) {
 }
 
 /**
- * Converts an string in natural case into an snake case string.
+ * Converts a string in natural case into a snake case string.
  *
  * Can be used to generate a file name from the title of an ADR.
  *
- * Example: 'Add status Field' is converted to 'add-status-field'
+ * Example: 'Add Status Field' is converted to 'add-status-field'
  *
- * @param {string} snake
+ * @param {string} natural
  */
 export function naturalCase2snakeCase(natural) {
 	return natural.toLowerCase().split(" ").join("-");

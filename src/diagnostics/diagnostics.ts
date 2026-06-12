@@ -15,6 +15,12 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 		consideredOptions: -1,
 		decisionOutcome: -1,
 	};
+	// indices of optional MADR 4.0 sections — only emit empty-section warnings if present
+	let indicesOfOptionalFields = {
+		consequences: -1,
+		confirmation: -1,
+		moreInformation: -1,
+	};
 
 	const rawText = doc.getText();
 	const textLines = rawText.split(/\r\n|\n/);
@@ -40,6 +46,17 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 			indicesOfRequiredFields.decisionOutcome = i;
 		}
 
+		// check MADR 4.0 optional sections
+		if (indicesOfOptionalFields.consequences === -1 && /^### Consequences/i.test(textLines[i])) {
+			indicesOfOptionalFields.consequences = i;
+		}
+		if (indicesOfOptionalFields.confirmation === -1 && /^### Confirmation/i.test(textLines[i])) {
+			indicesOfOptionalFields.confirmation = i;
+		}
+		if (indicesOfOptionalFields.moreInformation === -1 && /^## More Information/i.test(textLines[i])) {
+			indicesOfOptionalFields.moreInformation = i;
+		}
+
 		// check header lines
 		if (textLines[i].startsWith("#", 0)) {
 			diagnostics.push(...getHeaderDiagnostics(textLines[i], i));
@@ -47,23 +64,88 @@ export async function getDiagnostics(doc: vscode.TextDocument): Promise<vscode.D
 
 		// check if chosen option exists in considered options
 		if (/^Chosen option:/i.test(textLines[i])) {
-			if (
-				consideredOptions.findIndex((option) => {
-					return (
-						createShortTitle(option.trim().replace(/"/g, "'")) ===
-						createShortTitle(getChosenOptionFromLine(textLines[i]).trim().replace(/"/g, "'"))
-					);
-				}) === -1
-			) {
-				diagnostics.push(getInvalidChosenOptionDiagnostic(textLines[i], i));
+			const chosen = createShortTitle(getChosenOptionFromLine(textLines[i]).trim().replace(/"/g, "'"));
+			const isListed = consideredOptions.some(
+				(option) => createShortTitle(option.trim().replace(/"/g, "'")) === chosen
+			);
+			if (!isListed) {
+				const line = textLines[i];
+				const firstQuote = line.indexOf('"', 0);
+				const secondQuote = line.indexOf('"', firstQuote + 1);
+				diagnostics.push(allDiagnostics.chosenOption.notInConsideredOptions(i, 0, i, secondQuote + 1));
 			}
 		}
 	}
 
 	// add diagnostics regarding required fields
 	diagnostics.push(...getRequiredFieldsDiagnostics(indicesOfRequiredFields, textLines));
+	// add empty-section diagnostics for MADR 4.0 optional sections
+	diagnostics.push(...getOptionalFieldsDiagnostics(indicesOfOptionalFields, textLines));
+	// add MADR 4.0 bullet-format diagnostics for Consequences and Pros/Cons sections
+	diagnostics.push(...getBulletFormatDiagnostics(textLines));
 
 	return diagnostics;
+}
+
+/**
+ * Walks the document tracking section context (Consequences vs. Pros/Cons option subsection)
+ * and emits MADR 4.0 diagnostics for bullets that don't follow the required Good/Bad/Neutral
+ * prefix format.
+ *
+ * Consequences bullets must start with 'Good, because ' or 'Bad, because '.
+ * Option-argument bullets (under '## Pros and Cons of the Options' > '### {option}') must
+ * additionally allow 'Neutral, because '.
+ */
+function getBulletFormatDiagnostics(lines: string[]): vscode.Diagnostic[] {
+	const bulletDiagnostics = new Array<vscode.Diagnostic>();
+	let inConsequences = false;
+	let inProsAndCons = false;
+	let inProsAndConsOption = false;
+
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		const trimmed = line.trim();
+
+		// Section transitions — any new heading resets sub-state
+		if (/^#\s/.test(line)) {
+			inConsequences = false;
+			inProsAndCons = false;
+			inProsAndConsOption = false;
+		} else if (/^##\s/.test(line)) {
+			inConsequences = false;
+			inProsAndConsOption = false;
+			inProsAndCons = /^##\s+Pros and Cons of the Options/i.test(line);
+		} else if (/^###\s/.test(line)) {
+			if (/^###\s+Consequences/i.test(line)) {
+				inConsequences = true;
+				inProsAndConsOption = false;
+			} else {
+				inConsequences = false;
+				inProsAndConsOption = inProsAndCons;
+			}
+		}
+
+		// Bullet checks — only enforce top-level bullets (col 0) inside Consequences or option-argument lists.
+		// Using `line` (not `trimmed`) ensures indented/nested bullets are not incorrectly flagged.
+		if (/^[*\-+]\s/.test(line)) {
+			const bulletText = line.replace(/^[*\-+]\s+/, "");
+			if (inConsequences) {
+				if (!/^(Good|Bad), because /.test(bulletText)) {
+					bulletDiagnostics.push(
+						allDiagnostics.consequences.malformedBullet(i, 0, i, line.length)
+					);
+				}
+			} else if (inProsAndConsOption) {
+				if (!/^(Good|Neutral|Bad), because /.test(bulletText)) {
+					bulletDiagnostics.push(
+						allDiagnostics.optionArgument.malformedBullet(i, 0, i, line.length)
+					);
+				}
+			}
+		}
+	}
+
+	return bulletDiagnostics;
 }
 
 /**
@@ -118,6 +200,10 @@ function getRequiredFieldsDiagnostics(
 			// also check if a section is the last section of the ADR (i.e., there is no (sub)header line after it)
 			const headerIndex = getIndexOfFirstHeaderLine(lines.slice(value + 1));
 			const indexOfNextHeaderLine = value + (headerIndex !== -1 ? headerIndex : lines.length - 1) + 1;
+			// Clamp so we never reference a line past the end of the document, and never
+			// produce a zero-width range on a blank trailing line.
+			const endLine = Math.min(indexOfNextHeaderLine, lines.length - 1);
+			const endChar = Math.max(lines[endLine].length, 1);
 
 			// if section is empty
 			if (
@@ -132,8 +218,8 @@ function getRequiredFieldsDiagnostics(
 						allDiagnostics[diagnosticKey].empty(
 							value + 1,
 							0,
-							indexOfNextHeaderLine,
-							lines[indexOfNextHeaderLine - 1].length
+							endLine,
+							endChar
 						)
 					);
 				}
@@ -145,19 +231,46 @@ function getRequiredFieldsDiagnostics(
 }
 
 /**
- * Returns a diagnostic stating that the chosen option is not listed in the list of considered options
- * @param line The line containing the chosen option
+ * Returns an array of empty-section diagnostics for optional MADR 4.0 sections.
+ * Only emits .empty() — unlike required fields, missing optional sections are not flagged.
+ * @param indices Line numbers of optional sections, -1 if absent
+ * @param lines String array of the document's text lines
  */
-function getInvalidChosenOptionDiagnostic(line: string, lineNumber: number): vscode.Diagnostic {
-	const indexOfFirstQuote = line.indexOf('"', 0);
-	const indexOfSecondQuote = line.indexOf('"', indexOfFirstQuote + 1);
-	return {
-		severity: vscode.DiagnosticSeverity.Error,
-		message: "Chosen option is not in the list of considered options.",
-		code: "madr-chosen-option-not-in-considered-options",
-		source: "ADR Manager",
-		range: new vscode.Range(lineNumber, 0, lineNumber, indexOfSecondQuote + 1),
-	};
+function getOptionalFieldsDiagnostics(
+	indices: {
+		consequences: number;
+		confirmation: number;
+		moreInformation: number;
+	},
+	lines: string[]
+): vscode.Diagnostic[] {
+	const optionalFieldsDiagnostics = new Array<vscode.Diagnostic>();
+
+	Object.entries(indices).forEach(([key, value]) => {
+		if (value !== -1) {
+			const headerIndex = getIndexOfFirstHeaderLine(lines.slice(value + 1));
+			const indexOfNextHeaderLine = value + (headerIndex !== -1 ? headerIndex : lines.length - 1) + 1;
+			// Clamp so we never reference a line past the end of the document, and never
+			// produce a zero-width range on a blank trailing line.
+			const endLine = Math.min(indexOfNextHeaderLine, lines.length - 1);
+			const endChar = Math.max(lines[endLine].length, 1);
+
+			const sectionBody = lines.slice(value + 1, indexOfNextHeaderLine).join("\n").replace(/\s/g, "");
+			if (!sectionBody) {
+				const diagnosticKey = key as keyof typeof indices;
+				optionalFieldsDiagnostics.push(
+					allDiagnostics[diagnosticKey].empty(
+						value + 1,
+						0,
+						endLine,
+						endChar
+					)
+				);
+			}
+		}
+	});
+
+	return optionalFieldsDiagnostics;
 }
 
 /**
@@ -187,7 +300,7 @@ async function extractListItems(fileUri: vscode.Uri, heading: string): Promise<s
 	const matches = [...text.matchAll(regex)];
 
 	// Clean matches
-	const result = matches.reduce((acc, curr) => {
+	const result = matches.reduce<string[]>((acc, curr) => {
 		// remove zero-width character
 		const [title, item] = curr.slice(1);
 		// check for correct heading

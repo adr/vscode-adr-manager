@@ -37,6 +37,8 @@
 			@validate="validate('explanation')"
 			:key="dataFetched"
 		></TemplateDecisionOutcomeBasicSection>
+		<hr />
+		<TemplateTCAnnotationSection :tc="tc" :key="dataFetched" />
 	</div>
 </template>
 
@@ -50,6 +52,7 @@
 	import TemplateContextAndProblemStatementSection from "./TemplateContextAndProblemStatementSection.vue";
 	import TemplateConsideredOptionsBasicSection from "./TemplateConsideredOptionsBasicSection.vue";
 	import TemplateDecisionOutcomeBasicSection from "./TemplateDecisionOutcomeBasicSection.vue";
+	import TemplateTCAnnotationSection from "./TemplateTCAnnotationSection.vue";
 
 	export default defineComponent({
 		name: "MadrTemplateBasic",
@@ -58,6 +61,7 @@
 			TemplateContextAndProblemStatementSection,
 			TemplateConsideredOptionsBasicSection,
 			TemplateDecisionOutcomeBasicSection,
+			TemplateTCAnnotationSection,
 		},
 		mixins: [vscode, adrData],
 		mounted() {
