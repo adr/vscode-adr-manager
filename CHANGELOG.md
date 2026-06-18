@@ -1,5 +1,15 @@
 # Changelog
 
+* 0.2.0 - MADR 4.0 migration and Technical Credit annotation support
+  * Migrated parser and data model from MADR 2.1.2 to MADR 4.0 (updated grammar, YAML frontmatter for status/date/decision-makers, unified Consequences section, More Information section replacing Links)
+  * Added TC annotation data model: `TcAnnotation` interface with 6 fields stored as `tc-*` YAML frontmatter keys
+  * Added `parseTcFromYaml` and `serializeTcToYaml` for automatic TC field read/write on every parse and save
+  * Added mode-aware serialisation: pro-only fields (`tc-status`, `tc-related`) only written in professional mode
+  * Added `tc-schema-version` key for future schema migration support
+  * Added `validateTcAnnotation()` — validates all 6 TC field types with per-field error messages
+  * Added TC annotation form fields in professional editor mode (UI)
+  * Added TC inventory sidebar showing all annotated constructs with confidence indicators
+
 * 0.1.8 - Updated project repository, added introduction repository to extension description
 * 0.1.7 - Fixed bug where option description boxes after the first option were not auto-growing
 * 0.1.6 - Fixed spelling error in UI

@@ -58,6 +58,12 @@
 				"command": "vscode-adr-manager.viewAdrFromContextMenu",
 				"title": "Open ADR Manager on This File",
 				"category": "ADR Manager"
+			},
+			{
+				"command": "vscode-adr-manager.refreshTcDashboard",
+				"title": "Refresh TC Dashboard",
+				"category": "ADR Manager",
+				"icon": "$(refresh)"
 			}
 		],
 		"configuration": {
@@ -132,6 +138,13 @@
 					"when": "resourceLangId == markdown && resourceFilename =~ /^\\d{4}((-|_)[^\\s-_?*:\"<>|\\/]+)+.md$/",
 					"group": "vscode-adr-manager"
 				}
+			],
+			"view/title": [
+				{
+					"command": "vscode-adr-manager.refreshTcDashboard",
+					"when": "view == tcDashboard",
+					"group": "navigation"
+				}
 			]
 		},
 		"snippets": [
@@ -139,7 +152,24 @@
 				"language": "markdown",
 				"path": "./snippets/snippets.json"
 			}
-		]
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "tc-dashboard",
+					"title": "TC Dashboard",
+					"icon": "assets/tc-dashboard.svg"
+				}
+			]
+		},
+		"views": {
+			"tc-dashboard": [
+				{
+					"id": "tcDashboard",
+					"name": "TC Annotations"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
@@ -164,6 +194,7 @@
 		"@rollup/plugin-typescript": "^8.3.3",
 		"@types/glob": "^7.2.0",
 		"@types/jest": "^28.1.4",
+		"@types/js-yaml": "^4.0.9",
 		"@types/lodash": "^4.14.182",
 		"@types/node": "14.x",
 		"@types/vscode": "^1.67.0",
@@ -200,6 +231,7 @@
 		"@vuelidate/core": "^2.0.0-alpha.42",
 		"@vuelidate/validators": "^2.0.0-alpha.30",
 		"antlr4": "^4.10.1",
+		"js-yaml": "^4.1.1",
 		"vue": "^3.2.37",
 		"vue-class-component": "^8.0.0-0",
 		"vue-draggable-next": "^2.1.1"

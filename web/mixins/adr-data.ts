@@ -1,6 +1,7 @@
 //@ts-nocheck
 // Vue mixin which holds all the data used by a MADR template component
 import { createShortTitle } from "../../src/plugins/utils";
+import { TcAnnotation } from "../../src/plugins/tc-types";
 
 export default {
 	data() {
@@ -26,6 +27,18 @@ export default {
 				negativeConsequences: [] as string[],
 			},
 			links: [] as string[],
+			tc: {
+				benefit: "",
+				category: "",
+				conditions: "",
+				signals: {
+					tags: [] as string[],
+					note: "",
+				},
+				confidence: 3,
+				status: "",
+				related: [] as string[],
+			} as Partial<TcAnnotation>,
 			fullPath: "",
 			selectedIndex: -1,
 			valid: {
@@ -65,6 +78,7 @@ export default {
 				negativeConsequences: string[];
 			};
 			links: string[];
+			tc?: Partial<TcAnnotation>;
 			fullPath: string;
 		}) {
 			this.yaml = adr.yaml;
@@ -90,6 +104,20 @@ export default {
 				negativeConsequences: adr.decisionOutcome.negativeConsequences.filter((negative) => negative !== ""),
 			};
 			this.links = adr.links.filter((link) => link !== "");
+			if (adr.tc) {
+				this.tc = {
+					benefit: adr.tc.benefit ?? "",
+					category: adr.tc.category ?? "",
+					conditions: adr.tc.conditions ?? "",
+					signals: {
+						tags: adr.tc.signals?.tags ?? [],
+						note: adr.tc.signals?.note ?? "",
+					},
+					confidence: adr.tc.confidence ?? 3,
+					status: adr.tc.status ?? "",
+					related: adr.tc.related ?? [],
+				};
+			}
 			this.fullPath = adr.fullPath;
 			this.selectOption(
 				this.consideredOptions.findIndex((option) => {
@@ -258,6 +286,7 @@ export default {
 				consideredOptions: this.consideredOptions,
 				decisionOutcome: this.decisionOutcome,
 				links: this.links,
+				tc: this.tc,
 				fullPath: this.fullPath,
 			});
 			if (Object.values(this.valid).every((value) => value)) {
@@ -265,6 +294,17 @@ export default {
 			} else {
 				this.$emit("invalidated");
 			}
+		},
+	},
+	watch: {
+		// TC annotation fields are optional and not part of validation, so changes to them
+		// would not trigger sendInput() via validate(). Watch the object directly so edits
+		// propagate to the view component (and ultimately to storage).
+		tc: {
+			handler() {
+				this.sendInput();
+			},
+			deep: true,
 		},
 	},
 	mounted() {
