@@ -11,6 +11,8 @@
 			v-model:date="date"
 			v-model:status="status"
 			v-model:deciders="deciders"
+			v-model:consulted="consulted"
+			v-model:informed="informed"
 			@validate="validateAll"
 			:key="dataFetched"
 		></TemplateDateStatusDecidersSection>
@@ -58,6 +60,7 @@
 			v-model:explanation="decisionOutcome.explanation"
 			v-model:positiveConsequences="decisionOutcome.positiveConsequences"
 			v-model:negativeConsequences="decisionOutcome.negativeConsequences"
+			v-model:confirmation="decisionOutcome.confirmation"
 			@validate="validate('explanation')"
 			@updateArray="validateAll"
 			:key="dataFetched"
@@ -69,11 +72,12 @@
 			@update:links="validateAll"
 			:key="dataFetched"
 		></TemplateLinksSection>
+		<hr />
+		<TemplateTCAnnotationProfessionalSection :tc="tc" :key="dataFetched" />
 	</div>
 </template>
 
 <script lang="ts">
-	// Mixin defining all methods, variables etc. to hold the data of an ADR
 	import adrData from "../mixins/adr-data";
 
 	import { defineComponent } from "vue";
@@ -86,6 +90,7 @@
 	import TemplateConsideredOptionsProfessionalSection from "./TemplateConsideredOptionsProfessionalSection.vue";
 	import TemplateDecisionOutcomeProfessionalSection from "./TemplateDecisionOutcomeProfessionalSection.vue";
 	import TemplateLinksSection from "./TemplateLinksSection.vue";
+	import TemplateTCAnnotationProfessionalSection from "./TemplateTCAnnotationProfessionalSection.vue";
 
 	export default defineComponent({
 		name: "MadrTemplateProfessional",
@@ -98,6 +103,7 @@
 			TemplateConsideredOptionsProfessionalSection,
 			TemplateDecisionOutcomeProfessionalSection,
 			TemplateLinksSection,
+			TemplateTCAnnotationProfessionalSection,
 		},
 		mixins: [vscode, adrData],
 	});

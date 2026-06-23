@@ -1,6 +1,22 @@
 <template>
 	<div id="view">
-		<div id="professional-view-header">
+		<div id="non-conforming-screen" v-if="!conforming">
+			<button class="secondary" id="back-button" @click="sendMessage('main')">
+				<div id="back-button-content">
+					<i class="codicon codicon-chevron-left"></i> Back to ADR overview
+				</div>
+			</button>
+			<div id="non-conforming-banner">
+				<i class="codicon codicon-warning"></i>
+				<div id="non-conforming-text">
+					<strong>This ADR does not conform to MADR 4.0 and cannot be displayed in the editor.</strong>
+					<span v-if="parseErrors.length">Parse error on line {{ parseErrors[0].line }}: <em>{{ parseErrors[0].message }}</em></span>
+					<span>Open it in the text editor to fix it manually, then return here to edit it.</span>
+				</div>
+				<button id="open-editor-banner-btn" @click="openEditor">Open in Text Editor</button>
+			</div>
+		</div>
+		<div id="professional-view-header" v-if="conforming">
 			<div id="header-buttons">
 				<button id="back-button" class="secondary" @click="sendMessage('main')">
 					<div id="back-button-content">
@@ -16,14 +32,14 @@
 				<h4>Professional</h4>
 			</div>
 		</div>
-		<div id="madr">
+		<div id="madr" v-if="conforming">
 			<MadrTemplateProfessional
 				@sendInput="getInput"
 				@validated="enableButton"
 				@invalidated="disableButton"
 			></MadrTemplateProfessional>
 		</div>
-		<div class="buttonGroup">
+		<div class="buttonGroup" v-if="conforming">
 			<button id="createButton" :disabled="!validated" @click="saveAdr">Save ADR</button>
 		</div>
 	</div>
@@ -63,16 +79,23 @@
 						date: this.date,
 						status: this.status,
 						deciders: this.deciders,
+						consulted: this.consulted,
+						informed: this.informed,
 						technicalStory: this.technicalStory,
 						contextAndProblemStatement: this.contextAndProblemStatement,
 						decisionDrivers: this.decisionDrivers,
 						consideredOptions: this.consideredOptions,
 						decisionOutcome: this.decisionOutcome,
 						links: this.links,
+						tc: this.tc,
 						fullPath: this.fullPath,
 					})
 				);
 			},
+		},
+		mounted() {
+			// Signal to the extension that the webview is ready to receive ADR data
+			this.sendMessage("webviewReady");
 		},
 	});
 </script>
@@ -88,6 +111,62 @@
 		width: 100%;
 		height: 100%;
 		margin: 0;
+	}
+
+	#non-conforming-screen {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+	}
+
+	#non-conforming-banner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		margin: auto;
+		padding: 2rem 2.5rem;
+		max-width: 480px;
+		border: 1.5px solid var(--vscode-editorWarning-foreground);
+		border-radius: 8px;
+		background: var(--vscode-editor-background);
+		text-align: center;
+
+		.codicon {
+			font-size: 2.5rem;
+			color: var(--vscode-editorWarning-foreground);
+		}
+
+		#non-conforming-text {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			color: var(--vscode-foreground);
+			font-size: 0.9rem;
+
+			strong {
+				font-size: 1rem;
+			}
+
+			em {
+				word-break: break-word;
+			}
+		}
+
+		#open-editor-banner-btn {
+			margin-top: 0.5rem;
+			padding: 0.5rem 1.5rem;
+			background: var(--vscode-button-background);
+			color: var(--vscode-button-foreground);
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 0.9rem;
+			&:hover {
+				background: var(--vscode-button-hoverBackground);
+			}
+		}
 	}
 
 	#professional-view-header {

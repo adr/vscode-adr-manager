@@ -25,11 +25,13 @@
 					v-for="(option, index) in consideredOptions"
 					:titleProp="option.title"
 					:prosProp="option.pros"
+					:neutralProp="option.neutral ?? []"
 					:consProp="option.cons"
 					:key="option"
 					v-model:title="option.title"
 					v-model:description="option.description"
 					v-model:pros="option.pros"
+					v-model:neutral="option.neutral"
 					v-model:cons="option.cons"
 					:class="
 						option.title === chosenOption && index === selectedIndex
@@ -44,6 +46,7 @@
 					"
 					@update:description="$emit('validate')"
 					@update:pros="$emit('validate')"
+					@update:neutral="$emit('validate')"
 					@update:cons="$emit('validate')"
 				></OptionContainerProfessional>
 			</draggable>
@@ -81,7 +84,7 @@
 		},
 		props: {
 			consideredOptionsProp: Array as PropType<
-				{ title: string; description: string; pros: string[]; cons: string[] }[]
+				{ title: string; description: string; pros: string[]; neutral: string[]; cons: string[] }[]
 			>,
 			chosenOption: String,
 			selectedIndex: Number,

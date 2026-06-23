@@ -99,7 +99,8 @@
 				relativePath: string;
 				fileName: string;
 			}) {
-				this.sendMessage("requestEdit", { fullPath: adr.fullPath });
+				// Conforming ADRs open in the webview editor
+				this.sendMessage("view", { fullPath: adr.fullPath });
 			},
 			/**
 			 * Sends a message to the extension to initialize the deletion of the specified ADR file.
@@ -123,6 +124,7 @@
 				relativePath: string;
 				fileName: string;
 			}) {
+				// Non-conforming ADRs open in the webview to show the error banner
 				this.sendMessage("view", { fullPath: adr.fullPath });
 			},
 		},

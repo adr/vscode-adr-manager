@@ -1,6 +1,7 @@
 // Functions using the VS Code Extension API
 import * as vscode from "vscode";
 import { ArchitecturalDecisionRecord } from "./plugins/classes";
+import { TcAnnotation } from "./plugins/tc-types";
 import {
 	adrTemplatemarkdownContent,
 	EXTENSION_URI,
@@ -90,15 +91,17 @@ export async function determineViewEditorMode(mdString: string): Promise<string>
 function isProfessionalAdr(adr: ArchitecturalDecisionRecord) {
 	return (
 		adr.status ||
-		adr.deciders ||
 		adr.date ||
-		adr.technicalStory ||
+		adr.decisionMakers.length ||
+		adr.consulted.length ||
+		adr.informed.length ||
 		adr.decisionDrivers.length ||
 		adr.consideredOptions.some((option) => {
-			return option.pros.length || option.cons.length;
+			return option.pros.length || option.neutral.length || option.cons.length;
 		}) ||
-		adr.decisionOutcome.positiveConsequences.length ||
-		adr.decisionOutcome.negativeConsequences.length ||
+		adr.decisionOutcome.consequences.good.length ||
+		adr.decisionOutcome.consequences.bad.length ||
+		adr.moreInformation ||
 		adr.links.length
 	);
 }
@@ -364,10 +367,12 @@ export function createBasicAdr(fields: {
 		title: string;
 		description: string;
 		pros: string[];
+		neutral: string[];
 		cons: string[];
 	}[];
 	chosenOption: string;
 	explanation: string;
+	tc?: TcAnnotation;
 }) {
 	const adrFields = {
 		yaml: fields.yaml,
@@ -377,14 +382,15 @@ export function createBasicAdr(fields: {
 		decisionOutcome: {
 			chosenOption: fields.chosenOption,
 			explanation: fields.explanation,
-			positiveConsequences: [],
-			negativeConsequences: [],
+			consequences: { good: [] as string[], bad: [] as string[] },
+			confirmation: "",
 		},
+		tc: fields.tc,
 	};
 	const newAdr = getAdrObjectFromFields(adrFields);
 
 	// Convert ADR object to Markdown and save it in the ADR Directory
-	const newMD = adr2md(newAdr);
+	const newMD = adr2md(newAdr, 'basic');
 	saveMarkdownToAdrDirectory(newMD, newAdr.title);
 }
 
@@ -398,27 +404,32 @@ export function createProfessionalAdr(fields: {
 	title: string;
 	date: string;
 	status: string;
-	deciders: string;
-	technicalStory: string;
+	decisionMakers: string[];
+	consulted: string[];
+	informed: string[];
 	contextAndProblemStatement: string;
+	decisionDrivers?: string[];
 	consideredOptions: {
 		title: string;
 		description: string;
 		pros: string[];
+		neutral: string[];
 		cons: string[];
 	}[];
 	decisionOutcome: {
 		chosenOption: string;
 		explanation: string;
-		positiveConsequences: string[];
-		negativeConsequences: string[];
+		consequences: { good: string[]; bad: string[] };
+		confirmation: string;
 	};
+	moreInformation: string;
 	links: string[];
+	tc?: TcAnnotation;
 }) {
 	const newAdr = getAdrObjectFromFields(fields);
 
 	// Convert ADR object to Markdown and save it in the ADR Directory
-	const newMD = adr2md(newAdr);
+	const newMD = adr2md(newAdr, 'professional');
 	saveMarkdownToAdrDirectory(newMD, newAdr.title);
 }
 
@@ -431,23 +442,27 @@ export async function saveAdr(fields: {
 	title?: string;
 	date?: string;
 	status?: string;
-	deciders?: string;
-	technicalStory?: string;
+	decisionMakers?: string[];
+	consulted?: string[];
+	informed?: string[];
 	contextAndProblemStatement?: string;
 	decisionDrivers?: string[];
 	consideredOptions?: {
 		title: string;
 		description: string;
 		pros: string[];
+		neutral: string[];
 		cons: string[];
 	}[];
 	decisionOutcome?: {
 		chosenOption: string;
 		explanation: string;
-		positiveConsequences: string[];
-		negativeConsequences: string[];
+		consequences: { good: string[]; bad: string[] };
+		confirmation: string;
 	};
+	moreInformation?: string;
 	links?: string[];
+	tc?: TcAnnotation;
 	fullPath: string;
 }): Promise<vscode.Uri | undefined> {
 	// Update, convert ADR object to Markdown and save
@@ -459,17 +474,20 @@ export async function saveAdr(fields: {
 			title: fields.title,
 			date: fields.date,
 			status: fields.status,
-			deciders: fields.deciders,
-			technicalStory: fields.technicalStory,
+			decisionMakers: fields.decisionMakers,
+			consulted: fields.consulted,
+			informed: fields.informed,
 			contextAndProblemStatement: fields.contextAndProblemStatement,
 			decisionDrivers: fields.decisionDrivers,
 			consideredOptions: fields.consideredOptions,
 			decisionOutcome: fields.decisionOutcome,
+			moreInformation: fields.moreInformation,
 			links: fields.links,
+			tc: fields.tc,
 		});
 		const newUri = getRenamedUri(fileUri, adr.title);
 		await vscode.workspace.fs.rename(fileUri, newUri);
-		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(adr2md(adr)));
+		await vscode.workspace.fs.writeFile(newUri, new TextEncoder().encode(adr2md(adr, 'professional')));
 		return newUri;
 	} else {
 		vscode.window.showWarningMessage("ADR could not be found in the workspace.");
@@ -486,23 +504,27 @@ export function getAdrObjectFromFields(fields: {
 	title: string;
 	date?: string;
 	status?: string;
-	deciders?: string;
-	technicalStory?: string;
+	decisionMakers?: string[];
+	consulted?: string[];
+	informed?: string[];
 	contextAndProblemStatement: string;
 	decisionDrivers?: string[];
 	consideredOptions: {
 		title: string;
 		description: string;
 		pros: string[];
+		neutral: string[];
 		cons: string[];
 	}[];
 	decisionOutcome: {
 		chosenOption: string;
 		explanation: string;
-		positiveConsequences?: string[];
-		negativeConsequences?: string[];
+		consequences?: { good: string[]; bad: string[] };
+		confirmation?: string;
 	};
+	moreInformation?: string;
 	links?: string[];
+	tc?: TcAnnotation;
 }): ArchitecturalDecisionRecord {
 	// Create ADR object
 	const newAdr = new ArchitecturalDecisionRecord({
@@ -510,18 +532,21 @@ export function getAdrObjectFromFields(fields: {
 		title: fields.title,
 		date: fields.date ?? "",
 		status: fields.status ?? "",
-		deciders: fields.deciders ?? "",
-		technicalStory: fields.technicalStory ?? "",
+		decisionMakers: fields.decisionMakers ?? [],
+		consulted: fields.consulted ?? [],
+		informed: fields.informed ?? [],
 		contextAndProblemStatement: fields.contextAndProblemStatement,
 		decisionDrivers: fields.decisionDrivers || [],
 		consideredOptions: fields.consideredOptions,
 		decisionOutcome: {
 			chosenOption: fields.decisionOutcome.chosenOption,
 			explanation: fields.decisionOutcome.explanation,
-			positiveConsequences: fields.decisionOutcome.positiveConsequences || [],
-			negativeConsequences: fields.decisionOutcome.negativeConsequences || [],
+			consequences: fields.decisionOutcome.consequences ?? { good: [] as string[], bad: [] as string[] },
+			confirmation: fields.decisionOutcome.confirmation ?? "",
 		},
+		moreInformation: fields.moreInformation ?? "",
 		links: fields.links || [],
+		tc: fields.tc,
 	});
 
 	newAdr.cleanUp();

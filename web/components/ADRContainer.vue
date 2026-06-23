@@ -8,8 +8,8 @@
 				</h5>
 			</div>
 			<div class="button-group">
-				<button id="view" v-if="adr.adr.conforming" @click="$emit('requestView')">View</button>
-				<button id="edit" v-else @click="$emit('requestEdit')">Edit</button>
+				<button id="edit" v-if="adr.adr.conforming" @click="$emit('requestEdit')">Edit</button>
+				<button id="view" v-else @click="$emit('requestView')">View</button>
 				<button id="delete" @click="$emit('requestDelete')">Delete</button>
 			</div>
 		</div>

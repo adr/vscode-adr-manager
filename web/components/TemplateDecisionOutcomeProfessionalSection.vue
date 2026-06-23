@@ -113,6 +113,17 @@
 				</draggable>
 			</div>
 		</div>
+		<div id="confirmation-container">
+			<TemplateHeader :infoText="'How will you confirm this decision was implemented correctly? E.g. a design review, an ArchUnit test, a fitness function.'">
+				<h3>Confirmation</h3>
+			</TemplateHeader>
+			<textarea
+				id="confirmation-input"
+				spellcheck="true"
+				v-model="decisionOutcome.confirmation"
+				@input="$emit('update:confirmation', $event.target.value); $emit('updateArray')"
+			/>
+		</div>
 	</div>
 </template>
 
@@ -142,12 +153,14 @@
 					explanation: string;
 					positiveConsequences: string[];
 					negativeConsequences: string[];
+					confirmation: string;
 				}>,
 				default: {
 					chosenOption: "",
 					explanation: "",
 					positiveConsequences: [] as string[],
 					negativeConsequences: [] as string[],
+					confirmation: "",
 				},
 			},
 		},

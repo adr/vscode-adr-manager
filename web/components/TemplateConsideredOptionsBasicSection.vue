@@ -18,7 +18,7 @@
 				class="drag-area"
 				:list="consideredOptions"
 				:sort="true"
-				handle="#grabber"
+				handle=".grabber"
 				@update="$emit('checkSelection', $event)"
 			>
 				<OptionContainerBasic

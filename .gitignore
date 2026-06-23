@@ -11,3 +11,7 @@ Thumbs.db
 
 # VS Code Extension File
 *.vsix
+
+# ANTLR-generated tooling metadata (regenerable, not used at runtime)
+src/plugins/parser/*.interp
+src/plugins/parser/*.tokens

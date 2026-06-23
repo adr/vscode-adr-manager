@@ -55,6 +55,34 @@
 					</div>
 				</draggable>
 			</div>
+			<div id="neutral-container" @click.self="$emit('selectOption')">
+				<h4 @click="$emit('selectOption')"><strong>Neutral, because...</strong></h4>
+				<draggable
+					class="drag-area"
+					:list="neutral"
+					:sort="true"
+					handle=".neutral-grabber"
+					@update="
+						updateHeight('neutral');
+						checkMove('neutral', $event);
+					"
+				>
+					<div v-for="(n, index) in neutralWithBlank" :key="index" id="neutrals" ref="neutrals">
+						<i class="codicon codicon-grabber neutral-grabber" v-if="neutral[index] !== ''"></i>
+						<textarea
+							class="auto-grow-neutral"
+							spellcheck="true"
+							v-model="neutral[index]"
+							@input="updateArray('neutral', $event.target.value, index, 'neutral')"
+						/>
+						<i
+							class="codicon codicon-close multi-input-delete-icon"
+							v-if="neutral[index] !== ''"
+							@click="updateArray('neutral', '', index, 'neutral')"
+						></i>
+					</div>
+				</draggable>
+			</div>
 			<div id="cons-container" @click.self="$emit('selectOption')">
 				<h4 @click="$emit('selectOption')"><strong>Bad, because...</strong></h4>
 				<draggable
@@ -91,6 +119,7 @@
 				isExpanded = !isExpanded;
 				updateHeight('description');
 				updateHeight('pros');
+				updateHeight('neutral');
 				updateHeight('cons');
 			"
 		></i>
@@ -123,6 +152,10 @@
 				type: Array as PropType<string[]>,
 				default: [],
 			},
+			neutralProp: {
+				type: Array as PropType<string[]>,
+				default: [],
+			},
 			consProp: {
 				type: Array as PropType<string[]>,
 				default: [],
@@ -134,6 +167,7 @@
 				isExpanded: false,
 				isHovered: false,
 				pros: this.prosProp,
+				neutral: this.neutralProp,
 				cons: this.consProp,
 			};
 		},
@@ -145,6 +179,11 @@
 				const prosWithBlank = this.pros;
 				prosWithBlank.push("");
 				return prosWithBlank;
+			},
+			neutralWithBlank() {
+				const neutralWithBlank = this.neutral;
+				neutralWithBlank.push("");
+				return neutralWithBlank;
 			},
 			consWithBlank() {
 				const consWithBlank = this.cons;
@@ -164,6 +203,12 @@
 						this.pros.splice(evt.newIndex, 1);
 						this.pros = this.pros.filter((pro) => pro !== "");
 					}
+				} else if (array === "neutral") {
+					if (this.neutral[evt.newIndex - 1] === "") {
+						this.neutral[evt.newIndex - 1] = this.neutral[evt.newIndex];
+						this.neutral.splice(evt.newIndex, 1);
+						this.neutral = this.neutral.filter((n) => n !== "");
+					}
 				} else if (array === "cons") {
 					if (this.cons[evt.newIndex - 1] === "") {
 						this.cons[evt.newIndex - 1] = this.cons[evt.newIndex];
@@ -180,6 +225,10 @@
 					this.pros.splice(index, 1, text);
 					this.pros = this.pros.filter((pro) => pro !== "");
 					this.$emit("update:pros", this.pros);
+				} else if (array === "neutral") {
+					this.neutral.splice(index, 1, text);
+					this.neutral = this.neutral.filter((n) => n !== "");
+					this.$emit("update:neutral", this.neutral);
 				} else if (array === "cons") {
 					this.cons.splice(index, 1, text);
 					this.cons = this.cons.filter((con) => con !== "");
@@ -210,6 +259,16 @@
 							pros.forEach((pros) => {
 								pros.style.height = "auto";
 								pros.style.height = `${pros.scrollHeight}px`;
+							});
+						});
+						break;
+					}
+					case "neutral": {
+						this.$nextTick(() => {
+							const neutrals = document.querySelectorAll(".auto-grow-neutral") as NodeListOf<HTMLElement>;
+							neutrals.forEach((n) => {
+								n.style.height = "auto";
+								n.style.height = `${n.scrollHeight}px`;
 							});
 						});
 						break;

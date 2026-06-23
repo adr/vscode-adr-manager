@@ -2,8 +2,6 @@
 	<div
 		id="option-box"
 		@click.self="$emit('selectOption')"
-		@mouseenter="isHovered = true"
-		@mouseleave="isHovered = false"
 	>
 		<div id="edit-icon-container" @click="$emit('editOption')">
 			<i class="codicon codicon-edit"></i>
@@ -16,7 +14,7 @@
 				<b>{{ shortTitle }}</b>
 			</h3>
 		</div>
-		<i id="grabber" class="codicon codicon-grabber" :class="isHovered ? 'visible' : 'invisible'"></i>
+		<i class="grabber codicon codicon-grabber"></i>
 	</div>
 </template>
 
@@ -33,9 +31,7 @@
 			},
 		},
 		data() {
-			return {
-				isHovered: false,
-			};
+			return {};
 		},
 		computed: {
 			shortTitle() {
@@ -125,11 +121,13 @@
 		background: var(--vscode-editor-background);
 	}
 
-	#grabber {
+	.grabber {
 		position: absolute;
 		bottom: 0.2rem;
 		right: 45%;
 		transform: scale(1.2);
+		opacity: 0;
+		transition: opacity 0.15s;
 
 		&:hover {
 			cursor: grab;
@@ -140,11 +138,7 @@
 		}
 	}
 
-	.visible {
-		display: unset;
-	}
-
-	.invisible {
-		display: none !important;
+	#option-box:hover .grabber {
+		opacity: 1;
 	}
 </style>

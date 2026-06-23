@@ -28,6 +28,7 @@ export class WebPanel {
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;
 	private _disposables: vscode.Disposable[] = [];
+	private _pendingAdrMessage: object | undefined;
 
 	/**
 	 * Creates or shows a panel that displays a webview with the specified view using a string key.
@@ -90,9 +91,18 @@ export class WebPanel {
 						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView");
 						return;
 					}
+					case "webviewReady": {
+						// Webview has mounted — send any pending ADR data now
+						if (this._pendingAdrMessage) {
+							this._panel.webview.postMessage(this._pendingAdrMessage);
+							this._pendingAdrMessage = undefined;
+						}
+						return;
+					}
 					case "view": {
 						const fileUri = vscode.Uri.file(e.data.fullPath);
 						await this.viewAdr(fileUri);
+						return;
 					}
 					case "fetchAdrs": {
 						this.fetchAdrs();
@@ -150,15 +160,20 @@ export class WebPanel {
 					}
 					case "createBasicAdr": {
 						createBasicAdr(JSON.parse(e.data));
+						// Refresh dashboard after create so new ADR appears immediately
+						vscode.commands.executeCommand("vscode-adr-manager.refreshTcDashboard");
 						return;
 					}
 					case "createProfessionalAdr": {
 						createProfessionalAdr(JSON.parse(e.data));
+						vscode.commands.executeCommand("vscode-adr-manager.refreshTcDashboard");
 						return;
 					}
 					case "saveAdr": {
 						const uri = await saveAdr(JSON.parse(e.data).adr);
 						if (uri) {
+							// Refresh dashboard after save so TC annotation changes appear immediately
+							vscode.commands.executeCommand("vscode-adr-manager.refreshTcDashboard");
 							this._panel.webview.postMessage({
 								command: "saveSuccessful",
 								newPath: uri.path,
@@ -175,33 +190,28 @@ export class WebPanel {
 						return;
 					}
 					case "switchAddViewBasicToProfessional": {
+						// Store data before switching so webviewReady delivers it after the new page mounts
+						this._pendingAdrMessage = { command: "fetchAdrValues", adr: e.data };
 						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-professional");
-						// restore data from before the switch
-						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
 					case "switchAddViewProfessionalToBasic": {
+						this._pendingAdrMessage = { command: "fetchAdrValues", adr: e.data };
 						vscode.commands.executeCommand("vscode-adr-manager.openAddAdrWebView", "add-basic");
-						// restore data from before the switch
-						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
 					case "switchViewingViewBasicToProfessional": {
-						// mdString argument not needed since the editor mode is specified
+						this._pendingAdrMessage = { command: "fetchAdrValues", adr: e.data };
 						vscode.commands.executeCommand(
 							"vscode-adr-manager.openViewAdrWebView",
 							"",
 							"view-professional"
 						);
-						// restore data from before the switch
-						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
 					case "switchViewingViewProfessionalToBasic": {
-						// mdString argument not needed since the editor mode is specified
+						this._pendingAdrMessage = { command: "fetchAdrValues", adr: e.data };
 						vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", "", "view-basic");
-						// restore data from before the switch
-						this._panel.webview.postMessage({ command: "fetchAdrValues", adr: e.data });
 						return;
 					}
 					case "updateFileStatus": {
@@ -224,31 +234,52 @@ export class WebPanel {
 	 */
 	async viewAdr(fileUri: vscode.Uri) {
 		const mdString = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
-
 		const adr = md2adr(mdString);
-		await vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString);
 
-		const adrNumber = await getAdrNumberFromUri(fileUri);
-		// "view-basic" or "view-professional" as page argument doesn't matter here
-		this._updatePanelTitle("view-basic", adrNumber);
-
-		this._panel.webview.postMessage({
+		// Build the message BEFORE loading the webview so that if webviewReady arrives
+		// immediately after the HTML is set, _pendingAdrMessage is already populated.
+		//
+		// The webview components use the legacy MADR 2.x field names internally, so we map
+		// the MADR 4.0 data model fields to those names here at the boundary.
+		// technicalStory is stored in moreInformation for round-trip compatibility.
+		this._pendingAdrMessage = {
 			command: "fetchAdrValues",
 			adr: JSON.stringify({
 				yaml: adr.yaml,
 				title: adr.title,
 				date: adr.date,
 				status: adr.status,
-				deciders: adr.deciders,
-				technicalStory: adr.technicalStory,
+				// MADR 4.0 → webview legacy mapping
+				deciders: adr.decisionMakers?.join(", ") ?? "",
+				consulted: adr.consulted?.join(", ") ?? "",
+				informed: adr.informed?.join(", ") ?? "",
+				technicalStory: adr.moreInformation ?? "",
 				contextAndProblemStatement: adr.contextAndProblemStatement,
 				decisionDrivers: adr.decisionDrivers,
-				consideredOptions: adr.consideredOptions,
-				decisionOutcome: adr.decisionOutcome,
+				consideredOptions: adr.consideredOptions.map((o) => ({
+					...o,
+					pros: o.pros ?? [],
+					cons: o.cons ?? [],
+				})),
+				decisionOutcome: {
+					chosenOption: adr.decisionOutcome.chosenOption,
+					explanation: adr.decisionOutcome.explanation,
+					positiveConsequences: adr.decisionOutcome.consequences?.good ?? [],
+					negativeConsequences: adr.decisionOutcome.consequences?.bad ?? [],
+					confirmation: adr.decisionOutcome.confirmation ?? "",
+				},
 				links: adr.links,
+				tc: adr.tc,
 				fullPath: fileUri.path,
+				conforming: adr.conforming,
+				parseErrors: adr.parseErrors,
 			}),
-		});
+		};
+
+		await vscode.commands.executeCommand("vscode-adr-manager.openViewAdrWebView", mdString);
+
+		const adrNumber = await getAdrNumberFromUri(fileUri);
+		this._updatePanelTitle("view-basic", adrNumber);
 	}
 
 	/**
@@ -329,9 +360,10 @@ export class WebPanel {
 		// URI to load styles into webview
 		const STYLE_WEB_URI = webview.asWebviewUri(STYLE_URI);
 
-		// Codicons web URI
+		// Codicons web URI — loaded from assets/ so it works in packaged release
+		// (node_modules is excluded from .vsix when using --no-dependencies)
 		const CODICONS_WEB_URI = webview.asWebviewUri(
-			vscode.Uri.joinPath(this._extensionUri, "node_modules", "@vscode/codicons", "dist", "codicon.css")
+			vscode.Uri.joinPath(this._extensionUri, "assets", "codicon.css")
 		);
 
 		// Use a NONCE to only allow specific scripts to be run

@@ -32,11 +32,24 @@
 		margin: 0 1rem 1rem 2rem;
 	}
 
+	#add-option-container {
+		cursor: pointer;
+		&:hover #add-option-icon {
+			background: #1a8a1a;
+		}
+	}
+
 	#add-option-icon {
 		background: green;
-		border-radius: 5px;
-		padding: 2px;
-		margin-right: 0.5rem;
+		border-radius: 6px;
+		padding: 6px;
+		margin-right: 0.6rem;
 		color: white;
+		font-size: 1.4rem;
+	}
+
+	h4 {
+		font-size: 1rem;
+		margin: 0;
 	}
 </style>

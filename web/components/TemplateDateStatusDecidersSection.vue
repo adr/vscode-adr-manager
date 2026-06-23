@@ -20,7 +20,7 @@
 			</div>
 		</div>
 		<div class="input">
-			<p>Status:</p>
+			<p>ADR Status:</p>
 			<select
 				name="status"
 				id="status"
@@ -64,6 +64,46 @@
 				<i class="codicon codicon-info"></i>
 			</div>
 		</div>
+		<div class="input">
+			<p>Consulted:</p>
+			<input
+				type="text"
+				id="consulted"
+				spellcheck="true"
+				:value="consulted"
+				@input="
+					$emit('update:consulted', $event.target.value);
+					$emit('validate');
+				"
+			/>
+			<div id="icon" class="tooltip">
+				<div class="bottom">
+					<p>Everyone whose opinions are sought (SMEs); two-way communication. Separated by commas.</p>
+					<i></i>
+				</div>
+				<i class="codicon codicon-info"></i>
+			</div>
+		</div>
+		<div class="input">
+			<p>Informed:</p>
+			<input
+				type="text"
+				id="informed"
+				spellcheck="true"
+				:value="informed"
+				@input="
+					$emit('update:informed', $event.target.value);
+					$emit('validate');
+				"
+			/>
+			<div id="icon" class="tooltip">
+				<div class="bottom">
+					<p>Everyone kept up-to-date on progress; one-way communication. Separated by commas.</p>
+					<i></i>
+				</div>
+				<i class="codicon codicon-info"></i>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -76,6 +116,8 @@
 			date: String,
 			status: String,
 			deciders: String,
+			consulted: String,
+			informed: String,
 		},
 	});
 </script>

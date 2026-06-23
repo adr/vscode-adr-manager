@@ -1,6 +1,7 @@
 //@ts-nocheck
 // Vue mixin which holds all the data used by a MADR template component
 import { createShortTitle } from "../../src/plugins/utils";
+import { TcAnnotation } from "../../src/plugins/tc-types";
 
 export default {
 	data() {
@@ -10,6 +11,8 @@ export default {
 			date: "",
 			status: "",
 			deciders: "",
+			consulted: "",
+			informed: "",
 			technicalStory: "",
 			contextAndProblemStatement: "",
 			decisionDrivers: [] as string[],
@@ -17,6 +20,7 @@ export default {
 				title: string;
 				description: string;
 				pros: string[];
+				neutral: string[];
 				cons: string[];
 			}[],
 			decisionOutcome: {
@@ -24,8 +28,21 @@ export default {
 				explanation: "",
 				positiveConsequences: [] as string[],
 				negativeConsequences: [] as string[],
+				confirmation: "",
 			},
 			links: [] as string[],
+			tc: {
+				benefit: "",
+				category: "",
+				conditions: "",
+				signals: {
+					tags: [] as string[],
+					note: "",
+				},
+				confidence: 3,
+				status: "",
+				related: [] as string[],
+			} as Partial<TcAnnotation>,
 			fullPath: "",
 			selectedIndex: -1,
 			valid: {
@@ -65,31 +82,50 @@ export default {
 				negativeConsequences: string[];
 			};
 			links: string[];
+			tc?: Partial<TcAnnotation>;
 			fullPath: string;
 		}) {
 			this.yaml = adr.yaml;
 			this.title = adr.title;
 			this.date = adr.date;
 			this.status = adr.status;
-			this.deciders = adr.deciders;
-			this.technicalStory = adr.technicalStory;
+			this.deciders = adr.deciders ?? "";
+			this.consulted = adr.consulted ?? "";
+			this.informed = adr.informed ?? "";
+			this.technicalStory = adr.technicalStory ?? "";
 			this.contextAndProblemStatement = adr.contextAndProblemStatement;
-			this.decisionDrivers = adr.decisionDrivers.filter((driver) => driver !== "");
-			this.consideredOptions = adr.consideredOptions.map((option) => {
+			this.decisionDrivers = (adr.decisionDrivers ?? []).filter((driver) => driver !== "");
+			this.consideredOptions = (adr.consideredOptions ?? []).map((option) => {
 				return {
 					title: option.title,
 					description: option.description,
-					pros: option.pros.filter((pro) => pro !== ""),
-					cons: option.cons.filter((con) => con !== ""),
+					pros: (option.pros ?? []).filter((pro) => pro !== ""),
+					neutral: (option.neutral ?? []).filter((n) => n !== ""),
+					cons: (option.cons ?? []).filter((con) => con !== ""),
 				};
 			});
 			this.decisionOutcome = {
 				chosenOption: adr.decisionOutcome.chosenOption,
 				explanation: adr.decisionOutcome.explanation,
-				positiveConsequences: adr.decisionOutcome.positiveConsequences.filter((positive) => positive !== ""),
-				negativeConsequences: adr.decisionOutcome.negativeConsequences.filter((negative) => negative !== ""),
+				positiveConsequences: (adr.decisionOutcome.positiveConsequences ?? []).filter((positive) => positive !== ""),
+				negativeConsequences: (adr.decisionOutcome.negativeConsequences ?? []).filter((negative) => negative !== ""),
+				confirmation: adr.decisionOutcome.confirmation ?? "",
 			};
-			this.links = adr.links.filter((link) => link !== "");
+			this.links = (adr.links ?? []).filter((link) => link !== "");
+			if (adr.tc) {
+				this.tc = {
+					benefit: adr.tc.benefit ?? "",
+					category: adr.tc.category ?? "",
+					conditions: adr.tc.conditions ?? "",
+					signals: {
+						tags: adr.tc.signals?.tags ?? [],
+						note: adr.tc.signals?.note ?? "",
+					},
+					confidence: adr.tc.confidence ?? 3,
+					status: adr.tc.status ?? "",
+					related: adr.tc.related ?? [],
+				};
+			}
 			this.fullPath = adr.fullPath;
 			this.selectOption(
 				this.consideredOptions.findIndex((option) => {
@@ -252,12 +288,15 @@ export default {
 				date: this.date,
 				status: this.status,
 				deciders: this.deciders,
+				consulted: this.consulted,
+				informed: this.informed,
 				technicalStory: this.technicalStory,
 				contextAndProblemStatement: this.contextAndProblemStatement,
 				decisionDrivers: this.decisionDrivers,
 				consideredOptions: this.consideredOptions,
 				decisionOutcome: this.decisionOutcome,
 				links: this.links,
+				tc: this.tc,
 				fullPath: this.fullPath,
 			});
 			if (Object.values(this.valid).every((value) => value)) {
@@ -267,13 +306,24 @@ export default {
 			}
 		},
 	},
+	watch: {
+		// TC annotation fields are optional and not part of validation, so changes to them
+		// would not trigger sendInput() via validate(). Watch the object directly so edits
+		// propagate to the view component (and ultimately to storage).
+		tc: {
+			handler() {
+				this.sendInput();
+			},
+			deep: true,
+		},
+	},
 	mounted() {
 		// add listeners to receive data from extension
 		window.addEventListener("message", (event) => {
 			const message = event.data;
 			switch (message.command) {
 				case "addOption": {
-					this.consideredOptions.push({ title: message.option, description: "", pros: [], cons: [] });
+					this.consideredOptions.push({ title: message.option, description: "", pros: [], neutral: [], cons: [] });
 					if (this.consideredOptions.length === 1) {
 						this.selectOption(0);
 					}

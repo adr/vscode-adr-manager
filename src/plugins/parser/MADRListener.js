@@ -1,4 +1,4 @@
-// Generated from /Users/stevenchen/Desktop/Studium/Uni Stuttgart/Übungen/Uni Stuttgart/SS22/Bachelorarbeit/Repo/vscode-adr-manager/src/plugins/parser/MADR.g4 by ANTLR 4.9.2
+// Generated from MADR.g4 by ANTLR 4.9.2
 // jshint ignore: start
 import antlr4 from 'antlr4';
 
@@ -29,42 +29,6 @@ export default class MADRListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by MADRParser#title.
 	exitTitle(ctx) {
-	}
-
-
-	// Enter a parse tree produced by MADRParser#status.
-	enterStatus(ctx) {
-	}
-
-	// Exit a parse tree produced by MADRParser#status.
-	exitStatus(ctx) {
-	}
-
-
-	// Enter a parse tree produced by MADRParser#deciders.
-	enterDeciders(ctx) {
-	}
-
-	// Exit a parse tree produced by MADRParser#deciders.
-	exitDeciders(ctx) {
-	}
-
-
-	// Enter a parse tree produced by MADRParser#date.
-	enterDate(ctx) {
-	}
-
-	// Exit a parse tree produced by MADRParser#date.
-	exitDate(ctx) {
-	}
-
-
-	// Enter a parse tree produced by MADRParser#technicalStory.
-	enterTechnicalStory(ctx) {
-	}
-
-	// Exit a parse tree produced by MADRParser#technicalStory.
-	exitTechnicalStory(ctx) {
 	}
 
 
@@ -131,21 +95,21 @@ export default class MADRListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by MADRParser#positiveConsequences.
-	enterPositiveConsequences(ctx) {
+	// Enter a parse tree produced by MADRParser#consequences.
+	enterConsequences(ctx) {
 	}
 
-	// Exit a parse tree produced by MADRParser#positiveConsequences.
-	exitPositiveConsequences(ctx) {
+	// Exit a parse tree produced by MADRParser#consequences.
+	exitConsequences(ctx) {
 	}
 
 
-	// Enter a parse tree produced by MADRParser#negativeConsequences.
-	enterNegativeConsequences(ctx) {
+	// Enter a parse tree produced by MADRParser#confirmation.
+	enterConfirmation(ctx) {
 	}
 
-	// Exit a parse tree produced by MADRParser#negativeConsequences.
-	exitNegativeConsequences(ctx) {
+	// Exit a parse tree produced by MADRParser#confirmation.
+	exitConfirmation(ctx) {
 	}
 
 
@@ -167,30 +131,21 @@ export default class MADRListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by MADRParser#prolist.
-	enterProlist(ctx) {
+	// Enter a parse tree produced by MADRParser#argumentList.
+	enterArgumentList(ctx) {
 	}
 
-	// Exit a parse tree produced by MADRParser#prolist.
-	exitProlist(ctx) {
-	}
-
-
-	// Enter a parse tree produced by MADRParser#conlist.
-	enterConlist(ctx) {
-	}
-
-	// Exit a parse tree produced by MADRParser#conlist.
-	exitConlist(ctx) {
+	// Exit a parse tree produced by MADRParser#argumentList.
+	exitArgumentList(ctx) {
 	}
 
 
-	// Enter a parse tree produced by MADRParser#links.
-	enterLinks(ctx) {
+	// Enter a parse tree produced by MADRParser#moreInformation.
+	enterMoreInformation(ctx) {
 	}
 
-	// Exit a parse tree produced by MADRParser#links.
-	exitLinks(ctx) {
+	// Exit a parse tree produced by MADRParser#moreInformation.
+	exitMoreInformation(ctx) {
 	}
 
 
