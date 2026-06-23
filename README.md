@@ -14,15 +14,89 @@ Most teams write ADRs and forget them. TC-ADR Manager makes them actionable:
 
 TC annotations live in the YAML frontmatter of each ADR, version-controlled alongside your code, readable without tooling, and ignorable by tools that don't understand them.
 
-> Built on the original [ADR Manager](https://github.com/adr/adr-manager) by Steven Chen (University of Stuttgart), extended with MADR 4.0 and Technical Credit support as part of the Technical Credit summer school research programme in Sydney by Northeastern students(Tali, Cesca, Owen, Maddy, Sukira) there.
+> Built on the original [ADR Manager](https://github.com/adr/adr-manager) by Steven Chen (University of Stuttgart), extended with MADR 4.0 and Technical Credit support as part of the Technical Credit summer school research programme in Sydney by Northeastern students (Tali, Cesca, Owen, Maddy, Sukira).
+
+---
+
+## Project Context
+
+### Why are we doing this?
+
+Architectural decisions are routinely made but rarely documented. Existing ADR tooling (such as the web-based [ADR Manager](https://github.com/adr/adr-manager)) lives outside the developer's primary workspace, creating friction that discourages adoption. This extension brings ADR authoring directly into the IDE — where developers already work — to make decision documentation a natural part of the development workflow.
+
+The Track B (storage) stream adds a further dimension: **Technical Credit annotations**. Just as Technical Debt tracks the cost of shortcuts, Technical Credit captures deliberate quality investments. TC metadata is stored in YAML frontmatter alongside the ADR and surfaced in a dedicated dashboard.
+
+### What are we starting from?
+
+This extension is based on the existing [ADR Manager](https://github.com/adr/adr-manager) web application (University of Stuttgart). It reuses the MADR parser, core ADR data model, and lessons from a prior usability evaluation, then migrates everything to MADR 4.0 and adds IDE-native editing via the VS Code Extension API.
+
+### Research Questions
+
+1. Does embedding ADR management inside VS Code reduce friction compared to the web-based ADR Manager?
+2. What MADR 4.0 editing features matter most to developers in an IDE context?
+3. Can Technical Credit annotations be integrated into the MADR workflow — stored in YAML frontmatter — without disrupting the standard ADR authoring experience?
+
+---
+
+## Installation
+
+### Prerequisites
+
+- [Visual Studio Code](https://code.visualstudio.com/) v1.67.0 or later
+- [Node.js](https://nodejs.org/) (LTS) and npm
+
+### Run from source (development)
+
+```bash
+git clone https://github.com/OwenSweetman/SummerSchool_MADR.git
+cd SummerSchool_MADR
+npm install
+npm run compile        # builds extension (webpack) + webview (rollup)
+```
+
+Then in VS Code:
+1. Open the cloned folder
+2. Press **F5** to launch the Extension Development Host
+3. In the new window, open a project folder containing (or create) a `docs/decisions/` directory
+4. Run **ADR Manager: Open ADR Manager** via `Ctrl+Shift+P`
+
+### Install the packaged `.vsix`
+
+```bash
+code --install-extension tc-adr-manager-<version>.vsix
+```
+
+Or in VS Code: **Extensions → ··· → Install from VSIX…**
+
+---
+
+## Testing
+
+```bash
+npm test              # Jest unit suite (82 tests)
+npm run lint          # ESLint on src/
+```
+
+Tests cover the MADR parser, TC annotation serialisation/deserialisation, YAML frontmatter round-trips, and ADR validation logic. All 82 tests must pass before merging to `main`.
+
+To generate a coverage report:
+
+```bash
+npx jest --coverage
+```
+
+---
 
 # Index
 
-1. [Workspace Concept](#workspace-concept)
+1. [Project Context](#project-context)
+2. [Installation](#installation)
+3. [Testing](#testing)
+4. [Workspace Concept](#workspace-concept)
     1. [Single-root Workspace](#single-root-workspace)
     2. [Multi-root Workspace](#multi-root-workspace)
     3. [Special Case: Single-root Workspace with only Subfolders](#special-case-single-root-workspace-with-only-subfolders)
-2. [Features](#features)
+5. [Features](#features)
     1. [Commands](#commands)
     2. [TC Annotations](#tc-annotations)
     3. [TC Dashboard](#tc-dashboard)
@@ -30,7 +104,7 @@ TC annotations live in the YAML frontmatter of each ADR, version-controlled alon
     5. [Linting](#linting)
     6. [Snippets](#snippets)
     7. [Settings](#settings)
-3. [Known Issues](#known-issues)
+6. [Known Issues](#known-issues)
 
 ## Workspace Concept
 
