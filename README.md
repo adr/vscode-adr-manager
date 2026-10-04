@@ -4,7 +4,7 @@ Visual Studio Code (VS Code) extension based on the [ADR Manager](https://github
 
 A quick introduction to all the features of this extension is available [here](https://github.com/adr/vscode-adr-manager-introduction).
 
-This VS Code extension is part of a Bachelor Thesis written at the University of Stuttgart by Steven Chen.
+This VS Code extension was part of a Bachelor Thesis written at the University of Stuttgart by Steven Chen. It has since been handed over to the ADR organization on GitHub for maintenance.
 
 # Index
 1. [Workspace Concept](#workspace-concept)
